@@ -6,8 +6,7 @@ LifeDots is for keeping track of your life events with time and locations simply
 
 Currently you can record your current event by touching on an icon that you create, attach notes and pictures, browse your history, analize past history with statistics, and see your geo locations.
 
-<img src="./Images/start.jpg" width="238" /> 
-<img src="./Images/main.jpg" width="238" /> 
+<img src="./Images/start.jpg" width="238" /> <img src="./Images/main.jpg" width="238" /> 
 <img src="./Images/history.jpg" width="238" />  
 <img src="./Images/note.jpg" width="238" />  
 <img src="./Images/notes.jpg" width="238" />
