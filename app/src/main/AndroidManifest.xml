@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ LifeDots
+  ~
+  ~ Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
+  ~ Copyright (C) 2017-2018 Raphael Mack http://www.raphael-mack.de
+  ~ Copyright (C) 2018 Bc. Ondrej Janitor
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.mdiqentw.lifedots"
+    android:versionCode="150"
+    android:versionName="2.0.1">
+
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
+
+    <uses-feature android:name="android.hardware.camera"
+        android:required="false" />
+
+    <!-- for photo storage -->
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"-->
+<!--        android:required="true" />-->
+
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:required="false" />
+
+    <uses-feature android:name="android.hardware.location.gps"
+        android:required="false"/>
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"
+        android:required="false"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"
+        android:required="false"/>
+    <uses-permission android:name="android.permission.INTERNET"
+        android:required="false"/>
+
+
+    <application
+        android:allowBackup="true"
+        android:label="${AppName}"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:name=".MVApplication"
+        android:largeHeap="true"
+        android:installLocation="auto">
+        <activity android:name="com.mdiqentw.lifedots.ui.main.MainActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:launchMode="singleTop"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.mdiqentw.lifedots.ui.generic.EditActivity"
+            android:label="@string/activity_title_edit_new"
+            android:windowSoftInputMode="stateVisible"
+            />
+        <activity android:name="com.mdiqentw.lifedots.ui.generic.ManageActivity"
+            android:label="@string/activity_title_manage_activities" />
+        <activity android:name="com.mdiqentw.lifedots.ui.history.HistoryDetailActivity"
+            android:label="@string/activity_title_history_detail"
+            android:windowSoftInputMode="adjustPan"
+            />
+        <activity android:name="com.mdiqentw.lifedots.ui.history.HistoryActivity"
+            android:label="@string/activity_title_history"
+            android:launchMode="singleTop"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+                <action android:name=".action.SEARCH_ACTIVITY" />
+                <action android:name=".action.SEARCH_NOTE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
+        </activity>
+        <activity android:name="com.mdiqentw.lifedots.ui.generic.AboutActivity"
+            android:label="@string/activity_title_about" />
+        <activity android:name="com.mdiqentw.lifedots.ui.generic.PrivacyPolicyActivity"
+            android:label="@string/activity_title_privacy_policy" />
+        <activity android:name="com.mdiqentw.lifedots.ui.settings.SettingsActivity"
+            android:label="@string/activity_title_settings"/>
+        <activity android:name="com.mdiqentw.lifedots.ui.history.MapActivity"
+            android:label="@string/activity_title_map" />
+        <activity android:name="com.mdiqentw.lifedots.ui.history.AnalyticsActivity"
+            android:label="@string/activity_title_stats" />
+        <provider
+            android:name="com.mdiqentw.lifedots.db.LDContentProvider"
+            android:authorities="${applicationId}.provider"
+            android:multiprocess="false"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            android:label="ActivityDiaryProvider"
+            android:icon="@mipmap/ic_launcher"
+            android:readPermission="${applicationId}.READ"
+            android:writePermission="${applicationId}.WRITE"
+            />
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <service
+            android:name="com.mdiqentw.lifedots.helpers.RefreshService"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
+    </application>
+</manifest>

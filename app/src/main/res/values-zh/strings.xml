@@ -1,0 +1,336 @@
+<!--
+  ~ LifeDots
+  ~
+  ~ Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
+  ~ Copyright (C) 2017-2018 Raphael Mack http://www.raphael-mack.de
+  ~ Copyright (C) 2018 Bc. Ondrej Janitor
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+
+<resources>
+    <string name="about_text_version">版本 <b>%1$s</b></string>
+    <string name="about_text_intro">只需輕觸屏幕，即可跟踪您的生活事件的時間和地點。 輕鬆為任何事件添加詳細註釋。 用各種方式分析你過去的事件。</string>
+    <string name="about_text_licence_h">许可</string>
+    <string name="about_text_licence">%1$s是免费软件：您可以根据&lt;a href="https://www.gnu.org/licenses/gpl-3.0.en.html"&gt; GNU常规条款重新分发和/或修改它公共许可证&lt;/a&gt;</string>
+    <string name="about_text_license_2">分发该程序的目的是希望它会有用，但不作任何担保；甚至没有对适销性或特定用途适用性的暗示保证。有关更多详细信息，请参见GNU通用公共许可证。</string>
+    <string name="about_text_privacy_h">隐私政策</string>
+    <string name="about_text_privacy">%1$s及其作者对尊重您的隐私深感兴趣。该应用程序的本质是跟踪和存储您的活动以及在何处以及如何进行活动。但是，这是您掌握的数据，未经您的明确请求，该应用不会将其传输给任何服务器或外部方。</string>
+    <string name="about_text_contact_h">联系</string>
+    <string name="about_text_contact">有关错误和建议，请使用&lt;a href="https://github.com/XilinJia/LifeDots/issues"&gt;问题跟踪器&lt;/a&gt;，最好使用英语。</string>
+    <string name="about_text_contact_2">可以在&lt;a href="https://github.com/XilinJia/LifeDots"&gt; Github &lt;/a&gt;上找到源代码。</string>
+    <string name="about_text_support_h">支持</string>
+    <string name="about_text_support">如果您想支持%1$s的开发，请考虑讨论&lt;a href="https://github.com/XilinJia/LifeDots/issues"&gt; github上的问题&lt;/a&gt;，并在&lt;a href =“ https://crowdin.com/project/activitydiary"&gt;crowdin &lt;/a&gt;或在&lt;a href="https://liberapay.com/LifeDots/"&gt; Liberapay &lt;/a&gt;上的捐赠。</string>
+    <string name="about_text_cont_h">贡献者</string>
+    <string name="about_text_cont_2">我们也希望在此列表中提及您的名字。</string>
+    <string name="about_text_lib_h">图书馆</string>
+    <string name="about_text_lib">此应用程序使用以下库，并根据指定的许可证进行许可：</string>
+
+    <string name="perm_write_external_storage_xplain">存储照片需要获得许可……</string>
+
+    <string name="unsupported_on_api_level">您的Android版本不支持此功能。要求的最低API级别为 %1$d。</string>
+    
+    <string name="nav_current">當前事件</string>
+    <string name="nav_history">歷史</string>
+    <string name="nav_stats">分析</string>
+    <string name="nav_map">地圖</string>
+    <string name="nav_add_activity">添加事件</string>
+    <string name="nav_show_deleted">显示已删除</string>
+    <string name="nav_hide_deleted">隐藏已删除</string>
+    <string name="nav_activity_manager">编辑事件</string>
+
+    <string name="nav_settings">设置</string>
+    <string name="nav_about">关于</string>
+
+    <string name="desc_activity_color">活动色</string>
+    <string name="desc_activity_hint">活动标题</string>
+    <string name="desc_activity_select">选择当前活动…</string>
+
+
+    <string name="activity_image_description">活动图片</string>
+    <string name="contentDesc_logo">活动日记徽标</string>
+    <string name="drawer_open">打开导航</string>
+    <string name="drawer_close">关闭导航</string>
+
+    
+    <string name="notif_channel_current_activity_name">当前活动</string>
+    <string name="notif_channel_current_activity_desc">显示您当前正在进行的活动的通知</string>
+
+    
+    <string name="setting_view_category">查看</string>
+    <string name="setting_behavior_category">操作</string>
+    <string name="setting_location_category">地点</string>
+    <string name="setting_images_category">图像</string>
+    <string name="setting_backup_category">备份</string>
+    <string name="setting_condition_category">排序</string>
+
+    <string name="setting_datetime_format">日期格式</string>
+    <string name="setting_datetime_format_summary">@string/default_datetime_format</string>
+    <string name="setting_datetime_format_description">活动开始的日期和时间的显示格式。常用格式为 yyyy-MM-dd HH:mm or dd.MM. hh:mm</string>
+
+    <string name="setting_duration_format">持续时间格式</string>
+    <string name="setting_duration_format_summary_dynamic">根据持续时间动态调整格式。</string>
+    <string name="setting_duration_format_summary_precise">始终以秒分辨率显示持续时间。</string>
+    <string name="setting_duration_format_summary_nodays">以秒为单位显示持续时间，但请勿将24小时替换为1天。</string>
+    <string name="setting_duration_format_summary_hour_min">始终以小时和分钟显示持续时间。</string>
+    <string name="setting_duration_format_description">持续时间的显示格式。</string>
+
+    <string name="setting_auto_select_new">选择新活动</string>
+    <string name="setting_auto_select_new_summary_active">直接选择新创建的活动作为新活动</string>
+    <string name="setting_auto_select_new_summary_inactive">创建新的活动不会影响当前活动</string>
+
+    <string name="setting_show_cur_activitiy_notification">当前活动通知</string>
+    <string name="setting_show_cur_activitiy_notification_summary_active">当前活动显示为通知</string>
+    <string name="setting_show_cur_activitiy_notification_summary_inactive">不显示当前活动的通知</string>
+
+    <string name="setting_silent_renotification">静默通知</string>
+    <string name="setting_silent_reconfication_summary_active">通知文本更改无警报</string>
+    <string name="setting_silent_reconfication_summary_inactive">每次更改通知文本时都会发出积极的警报（已配置声音和振动）</string>
+
+    <string name="setting_disable_on_click">通过点击终止活动</string>
+    <string name="setting_disable_on_click_summary_active">单击活动标签可以终止当前活动</string>
+    <string name="setting_disable_on_click_summary_inactive">当前活动只能通过选择一个新活动来终止</string>
+
+    <string name="setting_enable_acra">崩溃报告</string>
+    <string name="setting_acra_enabled">发送崩溃报告</string>
+    <string name="setting_acra_disabled">不要发送崩溃报告</string>
+
+    <string name="setting_use_location">定位服务</string>
+    <string name="setting_use_location_summary">%1$s 用于跟踪设备位置</string>
+    <string name="setting_use_location_off_summary">根本未跟踪用户位置</string>
+    <string name="perm_location_xplain">已配置的用于跟踪您的位置的选项需要获得访问设备位置的权限...</string>
+
+    <string name="setting_storage_folder">图片存储文件夹</string>
+    <string name="setting_storage_folder_summary">将活动照片存储在目录%1$s中</string>
+    <string name="setting_storage_folder_description">存储活动照片的目录</string>
+    <string name="default_storage_folder">LifeDots</string>
+
+    <string name="setting_tag_images">元数据</string>
+    <string name="setting_tag_yes">将当前活动写入新图像的EXIF标签UserComment中</string>
+    <string name="setting_tag_no">不改变新图像的EXIF标签</string>
+
+    
+    <string name="pref_cond_off">关</string>
+    <string name="setting_cond_alpha">按字母顺序排序</string>
+    <string name="setting_cond_alpha_summary">按字母顺序排序的建议下一项活动的权重为%1$s</string>
+    <string name="setting_cond_alpha_not_used_summary">字母排序不用于建议下一步活动</string>
+
+    <string name="setting_cond_predecessor">记忆序列</string>
+    <string name="setting_cond_predecessor_summary">日记中的记忆序列在建议的下一个活动中的权重为%1$s</string>
+    <string name="setting_cond_predecessor_not_used_summary">日记中的记忆序列不用于建议下一步活动</string>
+
+    <string name="setting_cond_paused">纪念品中断</string>
+    <string name="setting_cond_paused_summary">刚刚停止的活动在建议的下一个活动中的权重为%1$s</string>
+    <string name="setting_cond_paused_not_used_summary">刚刚停止的活动不用于建议下一个活动</string>
+
+    <string name="setting_cond_occurrence">发生频率</string>
+    <string name="setting_cond_occurrence_summary">日记中的备忘录频率在建议的下一个活动中的权重为%1$s</string>
+    <string name="setting_cond_occurrence_not_used_summary">日记中的记忆频率不用于建议接下来的活动</string>
+
+    <string name="setting_cond_recency">近期频率</string>
+    <string name="setting_cond_recency_summary">日记中的近期备忘录频率在建议的下一个活动中的权重为%1$s</string>
+    <string name="setting_cond_recency_not_used_summary">日记中的近期记忆频率不用于建议接下来的活动</string>
+
+    <string name="setting_cond_daytime">白天</string>
+    <string name="setting_cond_daytime_summary">日记中建议的下一个活动在白天的活动权重为%1$s</string>
+    <string name="setting_cond_daytime_not_used_summary">日记中活动的白天不用于建议下次活动</string>
+
+    <string name="pref_location_age">每%1$s分钟请求一次位置更新</string>
+    <string name="setting_location_age">更新期</string>
+    <string name="pref_location_dist">每%1$s米请求一次位置更新</string>
+    <string name="setting_location_dist">更新距离</string>
+
+    <string name="setting_expert">专家设定</string>
+    <string name="setting_export">导出数据库</string>
+    <string name="setting_import">导入数据库</string>
+    <string name="setting_export_summary">将当前数据库的副本存储在文件中以进行备份</string>
+    <string name="setting_import_summary">将备份文件还原到当前数据库</string>
+    <string name="db_export_error">无法将数据库导出到%1$s</string>
+    <string name="db_export_success">将数据库导出到%1$s</string>
+    <string name="db_export_name_suggestion">ActivityDiary_Export</string>
+    <string name="db_export_selection">选择要导出的文件</string>
+    <string name="db_import_error">导入%1$s失败</string>
+    <string name="db_import_success">已成功导入%1$s</string>
+    <string name="db_import_selection">选择要导入的文件</string>
+
+    
+    <string name="activity_title_edit">编辑</string>
+    <string name="activity_title_edit_new">新活动</string>
+    <string name="activity_title_manage_activities">管理活动</string>
+    <string name="activity_title_history">歷史</string>
+    <string name="activity_title_history_detail">点滴详情</string>
+    <string name="activity_subtitle_main">記錄你的生活瞬間</string>
+    <string name="activity_title_about">关于</string>
+    <string name="activity_title_stats">分析</string>
+    <string name="activity_title_map">地图</string>
+    <string name="activity_title_settings">设置栏</string>
+    <string name="activity_title_no_selected_act">&lt;没有纪录&gt;</string>
+    <string name="dialog_title_note">笔记</string>
+    <string name="activities">活动项目</string>
+
+    <string name="fragment_detail_stats_title">统计</string>
+    <string name="fragment_detail_note_title">笔记</string>
+    <string name="fragment_detail_pictures_title">图片</string>
+
+    
+    <string name="action_delete">删除活动</string>
+    <string name="action_diary_entry_delete">删除条目</string>
+    <string name="action_store">保存</string>
+    <string name="action_filter">过滤</string>
+    <string name="action_undo">联合国开发计划署</string>
+    <string name="search_hint">搜索活动…</string>
+    <string name="search_description">LifeDots中的条目</string>
+
+
+    <string name="dlg_ok">好</string>
+    <string name="dlg_cancel">取消</string>
+
+    <string name="dlg_delete_image_title">确认删除</string>
+    <string name="dlg_delete_image_text">您确定要从当前活动条目中删除该图像吗？</string>
+
+    <string name="dlg_undelete_activity_title">恢复纪念品</string>
+    <string name="dlg_undelete_activity_text">活动%1$s是否可以恢复并再次可用？</string>
+
+
+    <string name="statistics_others">其他</string>
+
+    
+    <string name="duration_description">自%1$s起</string>
+    <string name="just_now">现在</string>
+    <string name="few_seconds">几秒钟</string>
+    <plurals name="seconds_short">
+        <item quantity="one">%d sec</item>
+        <item quantity="other">%d sec</item>
+    </plurals>
+    <plurals name="minutes_short">
+        <item quantity="one">%d min</item>
+        <item quantity="other">%d min</item>
+    </plurals>
+    <plurals name="hours_short">
+        <item quantity="one">%d h</item>
+        <item quantity="other">%d h</item>
+    </plurals>
+    <plurals name="days">
+        <item quantity="one">%d Day</item>
+        <item quantity="other">%d Days</item>
+    </plurals>
+    <string name="avg_duration_description">平均时长：%1$s</string>
+    <string name="last_done_description">上次开始：%1$s</string>
+
+    <string name="camera_error">这里出了点问题。无法存储图像。</string>
+    <string name="no_active_activity_error">要执行此操作，必须首先选择一个活动</string>
+    <string name="contentDesc_pictureEntry">分配给日记条目的图片</string>
+
+
+    
+    <string name="error_name_already_used">名称为%1$s的活动已存在</string>
+    <string name="tooltip_quickfix_btn_edit_existing">拒绝当前编辑并打开具有相同名称的现有活动</string>
+    <string name="error_name_already_used_in_deleted">名称为%1$s的已删除活动已存在</string>
+    <string name="tooltip_quickfix_btn_rename_deleted">重命名具有相同名称的已删除活动以解决冲突</string>
+    <string name="tooltip_quickfix_btn_undelete_existing">取消删除具有相同名称的活动</string>
+    <string name="error_name_similar">新的活动名称类似于%1$s</string>
+    <string name="recover_activity_toast">已恢复活动%1$s。现在可以再次选择。</string>
+    <string name="renamed_deleted_activity_toast">重命名了已删除的活动%1$s。</string>
+    <string name="edit_existing_activity_toast">现在，编辑名称为%1$s的现有活动。</string>
+
+    
+    <string name="default_datetime_format">yyyy.MM.dd HH：mm</string>
+    <string name="date_format">yyyy.MM.dd</string>
+    <string name="time_format">HH:mm</string>
+    <string name="history_start">开始：%1$s</string>
+    <string name="history_end">结束：%1$s (%2$s)</string>
+    <string name="desc_start_date">开始日期</string>
+    <string name="desc_start_time">开始时间</string>
+    <string name="desc_end_date">结束日期</string>
+    <string name="desc_end_time">时间结束</string>
+    <string name="history_detail_start">开始</string>
+    <string name="history_detail_end">结束</string>
+    <string name="adjust_adjacent_times">调整相邻的日记条目</string>
+    <string name="constraint_positive_duration">活动应始终在结束之前开始。</string>
+    <string name="search_notes">在笔记中搜索 \'%1$s\'...</string>
+    <string name="search_diary">全局搜索 \'%1$s\'…</string>
+    <string name="search_date">在日期中搜索 \'%1$s\'…</string>
+    <string name="wrongFormat">请以正确的格式输入日期！</string>
+    
+    <string name="no_map_data_message">没有数据可显示。在设置中启用位置服务。</string>
+
+    
+    <string name="earlier">较早</string>
+    <string name="later">后来</string>
+    <string name="day_format">E，M.dd.yy</string>
+    <string name="week_format">yyyy \'Week\'ww</string>
+    <string name="month_format">MMMM yyyy</string>
+    <string name="year_format">yyyy</string>
+
+    
+    <string name="today">今天</string>
+    <string name="yesterday">昨天</string>
+    <string name="lastWeek">上个星期</string>
+    <string name="full_day">全日</string>
+    <string name="full_week">整周</string>
+    <string name="full_month">整月</string>
+
+    
+    <string name="crash_dialog_text">发生意外错误，迫使应用程序停止。请通过向我们发送错误数据来帮助我们解决此问题，您所要做的就是单击“确定”。</string>
+    <string name="crash_dialog_comment_prompt">您可以在下面添加对问题的评论：</string>
+    <string name="crash_dialog_ok_toast">谢谢。查看其内容后，请发送准备好的电子邮件。</string>
+
+    
+    <string name="privacy_text">Life Dots是一个免费，免费和开源的应用程序，可以跟踪您的活动。本隐私政策适用于此Android应用程序，并描述了LifeDots存储和处理的数据。</string>
+    <string name="privacy_last_update">上次更新时间：2018年12月22日</string>d
+    <string name="privacy_intro_title">介绍</string>
+    <string name="privacy_intro_text1">LifeDots的开发人员，我们（或“我们”或“我们的”）尊重我们用户（“用户”或“您”）的隐私。此应用程序的目的是保留您的活动记录，并收集和存储许多敏感的个人信息。不过，这是您的数据，您可以完全控制它。本隐私政策解释了LifeDots应用程序（“应用程序”）如何收集，使用，披露和保护您的信息。我们的名称可以从git存储库和应用程序中的元数据中提取。</string>
+    <string name="privacy_intro_text2">请仔细阅读本隐私政策。如果您不同意本隐私政策的条款，请不要访问该应用程序并将其从您的设备中删除。</string>
+    <string name="privacy_intro_text3">我们保留随时出于任何原因对本隐私政策进行更改的权利。我们将通过更新本隐私政策的“最后更新”日期来提醒您任何更改。</string>
+    <string name="privacy_intro_text4">我们鼓励您定期查看本隐私政策，以随时了解最新情况。在您发布修改后的隐私权政策之后，如果您继续使用本应用程序，您将被视为已经意识到，受其约束并且将被视为接受了任何修改后的隐私权政策的更改。</string>
+    <string name="privacy_intro_text5">本隐私政策不适用于您从中安装应用程序或进行付款的第三方在线/移动商店，后者也可能收集和使用有关您的数据。我们对任何此类第三方收集的任何数据概不负责。</string>
+    <string name="privacy_what_title">处理和存储哪些数据？</string>
+    <string name="privacy_what_subTitle1">记忆数据</string>
+    <string name="privacy_what_subText1a">输入用于记录活动的数据，包括活动开始和结束的日期和时间，以及格式，注释，图片以及您附加到这些活动的不同活动之间的关系。删除活动或图片等条目不会完全将其从数据库中删除，而只会将其隐藏。</string>
+    <string name="privacy_what_subTitle2">地理位置信息（ACCESS_FINE_LOCATION，GPS）</string>
+    <string name="privacy_what_subText2a">如果已配置，则应用程序将从您的移动设备访问基于位置的信息，以将活动与位置相关联，并根据位置信息提供活动建议。如果您想更改ActivityDiarys的访问权限或权限，则可以在设备的设置中进行更改，或者在应用程序设置中禁用对位置服务的使用。请注意，这不会影响或删除已收集的位置数据。</string>
+    <string name="privacy_what_subTitle3">装置储存空间（WRITE_EXTERNAL_STORAGE）</string>
+    <string name="privacy_what_subText3a">存储和恢复备份，照片和您附加到Life Dots的其他文件，需要访问Android的“外部存储” /SD卡。</string>
+    <string name="privacy_what_subTitle4">相机</string>
+    <string name="privacy_what_subText4a">该应用程序使您可以使用设备的相机拍照，并将其附加到纪念品上。这是相机权限的唯一用法。</string>
+    <string name="privacy_what_subTitle5">网络状态（ACCESS_NETWORK_STATE，ACCESS_WIFI_STATE）</string>
+    <string name="privacy_what_subText5a">存储网络和WIFI状态，以将活动与那些数据相关联，并根据当前状态提议和设置下一个活动。</string>
+    <string name="privacy_what_subTitle6">崩溃报告</string>
+    <string name="privacy_what_subText6a">如果发生程序故障（崩溃），则应用程序会准备一份报告，以帮助我们改善应用程序的行为。该报告包含有关设备和操作系统的大量技术数据，应用程序的完整首选项以及崩溃前立即执行的程序步骤的痕迹。可以识别设备的硬件，包括但不限于屏幕尺寸和分辨率，制造商，语言设置以及操作系统和应用程序的版本。准备好的报告不会自动传输，而是会以新撰写的电子邮件形式共享到您的电子邮件应用程序，您可以根据自己的意愿将其发送给我们或您想要的任何人。您和您的邮件服务提供商有责任使用加密的电子邮件传输在传输过程中保护数据。强烈建议您彻底检查该报告，并删除所有您不了解和/或不想共享的数据。</string>
+    <string name="privacy_what_subText6b">由于使用的媒体是电子邮件，因此您将通过发送崩溃报告来披露您的姓名，电子邮件地址以及其他一些技术数据，例如IP地址和电子邮件服务提供商。除了与您联系以了解崩溃问题之外，我们不会将这些信息用于其他任何事情。</string>
+    <string name="privacy_what_subText6c">不允许您身份识别的匿名报告摘录可用于公共问题跟踪器中，以记录崩溃并跟踪返工。</string>
+    <string name="privacy_what_subText6d">由应用程序编写的此报告的附加内容是，您设备上的操作系统或服务可能会传输崩溃或使用情况报告，但这些报告不是LifeDots的一部分，不在本隐私政策的保护范围内，并且由您自己负责。</string>
+
+    <string name="privacy_why_title">为什么应用程序要存储数据？</string>
+    <string name="privacy_why_text1">该应用程序旨在创建您的活动记录。这可以通过根据您输入的数据或设备收集的数据的评估值手动或自动选择当前活动来实现。您输入到应用程序中的数据将被存储，以供用户稍后恢复。该应用程序可以存储和评估设备中不同传感器的数据，以建议甚至自动选择下一个活动。没有收集，传输或存储其预期功能不需要的数据。</string>
+    <string name="privacy_why_text2">当您使用该应用程序时，您的个人信息会在您的设备上本地存储和评估，并且未经您的明确要求不会传输给任何组织或公司。</string>
+    <string name="privacy_why_text3">可以通过删除应用程序并删除您创建的备份以及设备的备份机制来删除存储的数据。</string>
+    <string name="privacy_how_title">数据如何受到保护？</string>
+    <string name="privacy_how_text1">应用程序将未加密的数据本地存储在执行它的设备上。您有责任保护所存储的数据免遭未经授权的访问。我们强烈建议您使用强密码保护您的设备，甚至加密设备的存储空间。由应用程序本身或任何设备备份机制创建的备份也需要以类似的方式由您保护。</string>
+    <string name="privacy_security_title">您信息的安全性</string>
+    <string name="privacy_security_text">我们使用Android框架提供的机制来保护您的个人信息不受设备上其他应用程序的侵害。尽管我们已采取合理步骤保护您提供给我们的个人信息的安全，但是请注意，尽管我们做出了努力，但没有完美的安全措施或无法渗透的安全措施，也无法保证数据保护的方法不会遭到任何拦截或其他类型的滥用。因此，我们不能保证您提供个人信息的完全安全。</string>
+    <string name="privacy_rights_title">您的权利</string>
+    <string name="privacy_rights_text">您有权随时免费查询我们存储的有关您的哪些数据。您始终可以要求更正或删除个人数据，或者限制对数据的使用。</string>
+    <string name="privacy_contact_title">联系我们</string>
+    <string name="privacy_contact_text">如果您对此隐私政策有任何疑问或意见，请通过以下方式与我们联系：</string>
+    <string name="days">天</string>
+    <string name="photos_taken">拍攝的照片</string>
+    <string name="set_interval">設置間隔</string>
+    <string name="notes">筆記</string>
+    <string name="with_notes">帶註釋</string>
+    <string name="main_page">主頁</string>
+    <string name="about_fork">這項工作的靈感來自一個 fork <a href="https://github.com/ramack/ActivityDiary">Activity Diary of version 1.4.0</a></string>
+
+</resources>

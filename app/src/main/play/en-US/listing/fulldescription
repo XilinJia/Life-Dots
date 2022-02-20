@@ -1,0 +1,9 @@
+Life Dots allows to record a diary for your life moments.
+
+You define your own event types.  When you tap on an event button, it starts to record the event (and ends the previous event).  You can attach notes and pictures to the event.  The diary views provide an overview of what you did and when.  The statistics view shows you how much time (in hours and percentage) you've spent on all events.  Map views shows you where you have been.  All the your personal data stays on your own device.  The app does not send your data or any summary of your data to any place.
+
+LifeDots is free and open-source software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+For legal details see https://www.gnu.org/licenses/.

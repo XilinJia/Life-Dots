@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ LifeDots
+  ~
+  ~ Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
+  ~ Copyright (C) 2017-2018 Raphael Mack http://www.raphael-mack.de
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <string-array name="pref_cond_weight_list_user" translatable="false">
+        <item>@string/pref_cond_off</item>
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>50</item>
+    </string-array>
+
+    <string-array name="pref_cond_weight_list_values" translatable="false">
+        <item>0</item>
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+        <item>30</item>
+        <item>50</item>
+    </string-array>
+
+    <string-array name="pref_location_setting_list" translatable="true">
+        <item>OFF</item>
+        <item>Network</item>
+        <item>GPS (and network)</item>
+    </string-array>
+    <string-array name="pref_location_setting_list_values" translatable="false">
+        <item>off</item>
+        <item>network</item>
+        <item>gps</item>
+    </string-array>
+
+    <string-array name="pref_duration_format_setting_list" translatable="true">
+        <item>Dynamic</item>
+        <item>Precise</item>
+        <item>No days</item>
+        <item>Hours + min</item>
+    </string-array>
+    <string-array name="pref_duration_format_setting_list_values" translatable="false">
+        <item>dynamic</item>
+        <item>precise</item>
+        <item>nodays</item>
+        <item>hour_min</item>
+    </string-array>
+
+    <string-array name="statistic_dropdown" translatable="true">
+        <item>All</item>
+        <item>Last 7 Days</item>
+        <item>Last 30 Days</item>
+        <item>Day</item>
+        <item>Week</item>
+        <item>Month</item>
+        <item>Year</item>
+    </string-array>
+
+</resources>

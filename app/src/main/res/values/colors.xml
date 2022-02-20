@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ LifeDots
+  ~
+  ~ Copyright (C) 2018 Raphael Mack http://www.raphael-mack.de
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<resources>
+    <color name="colorPrimary">#0066ff</color>
+    <color name="colorPrimaryDark">#003dc5</color>
+    <color name="colorWrongText">#ea0000</color>
+    <color name="colorAccent">#ffa000</color>
+    <color name="colorGreyBackground">#e0e0e0</color>
+    <color name="colorGreyCorner">#808080</color>
+    <color name="colorGreySelected">#808080</color>
+    <color name="colorGreyText">#BDBDBD</color>
+    <color name="colorGreyTextSelected">#424242</color>
+    <color name="activityTextColorDark">@color/colorGreyTextSelected</color>
+    <color name="activityTextColorLight">#fefeee</color>
+    <string-array name="activityColorPalette" translatable="false">
+        <item>#d32f2f</item>
+        <item>#c2185b</item>
+        <item>#7b1fa2</item>
+        <item>#512da8</item>
+        <item>#303f9f</item>
+        <item>#1976d2</item>
+        <item>#0288d1</item>
+        <item>#0097a7</item>
+        <item>#00796b</item>
+        <item>#388e3c</item>
+        <item>#afb42b</item>
+        <item>#fbc02d</item>
+        <item>#ffa000</item>
+        <item>#f57c00</item>
+        <item>#e64a19</item>
+        <item>#5d4037</item>
+        <item>#616161</item>
+        <item>#455a64</item>
+    </string-array>
+</resources>

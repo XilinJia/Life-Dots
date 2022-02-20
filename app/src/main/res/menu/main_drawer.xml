@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ LifeDots
+  ~
+  ~ Copyright (C) 2017-2017 Raphael Mack http://www.raphael-mack.de
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
+  -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/nav_group_features"
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_main"
+            android:icon="@drawable/ic_nav_select"
+            android:title="@string/main_page"
+            android:checked="true"/>
+        <item
+            android:id="@+id/nav_diary"
+            android:icon="@drawable/ic_nav_history"
+            android:title="@string/nav_history" />
+        <item
+            android:id="@+id/nav_statistics"
+            android:icon="@drawable/ic_nav_stats"
+            android:title="@string/nav_stats" />
+        <item
+            android:id="@+id/nav_map"
+            android:icon="@drawable/ic_nav_map"
+            android:title="@string/nav_map" />
+        <item
+            android:id="@+id/nav_activity_manager"
+            android:icon="@drawable/ic_activities"
+            android:title="@string/nav_activity_manager" />
+    </group>
+    <group
+        android:id="@+id/nav_group_settings"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_setting"
+            android:title="@string/nav_settings" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_help"
+            android:title="@string/nav_about" />
+        <item
+            android:id="@+id/nav_privacy"
+            android:icon="@drawable/ic_action_privacy"
+            android:title="@string/nav_privacy" />
+    </group>
+</menu>
+
+<!--<item-->
+<!--android:id="@+id/nav_add_activity"-->
+<!--android:icon="@drawable/ic_nav_add_activity"-->
+<!--android:title="@string/nav_add_activity" />-->

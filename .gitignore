@@ -1,0 +1,15 @@
+*.iml
+.gradle
+*.jks
+/signing.properties
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+/.idea/caches
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+ActivityDiarySigning.properties
+gplay-developer-9607db552238.p12
