@@ -1,7 +1,6 @@
 *.iml
 .gradle
 *.jks
-/logo_vita.*
 /signing.properties
 /local.properties
 /.idea/workspace.xml
