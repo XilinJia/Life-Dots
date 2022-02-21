@@ -2,21 +2,15 @@
 ![LifeDots-logotype](./Images/logo.png)
 
 # Functionality
-LifeDots is for keeping track of your life events with time and locations simply with a touch on the screen; easily adding detailed notes to any event; and analyzing your past events with various ways.
+LifeDots is for keeping track of your life events with time and locations; easily adding detailed notes to any event; and analyzing your past events in various ways.
 
-Currently you can record your current event by touching on an icon that you create, attach notes and pictures, browse your history, analize past history with statistics, and see your geo locations.
+Currently you can record your current event by touching on an icon that you create, attach notes and pictures, browse your history, analyze your history with statistics, check the timeline of any event, and see your geo locations.
 
-<img src="./Images/start.jpg" width="238" /> 
-<img src="./Images/main.jpg" width="238" /> 
-<img src="./Images/history.jpg" width="238" />  
-<img src="./Images/note.jpg" width="238" />  
-<img src="./Images/notes.jpg" width="238" />
-<img src="./Images/analytics_menu.jpg" width="238" /> 
-<img src="./Images/analitics_month.jpg" width="238" />
-<img src="./Images/map.jpg" width="238" /> 
-<img src="./Images/timeline.jpg" width="238" />
-<img src="./Images/date_range.jpg" width="238" /> 
-<img src="./Images/edit_color.jpg" width="238" />
+<img src="./Images/start.jpg" width="238" /> <img src="./Images/main.jpg" width="238" /> 
+<img src="./Images/history.jpg" width="238" /> <img src="./Images/note.jpg" width="238" /> <img src="./Images/notes.jpg" width="238" />  
+<img src="./Images/analytics_menu.jpg" width="238" /> <img src="./Images/analitics_month.jpg" width="238" />  
+<img src="./Images/map.jpg" width="238" /> <img src="./Images/timeline.jpg" width="238" />  
+<img src="./Images/date_range.jpg" width="238" /> <img src="./Images/edit_color.jpg" width="238" />
 
 # Getting Started
 LifeDots is designed to be intuitive, but if you have trouble, check out the [Frequently Asked Questions](/FAQ.md) and try the [User Guide](https://github.com/XilinJia/Life-Dots/wiki/How-to-help). In case of further trouble do not hesitate to [create a ticket](https://github.com/XilinJia/Life-Dots/issues/new) and we will try to help you and improve the documentation.

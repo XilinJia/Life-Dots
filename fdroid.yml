@@ -27,12 +27,7 @@ Repo: https://github.com/XilinJia/Life-Dots
 Builds:
   - versionName: 2.0.1
     versionCode: 150
-    commit: 0b6a7c9de506be72070a120dc82d5c4562920e8d
     subdir: app
-    sudo:
-      - apt-get update || apt-get update
-      - apt-get install -y openjdk-11-jdk-headless
-      - update-alternatives --auto java
     gradle:
       - yes
 

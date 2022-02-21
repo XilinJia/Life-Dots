@@ -1,0 +1,3 @@
+ LifeDots is for keeping track of your life events with time and locations; easily adding detailed notes to any event; and analyzing your past events in various ways.
+
+Currently you can record your current event by touching on an icon that you create, attach notes and pictures, browse your history, analyze your history with statistics, check the timeline of any event, and see your geo locations.
