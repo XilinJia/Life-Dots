@@ -16,7 +16,7 @@ Currently you can record your current event by touching on an icon that you crea
 LifeDots is designed to be intuitive, but if you have trouble, check out the [Frequently Asked Questions](/FAQ.md) and try the [User Guide](https://github.com/XilinJia/Life-Dots/wiki/How-to-help). In case of further trouble do not hesitate to [create a ticket](https://github.com/XilinJia/Life-Dots/issues/new) and we will try to help you and improve the documentation.
 
 # Donations
-In case you want to support the project and its developers you can do that on [Liberapay](https://liberapay.com/LifeDots).
+In case you want to support the project and its developers you can do that on [Liberapay](https://liberapay.com/XilinJia).
 
 # License and Copyright
 
@@ -104,8 +104,3 @@ exifinterface, arch-lifecycle, are
 > WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 > See the License for the specific language governing permissions and
 > limitations under the License.
-
-# Images
-
-![LifeDots-logotype](./Images/logo.png)
-
