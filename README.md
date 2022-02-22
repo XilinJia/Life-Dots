@@ -20,7 +20,7 @@ In case you want to support the project and its developers you can do that on [L
 
 # License and Copyright
 
-This work is inspired by and further developed based on a fork of Activity Diary of version 1.4.0 on https://github.com/ramack/ActivityDiary.
+This work is inspired by and further developed based on a fork of Activity Diary of version 1.4.0 by Raphael Mack on https://github.com/ramack/ActivityDiary.
 
 LifeDots is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -77,9 +77,7 @@ By making a contribution to this project, I certify that:
 So to say submission of a pull request is considered as the act of signing this certificate. This is also why each contributor shall setup his/her development environment such that the full name and a valid email address is part of the commit meta data. Modified files shall contain an updated copyright notice to include all authors.
 
 # Status
-LifeDots is usable for the most basic functions and therefore released for public use. The number of available languages is still very limited and it would be great if you could support translating this app. The number of active testers is very small and therefore testing is limited to some trying during development and a bit automated testing. Please contribute code, ideas and issues on https://github.com/XilinJia/Life-Dots
-
-For latest test status on master see [Travis-CI](https://github.com/XilinJia/Life-Dots)
+This App has been tested for over a year with actual usage and is fully functional.  The number of available languages is still very limited and it would be great if you could support translating this app on https://crowdin.com/translate/life-dots.  Please contribute code, ideas and issues on https://github.com/XilinJia/Life-Dots
 
 # Used Libraries and their licenses
 
