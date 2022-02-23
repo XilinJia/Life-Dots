@@ -31,6 +31,7 @@ import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import androidx.preference.PreferenceManager
+import com.mdiqentw.lifedots.BuildConfig
 import com.mdiqentw.lifedots.R
 import com.mdiqentw.lifedots.databinding.ActivityMapBinding
 import com.mdiqentw.lifedots.db.Contract
@@ -77,6 +78,8 @@ class MapActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?> {
         val ctx = applicationContext
 
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
+        Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID)
+
         val binding: ActivityMapBinding = DataBindingUtil.setContentView(this, R.layout.activity_map)
         setContent(binding.root)
 
