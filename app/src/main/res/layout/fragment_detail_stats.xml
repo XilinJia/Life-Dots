@@ -81,21 +81,3 @@
         </androidx.core.widget.NestedScrollView>
     </LinearLayout>
 </layout>
-
-<!--<TextView-->
-<!--android:id="@+id/avg_duration_label"-->
-<!--android:layout_width="match_parent"-->
-<!--android:layout_height="wrap_content"-->
-<!--android:nestedScrollingEnabled="true"-->
-<!--android:textSize="16sp"-->
-<!--android:text='@{viewModel.mAvgDuration}'-->
-<!--    />-->
-
-<!--<TextView-->
-<!--android:id="@+id/start_of_last_label"-->
-<!--android:layout_width="match_parent"-->
-<!--android:layout_height="wrap_content"-->
-<!--android:nestedScrollingEnabled="true"-->
-<!--android:textSize="16sp"-->
-<!--android:text='@{viewModel.mStartOfLast}'-->
-<!--    />-->

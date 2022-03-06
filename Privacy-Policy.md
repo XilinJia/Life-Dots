@@ -1,7 +1,7 @@
 # Privacy Policy
 [LifeDots](https://github.com/XilinJia/LifeDots) is a free, libre and open source application to track your activities. This privacy policy applies to this Android application and describes what data is stored and processed by the LifeDots.
 
-Last updated December 22, 2018
+Last updated March 04, 2022
 
 ## Introduction
 Developers of LifeDots, we (or “us” or “our”) respect the privacy of our users (“user” or “you”). As the aim of this application is to keep a record of your activites a lot of sensitive personal information is collected and stored. Nevertheless this is your data and you have full control over it. This Privacy Policy explains how the LifeDots application (the “Application”) collects, uses, discloses, and safeguards your information. Our names can be extracted from the meta data in the git repositories and within the Application.

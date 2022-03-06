@@ -58,8 +58,8 @@ android {
         applicationId "com.mdiqentw.lifedots"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 150
-        versionName "2.0.1"
+        versionCode 151
+        versionName "2.1.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "LifeDots-" + defaultConfig.versionName)
@@ -90,6 +90,7 @@ android {
             manifestPlaceholders = [AppName: "Life Dots"]
             signingConfig signingConfigs.release
 
+//            debuggable true
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

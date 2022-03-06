@@ -19,7 +19,6 @@
  */
 package com.mdiqentw.lifedots.ui.main;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.AsyncQueryHandler;
@@ -39,30 +38,24 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
-import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
 import com.google.android.flexbox.JustifyContent;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.tabs.TabLayout;
 import com.mdiqentw.lifedots.BuildConfig;
 import com.mdiqentw.lifedots.R;
 import com.mdiqentw.lifedots.databinding.ActivityMainContentBinding;
@@ -75,15 +68,12 @@ import com.mdiqentw.lifedots.model.DetailViewModel;
 import com.mdiqentw.lifedots.model.DiaryActivity;
 import com.mdiqentw.lifedots.ui.generic.BaseActivity;
 import com.mdiqentw.lifedots.ui.generic.EditActivity;
-import com.mdiqentw.lifedots.ui.history.HistoryDetailActivity;
+import com.mdiqentw.lifedots.ui.history.EventDetailActivity;
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -118,9 +108,10 @@ public class MainActivity extends BaseActivity
         View.OnLongClickListener,
         SearchView.OnQueryTextListener,
         SearchView.OnCloseListener {
+
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 4711;
+//    private static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 4711;
 
     private static final int QUERY_CURRENT_ACTIVITY_STATS = 1;
     private static final int QUERY_CURRENT_ACTIVITY_TOTAL = 2;
@@ -131,24 +122,21 @@ public class MainActivity extends BaseActivity
 
     private String mCurrentPhotoPath;
 
-    private RecyclerView selectRecyclerView;
     FlexboxLayoutManager layoutManager;
     private SelectRecyclerViewAdapter selectAdapter;
 
     private String filter = "";
-    private FloatingActionButton fabAttachPicture;
     private SearchView searchView;
-    private View headerView;
 
     private void setSearchMode(boolean searchMode){
         if (searchMode) {
-            headerView.setVisibility(View.GONE);
-            fabAttachPicture.hide();
+            binding.headerArea.setVisibility(View.GONE);
+            binding.fabAttachPicture.hide();
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         } else {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-            headerView.setVisibility(View.VISIBLE);
-            fabAttachPicture.show();
+            binding.headerArea.setVisibility(View.VISIBLE);
+            binding.fabAttachPicture.show();
         }
     }
 
@@ -171,7 +159,6 @@ public class MainActivity extends BaseActivity
 //        initNavigation();
 
         viewModel = new ViewModelProvider(this).get(DetailViewModel.class);
-
         mQHandler = new MainAsyncQueryHandler(getApplicationContext().getContentResolver(), viewModel);
 
         // recovering the instance state
@@ -179,44 +166,17 @@ public class MainActivity extends BaseActivity
             mCurrentPhotoPath = savedInstanceState.getString("currentPhotoPath");
         }
 
-//        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        View contentView = View.inflate(this, R.layout.activity_main_content, null);
+        setupViewPager(binding.viewpager);
+        binding.tablayout.setupWithViewPager(binding.viewpager);
 
-//        setContent(binding.getRoot());
-
-        int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
-        if(permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-                Toast.makeText(this,R.string.perm_write_external_storage_xplain, Toast.LENGTH_LONG).show();
-            }
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-        }
-
-        headerView = binding.headerArea;
-        TabLayout tabLayout = binding.tablayout;
-
-        ViewPager viewPager = binding.viewpager;
-        setupViewPager(viewPager);
-        tabLayout.setupWithViewPager(viewPager);
-
-        selectRecyclerView = binding.selectRecycler;
-
-        View selector = binding.row.background;
-        selector.setOnLongClickListener(this);
-        selector.setOnClickListener(v -> {
-            // TODO: get rid of this setting?
-            if(PreferenceManager
+        binding.row.background.setOnLongClickListener(this);
+        binding.row.background.setOnClickListener(v -> {
+            if (PreferenceManager
                     .getDefaultSharedPreferences(getApplicationContext())
-                    .getBoolean(SettingsActivity.KEY_PREF_DISABLE_CURRENT, true)){
+                    .getBoolean(SettingsActivity.KEY_PREF_DISABLE_CURRENT, true)) {
                 ActivityHelper.helper.setCurrentActivity(null);
             } else {
-                Intent i = new Intent(MainActivity.this, HistoryDetailActivity.class);
+                Intent i = new Intent(MainActivity.this, EventDetailActivity.class);
                 // no diaryEntryID will edit the last one
                 startActivity(i);
             }
@@ -228,55 +188,42 @@ public class MainActivity extends BaseActivity
         layoutManager = new FlexboxLayoutManager(this);
         layoutManager.setFlexDirection(FlexDirection.ROW);
         layoutManager.setJustifyContent(JustifyContent.FLEX_START);
-        selectRecyclerView.setLayoutManager(layoutManager);
+        binding.selectRecycler.setLayoutManager(layoutManager);
 
         Objects.requireNonNull(Objects.requireNonNull(getSupportActionBar())).setSubtitle(getResources().getString(R.string.activity_subtitle_main));
 
         likelyhoodSort();
 
-        fabAttachPicture = binding.fabAttachPicture;
-
-        fabAttachPicture.setOnClickListener(v -> {
+        binding.fabAttachPicture.setOnClickListener(v -> {
             // Handle the click on the FAB
-            if(viewModel.currentActivity() != null) {
+            if(viewModel.currentActivity() != null && viewModel.currentActivity().getValue() != null) {
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
                 if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-                    File photoFile = null;
-                    try {
-                        photoFile = createImageFile();
-                        Log.i(TAG, "create file for image capture " + photoFile.getAbsolutePath());
+                    File photoFile = GraphicsHelper.createImageFile();
+                    Log.i(TAG, "create file for image capture " + photoFile.getAbsolutePath());
 
-                    } catch (IOException ex) {
-                        // Error occurred while creating the File
-                        Toast.makeText(MainActivity.this, getResources().getString(R.string.camera_error), Toast.LENGTH_LONG).show();
-                    }
                     // Continue only if the File was successfully created
-                    if (photoFile != null) {
-                        // Save a file: path for use with ACTION_VIEW intents
-                        mCurrentPhotoPath = photoFile.getAbsolutePath();
+                    // Save a file: path for use with ACTION_VIEW intents
+                    mCurrentPhotoPath = photoFile.getAbsolutePath();
 
-                        Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
-                                BuildConfig.APPLICATION_ID + ".fileprovider",
-                                photoFile);
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                        takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                    }
-
+                    Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
+                            BuildConfig.APPLICATION_ID + ".fileprovider",
+                            photoFile);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                 }
-            }else{
+            } else
                 Toast.makeText(MainActivity.this, getResources().getString(R.string.no_active_activity_error), Toast.LENGTH_LONG).show();
-            }
         });
 
         PackageManager pm = getPackageManager();
 
-        if(pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
-            fabAttachPicture.show();
-        }else{
-            fabAttachPicture.hide();
-        }
+        if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY))
+            binding.fabAttachPicture.show();
+        else
+            binding.fabAttachPicture.hide();
 
         // Get the intent, verify the action and get the search query
         Intent intent = getIntent();
@@ -288,24 +235,6 @@ public class MainActivity extends BaseActivity
         //  as it reloads the statistics and refills the viewModel...
         //  Completely against the idea of the viewmodel :-(
         onActivityChanged(); /* do this at the very end to ensure that no Loader finishes its data loading before */
-    }
-
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "IMG_";
-        if(viewModel.currentActivity().getValue() != null){
-            imageFileName += Objects.requireNonNull(Objects.requireNonNull(viewModel.currentActivity().getValue())).getName();
-            imageFileName += "_";
-        }
-
-        imageFileName += timeStamp;
-        File storageDir = GraphicsHelper.imageStorageDirectory();
-
-        File image = new File(storageDir, imageFileName + ".jpg");
-        image.createNewFile();
-        return image;
-
     }
 
     @Override
@@ -328,11 +257,11 @@ public class MainActivity extends BaseActivity
 
     @Override
     public boolean onLongClick(View view) {
-        Intent i = new Intent(MainActivity.this, EditActivity.class);
         if(viewModel.currentActivity().getValue() != null) {
+            Intent i = new Intent(MainActivity.this, EditActivity.class);
             i.putExtra("activityID", Objects.requireNonNull(Objects.requireNonNull(viewModel.currentActivity().getValue())).getId());
+            startActivity(i);
         }
-        startActivity(i);
         return true;
     }
 
@@ -346,10 +275,8 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void onItemClick(int adapterPosition) {
-
         DiaryActivity newAct = selectAdapter.item(adapterPosition);
         if(newAct != ActivityHelper.helper.getCurrentActivity()) {
-
             ActivityHelper.helper.setCurrentActivity(newAct);
 
             searchView.setQuery("", false);
@@ -361,29 +288,25 @@ public class MainActivity extends BaseActivity
         DiaryActivity newAct = ActivityHelper.helper.getCurrentActivity();
         viewModel.mCurrentActivity.setValue(newAct);
 
-        if(newAct != null) {
-            queryAllTotals();
-        }
+        if(newAct != null) queryAllTotals();
 
         viewModel.setCurrentDiaryUri(ActivityHelper.helper.getCurrentDiaryUri());
-        TextView aName = binding.row.name;
         // TODO: move this logic into the DetailViewModel??
-
 //        viewModel.mAvgDuration.setValue("-");
 //        viewModel.mStartOfLast.setValue("-");
 //        viewModel.mTotalToday.setValue("-");
         /* stats are updated after query finishes in mQHelper */
 
         if(viewModel.currentActivity().getValue() != null) {
-            aName.setText(Objects.requireNonNull(Objects.requireNonNull(viewModel.currentActivity().getValue())).getName());
+            binding.row.name.setText(Objects.requireNonNull(Objects.requireNonNull(viewModel.currentActivity().getValue())).getName());
             binding.row.background.setBackgroundColor(Objects.requireNonNull(Objects.requireNonNull(viewModel.currentActivity().getValue())).getColor());
-            aName.setTextColor(GraphicsHelper.textColorOnBackground(Objects.requireNonNull(Objects.requireNonNull(viewModel.currentActivity().getValue())).getColor()));
+            binding.row.name.setTextColor(GraphicsHelper.textColorOnBackground(Objects.requireNonNull(Objects.requireNonNull(viewModel.currentActivity().getValue())).getColor()));
             viewModel.mNote.setValue(ActivityHelper.helper.getCurrentNote());
         }else{
             int col = ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary);
-            aName.setText(getResources().getString(R.string.activity_title_no_selected_act));
+            binding.row.name.setText(getResources().getString(R.string.activity_title_no_selected_act));
             binding.row.background.setBackgroundColor(col);
-            aName.setTextColor(GraphicsHelper.textColorOnBackground(col));
+            binding.row.name.setTextColor(GraphicsHelper.textColorOnBackground(col));
             viewModel.mDuration.setValue("-");
             viewModel.mNote.setValue("");
         }
@@ -434,9 +357,7 @@ public class MainActivity extends BaseActivity
     @Override
     public void onActivityOrderChanged() {
         /* only do likelihood sort in case we are not in a search */
-        if(filter.length() == 0){
-            likelyhoodSort();
-        }
+        if (filter.length() == 0) likelyhoodSort();
     }
 
     /**
@@ -519,15 +440,15 @@ public class MainActivity extends BaseActivity
             ArrayList<DiaryActivity> filtered = ActivityHelper.sortedActivities(query);
 //
             selectAdapter = new SelectRecyclerViewAdapter(MainActivity.this, filtered);
-            selectRecyclerView.swapAdapter(selectAdapter, false);
-            selectRecyclerView.scrollToPosition(0);
+            binding.selectRecycler.swapAdapter(selectAdapter, false);
+            binding.selectRecycler.scrollToPosition(0);
         }
     }
 
     private void likelyhoodSort() {
-        if (selectAdapter == null || selectAdapter != selectRecyclerView.getAdapter()) {
+        if (selectAdapter == null || selectAdapter != binding.selectRecycler.getAdapter()) {
             selectAdapter = new SelectRecyclerViewAdapter(MainActivity.this, ActivityHelper.helper.getActivities());
-            selectRecyclerView.swapAdapter(selectAdapter, false);
+            binding.selectRecycler.swapAdapter(selectAdapter, false);
         } else {
             selectAdapter.setActivities(ActivityHelper.helper.getActivities());
         }
@@ -553,7 +474,7 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void onNoteEditPositiveClock(String str, DialogFragment dialog) {
+    public void onNoteEditPositiveClick(String str, DialogFragment dialog) {
         ContentValues values = new ContentValues();
         values.put(Contract.Diary.NOTE, str);
 
@@ -572,6 +493,8 @@ public class MainActivity extends BaseActivity
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             if(mCurrentPhotoPath != null && viewModel.getCurrentDiaryUri() != null) {
+                GraphicsHelper.compressAndSaveImage(mCurrentPhotoPath);
+
                 Uri photoURI = FileProvider.getUriForFile(MainActivity.this,
                         BuildConfig.APPLICATION_ID + ".fileprovider",
                         new File(mCurrentPhotoPath));
@@ -583,27 +506,6 @@ public class MainActivity extends BaseActivity
                         null,
                         Contract.DiaryImage.CONTENT_URI,
                         values);
-
-                if(PreferenceManager
-                        .getDefaultSharedPreferences(getApplicationContext())
-                        .getBoolean(SettingsActivity.KEY_PREF_TAG_IMAGES, true)) {
-                    try {
-                        ExifInterface exifInterface = new ExifInterface(mCurrentPhotoPath);
-                        if (viewModel.currentActivity().getValue() != null) {
-                            /* TODO: #24: when using hierarchical activities tag them all here, seperated with comma */
-                            /* would be great to use IPTC keywords instead of EXIF UserComment, but
-                             * at time of writing (2017-11-24) it is hard to find a library able to write IPTC
-                             * to JPEG for android.
-                             * pixymeta-android or apache/commons-imaging could be interesting for this.
-                             * */
-                            exifInterface.setAttribute(ExifInterface.TAG_USER_COMMENT,
-                                    Objects.requireNonNull(Objects.requireNonNull(viewModel.currentActivity().getValue())).getName());
-                            exifInterface.saveAttributes();
-                        }
-                    } catch (IOException e) {
-                        Log.e(TAG, "writing exif data to " + mCurrentPhotoPath + " failed", e);
-                    }
-                }
             }
         }
     }

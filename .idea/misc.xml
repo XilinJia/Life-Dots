@@ -3,9 +3,27 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/layout-land/activity_event_detail_content.xml" value="0.19797178130511464" />
+        <entry key="app/src/main/res/layout-land/activity_history_content.xml" value="0.18298059964726632" />
+        <entry key="app/src/main/res/layout-land/activity_history_entry.xml" value="0.19797178130511464" />
         <entry key="app/src/main/res/layout/activity_about.xml" value="0.2826086956521739" />
+        <entry key="app/src/main/res/layout/activity_event_detail_content.xml" value="0.23385416666666667" />
+        <entry key="app/src/main/res/layout/activity_history_content.xml" value="0.21614583333333334" />
+        <entry key="app/src/main/res/layout/activity_manage_content.xml" value="0.21614583333333334" />
+        <entry key="app/src/main/res/layout/activity_map.xml" value="0.21614583333333334" />
         <entry key="app/src/main/res/layout/activity_settings.xml" value="0.2640625" />
+        <entry key="app/src/main/res/layout/detail_recycler_item.xml" value="0.21614583333333334" />
+        <entry key="app/src/main/res/layout/dialog_note_editor.xml" value="0.25625" />
+        <entry key="app/src/main/res/layout/fragment_detail_note.xml" value="0.21614583333333334" />
+        <entry key="app/src/main/res/layout/fragment_detail_pictures.xml" value="0.21614583333333334" />
+        <entry key="app/src/main/res/layout/fragment_detail_stats.xml" value="0.21614583333333334" />
+        <entry key="app/src/main/res/layout/lifedot_row.xml" value="0.21614583333333334" />
         <entry key="app/src/main/res/layout/memento_row.xml" value="0.2826086956521739" />
+        <entry key="app/src/main/res/layout/select_recycler_item.xml" value="0.21614583333333334" />
+        <entry key="app/src/main/res/menu/edit_diary_entry_menu.xml" value="0.23385416666666667" />
+        <entry key="app/src/main/res/menu/history_menu.xml" value="0.25625" />
+        <entry key="app/src/main/res/menu/main_menu.xml" value="0.25625" />
+        <entry key="app/src/main/res/menu/map_menu.xml" value="0.23385416666666667" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1925" />
       </map>
     </option>

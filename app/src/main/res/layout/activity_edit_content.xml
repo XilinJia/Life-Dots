@@ -45,25 +45,16 @@
                     android:id="@+id/edit_activity_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="24sp"
                     android:hint="@string/desc_activity_hint"
+                    android:text=""
                     android:inputType="textCapWords|textAutoCorrect"
                     android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <ImageButton
-                android:id="@+id/quickFixButton1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:elevation="2dp"
-                android:visibility="gone"
-                android:contentDescription="@string/contentDesc_undeleteActivity"
-                app:srcCompat="@drawable/ic_undelete"
-                />
-
-            <ImageButton
-                android:id="@+id/quickFixButtonRename"
+                android:id="@+id/btn_rename"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"

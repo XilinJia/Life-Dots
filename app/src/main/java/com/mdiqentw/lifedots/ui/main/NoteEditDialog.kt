@@ -18,15 +18,18 @@
  */
 package com.mdiqentw.lifedots.ui.main
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.os.Bundle
-import android.view.WindowManager
+import android.view.WindowManager.LayoutParams
+import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.mdiqentw.lifedots.R
+
 
 /*
  * LifeDots
@@ -47,30 +50,44 @@ import com.mdiqentw.lifedots.R
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 class NoteEditDialog : DialogFragment() {
+
     private var note: String? = null
     private lateinit var input: EditText
     private var mListener: NoteEditDialogListener? = null
     var diaryId: Long = 0
+    var inputText: String = ""
+
+    lateinit var result: Dialog
 
     interface NoteEditDialogListener {
-        fun onNoteEditPositiveClock(str: String?, dialog: DialogFragment?)
+        fun onNoteEditPositiveClick(str: String?, dialog: DialogFragment?)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        super.onSaveInstanceState(savedInstanceState!!)
-        val result: Dialog
+        savedInstanceState?.let { super.onSaveInstanceState(it) }
         val builder = AlertDialog.Builder(requireActivity())
+
         val inflater = requireActivity().layoutInflater
-        builder.setTitle(R.string.dialog_title_note)
         val dlgView = inflater.inflate(R.layout.dialog_note_editor, null)
-        input = dlgView.findViewById(R.id.noteText)
-        input.setText(savedInstanceState.getString("Note"))
+
+        input = dlgView.findViewById(R.id.note_text)
+        if (savedInstanceState != null) {
+            input.setText(savedInstanceState.getString("Note"))
+        }
+        input.setText(inputText)
+        note = inputText
         input.setSelection(input.text.length)
+        input.requestFocus()
+        val inputMethodManager = context?.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showSoftInput(input, InputMethodManager.SHOW_IMPLICIT)
+
         builder.setView(dlgView) // Add action buttons
-                .setPositiveButton(R.string.dlg_ok) { _: DialogInterface?, _: Int -> mListener!!.onNoteEditPositiveClock(input.text.toString(), this@NoteEditDialog) }
+                .setPositiveButton(R.string.dlg_ok) { _: DialogInterface?, _: Int ->
+                    mListener!!.onNoteEditPositiveClick(input.text.toString(), this@NoteEditDialog) }
                 .setNegativeButton(R.string.dlg_cancel) { dialog: DialogInterface, _: Int -> dialog.cancel() }
         result = builder.create()
-        result.getWindow()!!.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+
+        result.window!!.setSoftInputMode(LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         return result
     }
 
@@ -85,11 +102,6 @@ class NoteEditDialog : DialogFragment() {
             throw ClassCastException(context.toString()
                     + " must implement NoteEditDialogListener")
         }
-    }
-
-    fun setText(text: String?) {
-        input.setText(text)
-        note = text
     }
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {

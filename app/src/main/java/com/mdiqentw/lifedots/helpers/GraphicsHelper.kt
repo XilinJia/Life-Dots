@@ -18,19 +18,20 @@
  */
 package com.mdiqentw.lifedots.helpers
 
-import android.Manifest
-import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.exifinterface.media.ExifInterface
-import androidx.preference.PreferenceManager
 import com.mdiqentw.lifedots.MVApplication
 import com.mdiqentw.lifedots.R
-import com.mdiqentw.lifedots.ui.settings.SettingsActivity
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.ln
 import kotlin.math.sqrt
 
@@ -60,41 +61,54 @@ object GraphicsHelper {
     @JvmField
     val activityColorPalette = ArrayList<Int>(19)
 
-    /* Checks if external storage is available for read and write */
-    private val isExternalStorageWritable: Boolean
-        get() {
-            val state = Environment.getExternalStorageState()
-            return Environment.MEDIA_MOUNTED == state
-        }
-
-    @Suppress("DEPRECATION")
     @JvmStatic
     fun imageStorageDirectory(): File {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MVApplication.getAppContext())
-        val directory: File = if (isExternalStorageWritable) {
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-        } else {
-            MVApplication.getAppContext().filesDir
-        }
-        val root = File(directory,
-                sharedPreferences.getString(SettingsActivity.KEY_PREF_STORAGE_FOLDER, "LifeDots")!!)
-        val permissionCheck = ContextCompat.checkSelfPermission(MVApplication.getAppContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            if (!root.exists()) {
-                if (!root.mkdirs()) {
-                    Log.e(TAG, "failed to create directory")
-                    throw RuntimeException("failed to create directory $root")
-                }
+        val root = File(MVApplication.getAppContext().getExternalFilesDir("/"), "")
+        if (!root.exists()) {
+            if (!root.mkdirs()) {
+                Log.e(TAG, "failed to create directory")
+                throw RuntimeException("failed to create directory $root")
             }
-        } else {
-            /* no permission, return null */
         }
         return root
     }
 
+    @JvmStatic
+    fun createImageFile(): File {
+        // Create an image file name
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+        val imageFileName = "IMG_" + timeStamp
+        val storageDir = imageStorageDirectory()
+        return File(storageDir, "$imageFileName.jpg")
+    }
+
+    @JvmStatic
+    fun compressAndSaveImage(photoPath: String) {
+        val b = BitmapFactory.decodeFile(photoPath)
+        // original measurements
+        val origWidth = b.width
+        val origHeight = b.height
+        val destWidth = 500 //or the width you need
+        if (origWidth > destWidth) {
+            // picture is wider than we want it, we calculate its target height
+            val destHeight = origHeight / (origWidth / destWidth)
+            // we create an scaled bitmap so it reduces the image, not just trim it
+            val b2 = Bitmap.createScaledBitmap(b, destWidth, destHeight, false)
+            val outStream = ByteArrayOutputStream()
+            // compress to the format you want, JPEG, PNG...
+            // 70 is the 0-100 quality percentage
+            b2.compress(Bitmap.CompressFormat.JPEG, 60, outStream)
+            // we save the file, at least until we have made use of it
+            val f = File(photoPath)
+            f.createNewFile()
+            //write the bytes in file
+            val fo = FileOutputStream(f)
+            fo.write(outStream.toByteArray())
+            fo.close()
+        }
+    }
+
     /* return the rotation of the image at uri from the exif data
-     *
      * do better not call this for a network uri, as this would probably mean to fetch it twice
      * */
     fun getFileExifRotation(uri: Uri?): Int {

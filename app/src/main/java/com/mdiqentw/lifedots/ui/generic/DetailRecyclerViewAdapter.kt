@@ -19,7 +19,10 @@
  */
 package com.mdiqentw.lifedots.ui.generic
 
-import android.content.*
+import android.content.AsyncQueryHandler
+import android.content.ContentValues
+import android.content.DialogInterface
+import android.content.Intent
 import android.database.Cursor
 import android.database.DataSetObserver
 import android.net.Uri
@@ -35,6 +38,7 @@ import com.mdiqentw.lifedots.databinding.DetailRecyclerItemBinding
 import com.mdiqentw.lifedots.db.Contract
 import com.mdiqentw.lifedots.helpers.GraphicsHelper
 import com.squareup.picasso.Picasso
+import java.io.File
 
 /*
  * LifeDots
@@ -54,12 +58,13 @@ import com.squareup.picasso.Picasso
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-class DetailRecyclerViewAdapter(context: Context, details: Cursor?) : RecyclerView.Adapter<DetailViewHolders>(), DetailViewHolders.SelectListener {
+class DetailRecyclerViewAdapter(act: BaseActivity, details: Cursor?) :
+    RecyclerView.Adapter<DetailViewHolders>(), DetailViewHolders.SelectListener {
     private class QHandler : AsyncQueryHandler(MVApplication.getAppContext().contentResolver)
 
     private val mQHandler = QHandler()
     private var mCursor: Cursor?
-    private val mContext: Context
+    private val mAct: BaseActivity
     private val mDataObserver: DataSetObserver?
     private var uriRowIdx = 0
     private var idRowIdx = 0
@@ -131,8 +136,29 @@ class DetailRecyclerViewAdapter(context: Context, details: Cursor?) : RecyclerVi
         return result
     }
 
+    private fun deleteImageAt(position: Int) {
+        check(idRowIdx >= 0) { "idRowIdx not valid" }
+        require(position >= 0) { "position ($position) too small" }
+        require(position < mCursor!!.count) { "position ($position) too small" }
+        val pos = mCursor!!.position
+        mCursor!!.moveToPosition(position)
+        val result: Long = mCursor!!.getLong(idRowIdx)
+
+        val uri = mCursor!!.getString(uriRowIdx)
+        val filename = uri.substring(uri.lastIndexOf("/")+1)
+        File(GraphicsHelper.imageStorageDirectory(), filename).delete()
+        mCursor!!.moveToPosition(pos)
+
+        val values = ContentValues()
+        values.put(Contract.DiaryImage._DELETED, 1)
+        mQHandler.startUpdate(0,
+            null,
+            Contract.DiaryImage.CONTENT_URI,
+            values,
+            Contract.DiaryImage._ID + "=?", arrayOf(result.toString()))
+    }
+
     override fun onDetailItemClick(adapterPosition: Int) {
-//        val diaryImageId = getDiaryImageIdAt(adapterPosition)
         check(mCursor!!.moveToPosition(adapterPosition)) { "couldn't move cursor to position $adapterPosition" }
         val s = mCursor!!.getString(uriRowIdx)
         val i = Uri.parse(s)
@@ -140,23 +166,17 @@ class DetailRecyclerViewAdapter(context: Context, details: Cursor?) : RecyclerVi
         intent.action = Intent.ACTION_VIEW
         intent.setDataAndType(i, "image/*")
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        mContext.startActivity(intent)
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        mAct.startActivity(intent)
     }
 
     override fun onDetailItemLongClick(adapterPosition: Int): Boolean {
-        val diaryImageId = getDiaryImageIdAt(adapterPosition)
         //TODO: generalize the DetailView to include this code also
-        val builder = AlertDialog.Builder(mContext)
+        val builder = AlertDialog.Builder(mAct)
                 .setTitle(R.string.dlg_delete_image_title)
                 .setMessage(R.string.dlg_delete_image_text)
                 .setPositiveButton(R.string.yes) { _: DialogInterface?, _: Int ->
-                    val values = ContentValues()
-                    values.put(Contract.DiaryImage._DELETED, 1)
-                    mQHandler.startUpdate(0,
-                            null,
-                            Contract.DiaryImage.CONTENT_URI,
-                            values,
-                            Contract.DiaryImage._ID + "=?", arrayOf(diaryImageId.toString()))
+                    deleteImageAt(adapterPosition)
                 }
                 .setNegativeButton(R.string.no, null)
         builder.create().show()
@@ -171,7 +191,7 @@ class DetailRecyclerViewAdapter(context: Context, details: Cursor?) : RecyclerVi
     init {
         lastAdapterId++
         mCursor = details
-        mContext = context
+        mAct = act
         // TODO: do we need this one here?
         mDataObserver = object : DataSetObserver() {
             override fun onChanged() {

@@ -19,18 +19,24 @@
 package com.mdiqentw.lifedots.ui.history
 
 import android.annotation.SuppressLint
+import android.content.DialogInterface
+import android.content.Intent
 import android.database.Cursor
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.core.util.Pair
 import androidx.databinding.DataBindingUtil
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
 import androidx.loader.content.Loader
 import androidx.preference.PreferenceManager
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.mdiqentw.lifedots.BuildConfig
 import com.mdiqentw.lifedots.R
 import com.mdiqentw.lifedots.databinding.ActivityMapBinding
@@ -42,7 +48,6 @@ import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.CustomZoomButtonsController
-import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.CopyrightOverlay
 import org.osmdroid.views.overlay.ScaleBarOverlay
 import org.osmdroid.views.overlay.simplefastpoint.LabelledGeoPoint
@@ -50,6 +55,9 @@ import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay.PointAdapter
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.math.abs
 
 /*
  * LifeDots
@@ -69,42 +77,70 @@ import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-class MapActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?> {
-    var map: MapView? = null
-    private var noMap: TextView? = null
+class MapActivity : BaseActivity(),
+    LoaderManager.LoaderCallbacks<Cursor?>, MenuItem.OnMenuItemClickListener {
+
+    lateinit var binding: ActivityMapBinding
+
+    private var startTime = 0L
+    private var endTime = 0L
+    private var startPoint = GeoPoint(LocationHelper.helper.currentLocation)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val ctx = applicationContext
 
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
-        Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID)
+        Configuration.getInstance().userAgentValue = BuildConfig.APPLICATION_ID
 
-        val binding: ActivityMapBinding = DataBindingUtil.setContentView(this, R.layout.activity_map)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_map)
         setContent(binding.root)
 
-        noMap = binding.noMap
-        map = binding.map
-        map!!.setTileSource(TileSourceFactory.MAPNIK)
-        map!!.isTilesScaledToDpi = true
-        map!!.zoomController.setVisibility(CustomZoomButtonsController.Visibility.ALWAYS)
-        map!!.setMultiTouchControls(true)
-        val mapController = map!!.controller
-        mapController.setZoom(14.0)
-        val startPoint = GeoPoint(LocationHelper.helper.currentLocation)
-        mapController.setCenter(startPoint)
-        val copyrightOverlay = CopyrightOverlay(this)
-        copyrightOverlay.setTextSize(10)
-        map!!.overlays.add(copyrightOverlay)
-        val scaleBarOverlay = ScaleBarOverlay(map)
-        map!!.overlays.add(scaleBarOverlay)
-        // Scale bar tries to draw as 1-inch, so to put it in the top center, set x offset to
-        // half screen width, minus half an inch.
-        scaleBarOverlay.setScaleBarOffset(
-                (resources.displayMetrics.widthPixels / 2 - resources
-                        .displayMetrics.xdpi / 2).toInt(), 10)
+        val i = intent
+        val tstart = i.getLongExtra("StartTime", 0L)
+        val tend = i.getLongExtra("EndTime", 0L)
+        if (tstart > 0L && tend > 0L) {
+            startTime = tstart
+            endTime = tend
+        }
+
+        if (!hasTimeInterval()) buildMap(startPoint)
+
         LoaderManager.getInstance(this).initLoader(LOADER_ID_INIT, null, this)
-        mDrawerToggle.isDrawerIndicatorEnabled = false
+    }
+
+    private fun hasTimeInterval() : Boolean {
+        return startTime > 0 && endTime > 0
+    }
+
+    private fun buildMap(startPoint : GeoPoint) {
+        if (abs(startPoint.latitude) > 0.001 && abs(startPoint.longitude) > 0.001) {
+            binding.map.setTileSource(TileSourceFactory.MAPNIK)
+            binding.map.isTilesScaledToDpi = true
+            binding.map.zoomController.setVisibility(CustomZoomButtonsController.Visibility.ALWAYS)
+            binding.map.setMultiTouchControls(true)
+            if (hasTimeInterval())
+                binding.map.controller.setZoom(16.0)
+            else
+                binding.map.controller.setZoom(13.0)
+            binding.map.controller.setCenter(startPoint)
+            val copyrightOverlay = CopyrightOverlay(this)
+            copyrightOverlay.setTextSize(10)
+            binding.map.overlays.add(copyrightOverlay)
+            val scaleBarOverlay = ScaleBarOverlay(binding.map)
+            binding.map.overlays.add(scaleBarOverlay)
+
+            // Scale bar tries to draw as 1-inch, so to put it in the top center, set x offset to
+            // half screen width, minus half an inch.
+            scaleBarOverlay.setScaleBarOffset(
+                (resources.displayMetrics.widthPixels / 2 -
+                        resources.displayMetrics.xdpi / 2).toInt(), 10
+            )
+            mDrawerToggle.isDrawerIndicatorEnabled = false
+        } else {
+            binding.noMap.visibility = View.VISIBLE
+            binding.map.visibility = View.GONE
+        }
     }
 
     // Called when a new Loader needs to be created
@@ -112,8 +148,13 @@ class MapActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?> {
         // Now create and return a CursorLoader that will take care of
         // creating a Cursor for the data being displayed.
         return if (id == LOADER_ID_INIT) {
+            var sel = SELECTION_INIT
+            if (hasTimeInterval())
+                sel = (sel + " AND " + Contract.DiaryLocation.TIMESTAMP + " >= " + startTime
+                        + " AND " + Contract.DiaryLocation.TIMESTAMP + " <= " + endTime)
+
             CursorLoader(this, Contract.DiaryLocation.CONTENT_URI,
-                    PROJECTION, SELECTION_INIT, null, null)
+                    PROJECTION, sel, null, null)
         } else {
             CursorLoader(this)
         }
@@ -127,17 +168,37 @@ class MapActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?> {
         // old cursor once we return.)
         if (data != null && data.count > 0) {
             val pts: MutableList<IGeoPoint> = ArrayList(data.count)
+            val ts: MutableList<Long> = ArrayList(data.count)
             if (data.moveToFirst()) {
                 var i = 0
+                var aveLon = 0.0
+                var aveLat = 0.0
                 while (!data.isAfterLast) {
                     val haccIdx = data.getColumnIndex(Contract.DiaryLocation.HACC)
-                    if (data.isNull(haccIdx) || data.getInt(haccIdx) < 250) {
-                        pts.add(LabelledGeoPoint(data.getDouble(data.getColumnIndex(Contract.DiaryLocation.LATITUDE)),
-                                data.getDouble(data.getColumnIndex(Contract.DiaryLocation.LONGITUDE)), "Pt $i"))
+                    if (data.isNull(haccIdx) || data.getInt(haccIdx) < 1000) {
+                        val lat = data.getDouble(data.getColumnIndex(Contract.DiaryLocation.LATITUDE))
+                        val lon = data.getDouble(data.getColumnIndex(Contract.DiaryLocation.LONGITUDE))
+                        aveLon += lon
+                        aveLat += lat
+                        pts.add(LabelledGeoPoint(lat, lon, "P$i"))
+                        val tCol = data.getColumnIndex(Contract.DiaryLocation.TIMESTAMP)
+                        ts.add(if (tCol>=0) data.getLong(tCol) else 0L)
+                        i++
                     }
-                    i++
                     data.moveToNext()
                 }
+                aveLon /= i
+                aveLat /= i
+                if (hasTimeInterval()) {
+                    startPoint = GeoPoint(aveLat, aveLon)
+                    buildMap(startPoint)
+                }
+
+                Toast.makeText(
+                    binding.map.context,
+                    i.toString() + getString(R.string.num_valid_points),
+                    Toast.LENGTH_LONG
+                ).show()
             }
 
             // wrap them in a theme
@@ -161,16 +222,33 @@ class MapActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?> {
 
             // onClick callback
             sfpo.setOnClickListener { points: PointAdapter, point: Int? ->
-                Toast.makeText(map!!.context, "You clicked " + (points[point!!] as LabelledGeoPoint).label, Toast.LENGTH_SHORT).show()
+                val date = Date(ts[point!!])
+                val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+
+                // selected item is deleted. Ask for undeleting it.
+                val builder = AlertDialog.Builder(this)
+                    .setMessage((points[point] as LabelledGeoPoint).label + ": " + format.format(date) +
+                    "\n" + getString(R.string.review_that_day))
+                    .setPositiveButton(android.R.string.yes) { _: DialogInterface?, _: Int ->
+                        val hist = Intent(this, HistoryActivity::class.java)
+                        hist.putExtra("StartTime", ts[point] - 12*60*60*1000)
+                        hist.putExtra("EndTime", ts[point] + 12*60*60*1000)
+                        startActivity(hist)
+                    }
+                    .setNegativeButton(android.R.string.no, null)
+                builder.create().show()
             }
 
-            // add overlay
-            map!!.overlays.add(sfpo)
-            noMap!!.visibility = View.GONE
-            map!!.visibility = View.VISIBLE
+            binding.map.overlays.add(sfpo)
+
+            binding.noMap.visibility = View.GONE
+            binding.map.visibility = View.VISIBLE
         } else {
-            noMap!!.visibility = View.VISIBLE
-            map!!.visibility = View.GONE
+            Toast.makeText(
+                binding.map.context,
+                getString(R.string.no_valid_points),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -181,6 +259,33 @@ class MapActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?> {
         // longer using it.
     }
 
+    override fun onCreateOptionsMenu(menu: Menu) : Boolean {
+        val inflater = getMenuInflater ()
+        inflater.inflate(R.menu.map_menu, menu)
+
+        val datesMenuItem = menu.findItem (R.id.menu_dates)
+        datesMenuItem.setOnMenuItemClickListener(this)
+
+        return true
+    }
+
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        val mid = item.itemId
+
+        if (mid == R.id.menu_dates) {
+            val picker = MaterialDatePicker.Builder.dateRangePicker().build()
+            picker.show(supportFragmentManager, picker.toString())
+            picker.addOnPositiveButtonClickListener { selection: Pair<Long, Long> ->
+                binding.map.getOverlays().clear()
+                binding.map.invalidate()
+                startTime = selection.first
+                endTime = selection.second
+                LoaderManager.getInstance(this@MapActivity).restartLoader(LOADER_ID_INIT, null, this@MapActivity)
+            }
+        }
+        return true
+    }
+
     public override fun onResume() {
         mNavigationView.menu.findItem(R.id.nav_map).isChecked = true
         super.onResume()
@@ -188,7 +293,7 @@ class MapActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?> {
         //if you make changes to the configuration, use
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-        map!!.onResume() //needed for compass, my location overlays, v6.0.0 and up
+        binding.map.onResume() //needed for compass, my location overlays, v6.0.0 and up
     }
 
     public override fun onPause() {
@@ -197,15 +302,16 @@ class MapActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?> {
         //if you make changes to the configuration, use
         //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //Configuration.getInstance().save(this, prefs);
-        map!!.onPause() //needed for compass, my location overlays, v6.0.0 and up
+        binding.map.onPause() //needed for compass, my location overlays, v6.0.0 and up
     }
 
     companion object {
         private const val LOADER_ID_INIT = 0
         private val PROJECTION = arrayOf(
-                Contract.DiaryLocation.LONGITUDE,
-                Contract.DiaryLocation.LATITUDE,
-                Contract.DiaryLocation.HACC
+            Contract.DiaryLocation.TIMESTAMP,
+            Contract.DiaryLocation.LONGITUDE,
+            Contract.DiaryLocation.LATITUDE,
+            Contract.DiaryLocation.HACC
         )
         private const val SELECTION_INIT = Contract.DiaryLocation._DELETED + "=0"
     }

@@ -34,11 +34,12 @@
 
     <!-- for photo storage -->
 <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"-->
-<!--        android:required="true" />-->
+<!--        android:required="false" />-->
 
+    <!--    for map locations -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
         android:required="false" />
-
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
         android:required="false" />
 
@@ -51,7 +52,6 @@
         android:required="false"/>
     <uses-permission android:name="android.permission.INTERNET"
         android:required="false"/>
-
 
     <application
         android:allowBackup="true"
@@ -79,7 +79,7 @@
             />
         <activity android:name="com.mdiqentw.lifedots.ui.generic.ManageActivity"
             android:label="@string/activity_title_manage_activities" />
-        <activity android:name="com.mdiqentw.lifedots.ui.history.HistoryDetailActivity"
+        <activity android:name="com.mdiqentw.lifedots.ui.history.EventDetailActivity"
             android:label="@string/activity_title_history_detail"
             android:windowSoftInputMode="adjustPan"
             />

@@ -23,22 +23,31 @@
     <item
         android:id="@+id/action_filter"
         android:title="@string/action_filter"
+        android:orderInCategory="100"
         app:showAsAction="always"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         android:searchIcon="@drawable/ic_filter"
-        app:searchIcon="@drawable/ic_filter"
-        />
+        app:searchIcon="@drawable/ic_filter" />
+
+    <item
+        android:id="@+id/action_map"
+        android:title="@string/nav_map"
+        android:orderInCategory="101"
+        app:showAsAction="always"
+        android:icon="@drawable/ic_baseline_map_24"/>
+
     <item
         android:id="@+id/menu_dates"
+        android:orderInCategory="102"
         android:title="@string/set_interval" />
     <item
         android:id="@+id/menu_notes"
+        android:orderInCategory="103"
         android:title="@string/with_notes" />
-</menu>
 
-<!--<item-->
-<!--android:id="@+id/menu_images"-->
-<!--android:title="With Images" />-->
-<!--<item-->
-<!--android:id="@+id/menu_location"-->
-<!--android:title="Pick Location" />-->
+<!--    <item-->
+<!--        android:id="@+id/menu_images"-->
+<!--        android:orderInCategory="103"-->
+<!--        android:title="@string/with_images" />-->
+
+</menu>

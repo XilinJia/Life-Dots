@@ -34,7 +34,7 @@ import com.mdiqentw.lifedots.databinding.FragmentDetailStatsBinding
 import com.mdiqentw.lifedots.helpers.ActivityHelper
 import com.mdiqentw.lifedots.helpers.TimeSpanFormatter
 import com.mdiqentw.lifedots.model.DetailViewModel
-import com.mdiqentw.lifedots.ui.history.HistoryDetailActivity
+import com.mdiqentw.lifedots.ui.history.EventDetailActivity
 import java.util.*
 
 /*
@@ -61,25 +61,25 @@ class DetailStatFragement : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
+
         val binding: FragmentDetailStatsBinding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_detail_stats, container, false)
-        val view = binding.root
 
         // passing no diaryEntryID will edit the last one
         val headerClickHandler = View.OnClickListener {
             if (viewModel!!.currentActivity().value != null) {
-                val i = Intent(activity, HistoryDetailActivity::class.java)
+                val i = Intent(activity, EventDetailActivity::class.java)
                 // passing no diaryEntryID will edit the last one
                 startActivity(i)
             }
         }
-        view.setOnClickListener(headerClickHandler)
+        binding.root.setOnClickListener(headerClickHandler)
         binding.detailContent.setOnClickListener(headerClickHandler)
         viewModel = ViewModelProvider(requireActivity()).get(DetailViewModel::class.java)
         binding.viewModel = viewModel
         // Specify the current activity as the lifecycle owner.
         binding.lifecycleOwner = this
-        return view
+        return binding.root
     }
 
     private val updateDurationRunnable: Runnable = object : Runnable {

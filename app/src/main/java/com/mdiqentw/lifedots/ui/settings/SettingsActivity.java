@@ -29,11 +29,13 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
@@ -48,7 +50,10 @@ import com.mdiqentw.lifedots.databinding.ActivitySettingsBinding;
 import com.mdiqentw.lifedots.db.LocalDBHelper;
 import com.mdiqentw.lifedots.db.Contract;
 import com.mdiqentw.lifedots.helpers.ActivityHelper;
+import com.mdiqentw.lifedots.helpers.LocationHelper;
 import com.mdiqentw.lifedots.ui.generic.BaseActivity;
+
+import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -85,16 +90,14 @@ public class SettingsActivity extends BaseActivity
 
     public static final String KEY_PREF_DATETIME_FORMAT = "pref_datetimeFormat";
     public static final String KEY_PREF_AUTO_SELECT = "pref_auto_select_new";
-    public static final String KEY_PREF_STORAGE_FOLDER = "pref_storageFolder";
-    public static final String KEY_PREF_TAG_IMAGES = "pref_tag_images";
     public static final String KEY_PREF_DB_EXPORT = "pref_db_export";
     public static final String KEY_PREF_DB_IMPORT = "pref_db_import";
     public static final String KEY_PREF_COND_ALPHA = "pref_cond_alpha";
     public static final String KEY_PREF_COND_PREDECESSOR = "pref_cond_predecessor";
     public static final String KEY_PREF_COND_OCCURRENCE = "pref_cond_occurrence";
     public static final String KEY_PREF_COND_RECENCY = "pref_cond_recency";
-    public static final String KEY_PREF_NOTIF_SHOW_CUR_ACT = "pref_show_cur_activity_notification";
-    public static final String KEY_PREF_SILENT_RENOTIFICATIONS = "pref_silent_renotification";
+//    public static final String KEY_PREF_NOTIF_SHOW_CUR_ACT = "pref_show_cur_activity_notification";
+//    public static final String KEY_PREF_SILENT_RENOTIFICATIONS = "pref_silent_renotification";
     public static final String KEY_PREF_DISABLE_CURRENT = "pref_disable_current_on_click";
     public static final String KEY_PREF_COND_DAYTIME = "pref_cond_daytime";
     public static final String KEY_PREF_USE_LOCATION = "pref_use_location";
@@ -111,13 +114,13 @@ public class SettingsActivity extends BaseActivity
     private Preference dateformatPref;
     private ListPreference durationFormatPref;
     private Preference autoSelectPref;
-    private Preference storageFolderPref;
-    private Preference tagImagesPref;
+//    private Preference storageFolderPref;
+//    private Preference tagImagesPref;
     private Preference condAlphaPref;
     private Preference condOccurrencePref;
     private Preference condRecencyPref;
-    private Preference nofifShowCurActPref;
-    private Preference silentRenotifPref;
+//    private Preference nofifShowCurActPref;
+//    private Preference silentRenotifPref;
     private Preference disableOnClickPref;
     private ListPreference useLocationPref;
     private EditTextPreference locationAgePref;
@@ -136,13 +139,6 @@ public class SettingsActivity extends BaseActivity
             case KEY_PREF_AUTO_SELECT:
                 updateAutoSelectSummary();
                 break;
-            case KEY_PREF_STORAGE_FOLDER:
-                /* TODO: we could ask here whether we shall move the pictures... */
-                updateStorageFolderSummary();
-                break;
-            case KEY_PREF_TAG_IMAGES:
-                updateTagImageSummary();
-                break;
             case KEY_PREF_COND_ALPHA:
                 updateCondAlphaSummary();
                 break;
@@ -152,12 +148,12 @@ public class SettingsActivity extends BaseActivity
             case KEY_PREF_COND_RECENCY:
                 updateCondRecencySummary();
                 break;
-            case KEY_PREF_NOTIF_SHOW_CUR_ACT:
-                updateNotifShowCurActivity();
-                break;
-            case KEY_PREF_SILENT_RENOTIFICATIONS:
-                updateSilentNotifications();
-                break;
+//            case KEY_PREF_NOTIF_SHOW_CUR_ACT:
+//                updateNotifShowCurActivity();
+//                break;
+//            case KEY_PREF_SILENT_RENOTIFICATIONS:
+//                updateSilentNotifications();
+//                break;
             case KEY_PREF_DISABLE_CURRENT:
                 updateDisableCurrent();
                 break;
@@ -202,57 +198,79 @@ public class SettingsActivity extends BaseActivity
         int permissionCheckFine;
         int permissionCheckCoarse;
 
-        String value = PreferenceManager
+        @NonNls String value = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(KEY_PREF_USE_LOCATION, "off");
 
-        if(value.equals("off")){
+        if (value.equals("off")) {
             locationAgePref.setEnabled(false);
             locationDistPref.setEnabled(false);
             useLocationPref.setSummary(getResources().getString(R.string.setting_use_location_off_summary));
-        }else {
+        } else {
             locationAgePref.setEnabled(true);
             locationDistPref.setEnabled(true);
             useLocationPref.setSummary(getResources().getString(R.string.setting_use_location_summary, useLocationPref.getEntry()));
         }
 
-        if(value.equals("gps")) {
+        if (value.equals("gps")) {
             permissionCheckFine = ContextCompat.checkSelfPermission(getApplicationContext(),
                     Manifest.permission.ACCESS_FINE_LOCATION);
             if (permissionCheckFine != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION)) {
-
+                        Manifest.permission.ACCESS_FINE_LOCATION))
                     Toast.makeText(this, R.string.perm_location_xplain, Toast.LENGTH_LONG).show();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                                    Manifest.permission.ACCESS_FINE_LOCATION},
+                            4711);
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            4712);
                 }
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        4712);
             }
-        }else{
+        } else if (value.equals("network")) {
             permissionCheckCoarse = ContextCompat.checkSelfPermission(getApplicationContext(),
                     Manifest.permission.ACCESS_COARSE_LOCATION);
             if (permissionCheckCoarse != PackageManager.PERMISSION_GRANTED) {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION)) {
-
+                        Manifest.permission.ACCESS_COARSE_LOCATION))
                     Toast.makeText(this, R.string.perm_location_xplain, Toast.LENGTH_LONG).show();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION},
+                            4711);
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                            4713);
                 }
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                        4713);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 4712 || requestCode == 4713) {
+            if (grantResults[0] == 0) {
+                LocationHelper.helper.updateLocation();
             }
         }
     }
 
     private void updateLocationDist() {
         String def = getResources().getString(R.string.pref_location_dist_default);
-        String value = PreferenceManager
+        @NonNls String value = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(KEY_PREF_LOCATION_DIST, def);
 
         int v = Integer.parseInt(value.replaceAll("\\D",""));
-        if(v < 5){
+        if (v < 5) {
             v = 5;
         }
         String nvalue = Integer.toString(v);
@@ -271,14 +289,14 @@ public class SettingsActivity extends BaseActivity
 
     private void updateLocationAge() {
         String def = getResources().getString(R.string.pref_location_age_default);
-        String value = PreferenceManager
+        @NonNls String value = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext())
                 .getString(KEY_PREF_LOCATION_AGE, def);
         int v = Integer.parseInt(value.replaceAll("\\D",""));
-        if(v < 2){
+        if (v < 2) {
             v = 2;
-        }else if(v > 60){
-            v = 60;
+        } else if (v > 720){
+            v = 720;
         }
         String nvalue = Integer.toString(v);
         if(!value.equals(nvalue)){
@@ -301,24 +319,6 @@ public class SettingsActivity extends BaseActivity
         }else{
             disableOnClickPref.setSummary(getResources().getString(R.string.setting_disable_on_click_summary_inactive));
         }
-    }
-
-    private void updateTagImageSummary() {
-        if(PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
-                .getBoolean(KEY_PREF_TAG_IMAGES, true)){
-            tagImagesPref.setSummary(getResources().getString(R.string.setting_tag_yes));
-        }else{
-            tagImagesPref.setSummary(getResources().getString(R.string.setting_tag_no));
-        }
-    }
-
-    private void updateStorageFolderSummary() {
-        String dir = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
-                .getString(KEY_PREF_STORAGE_FOLDER, "LifeDots");
-
-        storageFolderPref.setSummary(getResources().getString(R.string.setting_storage_folder_summary, dir));
     }
 
     private void updateCondAlphaSummary() {
@@ -370,28 +370,27 @@ public class SettingsActivity extends BaseActivity
         }
     }
 
-    private void updateNotifShowCurActivity() {
-        if(PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
-                .getBoolean(KEY_PREF_NOTIF_SHOW_CUR_ACT, false)){
-            nofifShowCurActPref.setSummary(getResources().getString(R.string.setting_show_cur_activitiy_notification_summary_active));
-        }else{
-            nofifShowCurActPref.setSummary(getResources().getString(R.string.setting_show_cur_activitiy_notification_summary_inactive));
-        }
-        ActivityHelper.helper.showCurrentActivityNotification();
-    }
+//    private void updateNotifShowCurActivity() {
+//        if(PreferenceManager
+//                .getDefaultSharedPreferences(getApplicationContext())
+//                .getBoolean(KEY_PREF_NOTIF_SHOW_CUR_ACT, false)){
+//            nofifShowCurActPref.setSummary(getResources().getString(R.string.setting_show_cur_activitiy_notification_summary_active));
+//        }else{
+//            nofifShowCurActPref.setSummary(getResources().getString(R.string.setting_show_cur_activitiy_notification_summary_inactive));
+//        }
+//        ActivityHelper.helper.showCurrentActivityNotification();
+//    }
 
-    private void updateSilentNotifications() {
-        if(PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
-                .getBoolean(KEY_PREF_SILENT_RENOTIFICATIONS, true)){
-            silentRenotifPref.setSummary(getResources().getString(R.string.setting_silent_reconfication_summary_active));
-        }else{
-            silentRenotifPref.setSummary(getResources().getString(R.string.setting_silent_reconfication_summary_inactive));
-        }
-        ActivityHelper.helper.showCurrentActivityNotification();
-    }
-
+//    private void updateSilentNotifications() {
+//        if(PreferenceManager
+//                .getDefaultSharedPreferences(getApplicationContext())
+//                .getBoolean(KEY_PREF_SILENT_RENOTIFICATIONS, true)){
+//            silentRenotifPref.setSummary(getResources().getString(R.string.setting_silent_reconfication_summary_active));
+//        }else{
+//            silentRenotifPref.setSummary(getResources().getString(R.string.setting_silent_reconfication_summary_inactive));
+//        }
+//        ActivityHelper.helper.showCurrentActivityNotification();
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -400,7 +399,6 @@ public class SettingsActivity extends BaseActivity
         ActivitySettingsBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_settings);
 
 //        View contentView = View.inflate(this, R.layout.activity_settings, null);
-//
 //        setContent(contentView);
         SettingsFragment sf = (SettingsFragment)getSupportFragmentManager().findFragmentById(R.id.settings_fragment);
 
@@ -420,14 +418,14 @@ public class SettingsActivity extends BaseActivity
         durationFormatPref = mPreferenceManager.findPreference(KEY_PREF_DURATION_FORMAT);
         autoSelectPref = mPreferenceManager.findPreference(KEY_PREF_AUTO_SELECT);
         disableOnClickPref = mPreferenceManager.findPreference(KEY_PREF_DISABLE_CURRENT);
-        storageFolderPref = mPreferenceManager.findPreference(KEY_PREF_STORAGE_FOLDER);
+//        storageFolderPref = mPreferenceManager.findPreference(KEY_PREF_STORAGE_FOLDER);
         useLocationPref = mPreferenceManager.findPreference(KEY_PREF_USE_LOCATION);
         locationAgePref = mPreferenceManager.findPreference(KEY_PREF_LOCATION_AGE);
         locationDistPref = mPreferenceManager.findPreference(KEY_PREF_LOCATION_DIST);
 
-        tagImagesPref = mPreferenceManager.findPreference(KEY_PREF_TAG_IMAGES);
-        nofifShowCurActPref = mPreferenceManager.findPreference(KEY_PREF_NOTIF_SHOW_CUR_ACT);
-        silentRenotifPref = mPreferenceManager.findPreference(KEY_PREF_SILENT_RENOTIFICATIONS);
+//        tagImagesPref = mPreferenceManager.findPreference(KEY_PREF_TAG_IMAGES);
+//        nofifShowCurActPref = mPreferenceManager.findPreference(KEY_PREF_NOTIF_SHOW_CUR_ACT);
+//        silentRenotifPref = mPreferenceManager.findPreference(KEY_PREF_SILENT_RENOTIFICATIONS);
 
         Preference exportPref = mPreferenceManager.findPreference(KEY_PREF_DB_EXPORT);
         exportPref.setOnPreferenceClickListener(preference -> {
@@ -455,18 +453,18 @@ public class SettingsActivity extends BaseActivity
         condOccurrencePref = mPreferenceManager.findPreference(KEY_PREF_COND_OCCURRENCE);
         condRecencyPref = mPreferenceManager.findPreference(KEY_PREF_COND_RECENCY);
 
-        updateAutoSelectSummary();
-        updateStorageFolderSummary();
-        updateTagImageSummary();
-        updateCondAlphaSummary();
-        updateCondOccurenceSummary();
-        updateNotifShowCurActivity();
-        updateSilentNotifications();
-        updateDisableCurrent();
-        updateUseLocation();
-        updateLocationAge();
-        updateLocationDist();
-        updateDurationFormat();
+//        updateAutoSelectSummary();
+//        updateStorageFolderSummary();
+//        updateTagImageSummary();
+//        updateCondAlphaSummary();
+//        updateCondOccurenceSummary();
+//        updateNotifShowCurActivity();
+//        updateSilentNotifications();
+//        updateDisableCurrent();
+//        updateUseLocation();
+//        updateLocationAge();
+//        updateLocationDist();
+//        updateDurationFormat();
 
         mDrawerToggle.setDrawerIndicatorEnabled(false);
     }

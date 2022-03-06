@@ -19,12 +19,15 @@
 package com.mdiqentw.lifedots.ui.history
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.database.Cursor
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.DatePicker
 import androidx.databinding.DataBindingUtil
 import androidx.loader.app.LoaderManager
 import androidx.loader.content.CursorLoader
@@ -41,12 +44,12 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.mdiqentw.lifedots.MVApplication
 import com.mdiqentw.lifedots.R
 import com.mdiqentw.lifedots.databinding.ActivityAnalyticsBinding
-import com.mdiqentw.lifedots.db.LocalDBHelper
 import com.mdiqentw.lifedots.db.Contract
+import com.mdiqentw.lifedots.db.LocalDBHelper
 import com.mdiqentw.lifedots.helpers.DateHelper
 import com.mdiqentw.lifedots.helpers.TimeSpanFormatter
 import com.mdiqentw.lifedots.ui.generic.BaseActivity
-import com.mdiqentw.lifedots.ui.history.HistoryDetailActivity.DatePickerFragment
+import com.mdiqentw.lifedots.ui.history.EventDetailActivity.DatePickerFragment
 import org.osmdroid.config.Configuration
 import java.util.*
 import kotlin.math.max
@@ -71,61 +74,80 @@ import kotlin.math.roundToInt
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>, AdapterView.OnItemSelectedListener, OnChartValueSelectedListener {
-    private var chartFrame: FrameLayout? = null
+class AnalyticsActivity : BaseActivity(),
+    LoaderManager.LoaderCallbacks<Cursor?>,
+    AdapterView.OnItemSelectedListener,
+    OnChartValueSelectedListener {
+
     private var pieChart: PieChart? = null
     private var timeFramePosition = 0
     private var bnbAct: Bundle? = null
     private var pieMax = 100.0f
     private var pieMin = 5.0f
-    var pieUnit = true
+    private var pieUnit = true
     private var xyChart: ScatterChart? = null
     private var startOfTime = 0L
     private var useXYChart = false
-    private var timeframeSpinner: Spinner? = null
-    private var rangeTextView: TextView? = null
-    private var rangeEarlierImageView: ImageView? = null
-    private var rangeLaterImageView: ImageView? = null
     private var currentDateTime: Long = 0
     private var currentOffset = 0
     private var currentRange = Calendar.WEEK_OF_YEAR
 
+    private lateinit var startTimes : ArrayList<Long>
+
+    lateinit var binding: ActivityAnalyticsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val ctx = applicationContext
-        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx))
-        val binding: ActivityAnalyticsBinding = DataBindingUtil.setContentView(this, R.layout.activity_analytics)
+        Configuration.getInstance().load(applicationContext,
+            PreferenceManager.getDefaultSharedPreferences(applicationContext))
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_analytics)
         setContent(binding.root)
-        timeframeSpinner = binding.timeframeSpinner
-        timeframeSpinner!!.onItemSelectedListener = this
+        binding.activity = this
+
+        binding.timeframeSpinner.onItemSelectedListener = this
         val adapter = ArrayAdapter.createFromResource(this,
                 R.array.statistic_dropdown,
                 android.R.layout.simple_spinner_item)
-        timeframeSpinner!!.adapter = adapter
+        binding.timeframeSpinner.adapter = adapter
+
         LoaderManager.getInstance(this).initLoader(LOADER_ID_TIME, null, this)
         getStartOfTime()
-        xyChart = ScatterChart(ctx)
-        xyChart!!.axisRight.isEnabled = false
-        xyChart!!.legend.isEnabled = true
-        xyChart!!.legend.textSize = 16f
-        xyChart!!.description.text = "Time Summary Per Day"
-        xyChart!!.description.textSize = 16f
-        xyChart!!.setOnChartValueSelectedListener(this)
-        pieChart = PieChart(ctx)
+        pieChart = PieChart(applicationContext)
+        xyChart = ScatterChart(applicationContext)
+
+        initPieChart()
+        initXYChart()
+
+        binding.chartFrame.addView(pieChart)
+        binding.imgEarlier.setOnClickListener { loadRange(currentRange, --currentOffset) }
+        binding.imgLater.setOnClickListener { loadRange(currentRange, ++currentOffset) }
+        currentDateTime = Date().time
+
+        mDrawerToggle.isDrawerIndicatorEnabled = false
+    }
+
+    private fun initPieChart() {
         pieChart!!.legend.isEnabled = false
         pieChart!!.description = null
         pieChart!!.holeRadius = 30.0f
         pieChart!!.transparentCircleRadius = 40.0f
         pieChart!!.setOnChartValueSelectedListener(this)
-        chartFrame = binding.chartFrame
-        chartFrame!!.addView(pieChart)
-        rangeTextView = binding.rangeTextView
-        rangeEarlierImageView = binding.imgEarlier
-        rangeEarlierImageView!!.setOnClickListener { loadRange(currentRange, --currentOffset) }
-        rangeLaterImageView = binding.imgLater
-        rangeLaterImageView!!.setOnClickListener { loadRange(currentRange, ++currentOffset) }
-        currentDateTime = Date().time
-        mDrawerToggle.isDrawerIndicatorEnabled = false
+    }
+
+    private fun initXYChart() {
+        xyChart!!.axisRight.isEnabled = false
+        xyChart!!.legend.isEnabled = true
+        xyChart!!.legend.textSize = 16f
+        xyChart!!.description.text = "Time Summary Per Day"
+        xyChart!!.description.textSize = 16f
+        xyChart!!.setTouchEnabled(true)
+        xyChart!!.maxHighlightDistance = 200f
+        xyChart!!.setOnChartValueSelectedListener(this)
+        xyChart!!.isDragEnabled = true
+        xyChart!!.setScaleEnabled(true)
+//        xyChart!!.setMaxVisibleValueCount(200)
+        xyChart!!.setPinchZoom(true)
     }
 
     @SuppressLint("Range")
@@ -213,6 +235,7 @@ class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>
                 pieChart!!.setUsePercentValues(false)
                 pieChart!!.rotationAngle = 180.0f
                 pieChart!!.invalidate() // refresh
+                initPieChart()
             }
         }
     }
@@ -248,18 +271,30 @@ class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>
                     bnbAct!!.putLong("end", currentDateTime)
                 }
                 3 -> {
+                    bnbAct!!.putLong("start", currentDateTime - MS_Per_Day * 90)
+                    bnbAct!!.putLong("end", currentDateTime)
+                }
+                4 -> {
+                    bnbAct!!.putLong("start", currentDateTime - MS_Per_Day * 180)
+                    bnbAct!!.putLong("end", currentDateTime)
+                }
+                5 -> {
+                    bnbAct!!.putLong("start", currentDateTime - MS_Per_Day * 365)
+                    bnbAct!!.putLong("end", currentDateTime)
+                }
+                6 -> {
                     currentOffset = 0
                     currentRange = Calendar.DAY_OF_YEAR
                 }
-                4 -> {
+                7 -> {
                     currentOffset = 0
                     currentRange = Calendar.WEEK_OF_YEAR
                 }
-                5 -> {
+                8 -> {
                     currentOffset = 0
                     currentRange = Calendar.MONTH
                 }
-                6 -> {
+                9 -> {
                     currentOffset = 0
                     currentRange = Calendar.YEAR
                 }
@@ -271,14 +306,14 @@ class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>
     }
 
     private fun resetRangeTextView() {
-        if (timeFramePosition < 3 || useXYChart) {
-            rangeTextView!!.visibility = View.INVISIBLE
-            rangeEarlierImageView!!.visibility = View.INVISIBLE
-            rangeLaterImageView!!.visibility = View.INVISIBLE
+        if (timeFramePosition < 6 || useXYChart) {
+            binding.rangeTextView.visibility = View.INVISIBLE
+            binding.imgEarlier.visibility = View.INVISIBLE
+            binding.imgLater.visibility = View.INVISIBLE
         } else {
-            rangeTextView!!.visibility = View.VISIBLE
-            rangeEarlierImageView!!.visibility = View.VISIBLE
-            rangeLaterImageView!!.visibility = View.VISIBLE
+            binding.rangeTextView.visibility = View.VISIBLE
+            binding.imgEarlier.visibility = View.VISIBLE
+            binding.imgLater.visibility = View.VISIBLE
         }
     }
 
@@ -287,7 +322,7 @@ class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>
             timeFramePosition < 1 -> {
                 LoaderManager.getInstance(this).restartLoader(LOADER_ID_TIME, bnbAct, this)
             }
-            timeFramePosition < 3 -> {
+            timeFramePosition < 6 -> {
                 LoaderManager.getInstance(this).restartLoader(LOADER_ID_RANGE, bnbAct, this)
             }
             else -> {
@@ -305,7 +340,7 @@ class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>
         calEnd.add(field, 1)
         val sdf = DateHelper.dateFormat(field)
         val tt = sdf.format(calStart.time)
-        rangeTextView!!.text = tt
+        binding.rangeTextView.text = tt
         bnd.putLong("start", calStart.timeInMillis)
         bnd.putLong("end", calEnd.timeInMillis)
         LoaderManager.getInstance(this).restartLoader(LOADER_ID_RANGE, bnd, this)
@@ -330,15 +365,15 @@ class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>
         // can't remove the xyChart here because it still needs to handle this touch event
 //            chartFrame.removeView(pieChart);
         xyChart!!.clear()
-        chartFrame!!.addView(pieChart)
-        timeframeSpinner!!.visibility = View.VISIBLE
+        binding.chartFrame.addView(pieChart)
+        binding.timeframeSpinner.visibility = View.VISIBLE
         //            chartFrame.removeView(xyChart);
     }
 
     private fun switchToXYChart() {
-        chartFrame!!.removeView(xyChart)
-        chartFrame!!.addView(xyChart)
-        chartFrame!!.removeView(pieChart)
+        binding.chartFrame.removeView(xyChart)
+        binding.chartFrame.addView(xyChart)
+        binding.chartFrame.removeView(pieChart)
     }
 
     // implementing the pie chart listener
@@ -368,7 +403,7 @@ class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>
                 reload()
             } else {
                 useXYChart = true
-                timeframeSpinner!!.visibility = View.GONE
+                binding.timeframeSpinner.visibility = View.GONE
                 val db = mOpenHelper.readableDatabase
                 var cursor = db.query(Contract.DiaryActivity.TABLE_NAME, arrayOf("*"),
                         "name = ?", arrayOf(pe.label), null, null, null, null)
@@ -380,17 +415,28 @@ class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>
                     cursor.close()
                 }
                 val currentChartStep = Calendar.DAY_OF_YEAR
-                val calStart = DateHelper.startOf(currentChartStep, startOfTime)
+                var calStart = DateHelper.startOf(currentChartStep, startOfTime)
+                val valueFormatter: ValueFormatter = MyValueFormatter2()
+                var sel = "act_id = ?"
+                if (timeFramePosition > 0 && bnbAct != null) {
+                    val start = bnbAct!!.getLong("start")
+                    val end = bnbAct!!.getLong("end")
+                    calStart = DateHelper.startOf(currentChartStep, start)
+                    sel += " AND " + Contract.Diary.START + " >= " + start +
+                            " AND " + Contract.Diary.END + " <= " + end
+                }
+                cursor = db.query(
+                    Contract.Diary.TABLE_NAME, arrayOf("start", "end"),
+                    sel, arrayOf(actID), null, null,
+                    Contract.Diary.START, null)
                 val calEnd = calStart.clone() as Calendar
                 calEnd.add(currentChartStep, 1)
-                val valueFormatter: ValueFormatter = MyValueFormatter2()
-                cursor = db.query(Contract.Diary.TABLE_NAME, arrayOf("start", "end"),
-                        "act_id = ?", arrayOf(actID), null, null, null, null)
                 val segEntries = ArrayList<Entry>(50)
+                startTimes = ArrayList<Long>(50)
                 val dates = ArrayList<String>(50)
                 if (cursor != null && cursor.moveToFirst()) {
-                    var actStart: Long
-                    var actEnd: Long
+                    var actStart = 0L
+                    var actEnd = 0L
                     var startMS = calStart.timeInMillis
                     var endMS = calEnd.timeInMillis
                     var offset = 0
@@ -414,18 +460,21 @@ class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>
                         }
                         segEntries.add(Entry(offset.toFloat(), actSum.toFloat()))
                         dates.add(String.format("%d-%d-%d", calStart[Calendar.MONTH] + 1, calStart[Calendar.DAY_OF_MONTH], calStart[Calendar.YEAR]))
+                        startTimes.add(actStart)
                         offset += 1
                         calStart.add(currentChartStep, 1)
                         calEnd.add(currentChartStep, 1)
                         startMS = calStart.timeInMillis
                         endMS = calEnd.timeInMillis
                     }
+                    startTimes.add(actEnd)
                     cursor.close()
                 }
                 val dataSets: MutableList<IScatterDataSet> = ArrayList(50)
                 val set = ScatterDataSet(segEntries, pe.label)
                 set.valueFormatter = valueFormatter
                 set.color = actColor
+                set.scatterShapeSize = 20f
                 set.setDrawValues(false)
                 dataSets.add(set)
                 val data = ScatterData(dataSets)
@@ -438,14 +487,18 @@ class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>
                 xAxis.labelRotationAngle = 60f
                 xAxis.valueFormatter = MyValueFormatter(dates)
                 xyChart!!.invalidate()
+                initXYChart()
                 switchToXYChart()
             }
         } else {
-            useXYChart = false
-            switchToPieChart()
+            val hist = Intent(this, HistoryActivity::class.java)
+            hist.putExtra("StartTime", startTimes[e.x.toInt()])
+            hist.putExtra("EndTime", startTimes[e.x.toInt()+1])
+            startActivity(hist)
         }
         resetRangeTextView()
     }
+
 
     private class MyValueFormatter(private val dates: ArrayList<String>) : ValueFormatter() {
         override fun getFormattedValue(value: Float): String {

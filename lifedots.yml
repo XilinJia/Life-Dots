@@ -1,6 +1,7 @@
  Categories:
   - Time
-  - Lifestyle
+  - Writing
+  - Sports & Health
 License: GPL-3.0-only
 AuthorName: Xilin Jia
 SourceCode: https://github.com/XilinJia/Life-Dots
@@ -14,8 +15,8 @@ RepoType: git
 Repo: https://github.com/XilinJia/Life-Dots
 
 Builds:
-  - versionName: 2.0.1
-    versionCode: 150
+  - versionName: 2.1.0
+    versionCode: 151
     commit: 42674e959b7aead723d4e7c9bc903b1153f669a7
     subdir: app
     sudo:
@@ -27,6 +28,6 @@ Builds:
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
-CurrentVersion: 2.0.1
-CurrentVersionCode: 150
+CurrentVersion: 2.1.0
+CurrentVersionCode: 151
 

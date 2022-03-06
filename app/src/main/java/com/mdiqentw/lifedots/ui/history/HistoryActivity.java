@@ -36,8 +36,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -50,18 +48,16 @@ import androidx.fragment.app.DialogFragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.mdiqentw.lifedots.MVApplication;
 import com.mdiqentw.lifedots.R;
 import com.mdiqentw.lifedots.databinding.ActivityHistoryContentBinding;
-import com.mdiqentw.lifedots.db.LDContentProvider;
 import com.mdiqentw.lifedots.db.Contract;
+import com.mdiqentw.lifedots.db.LDContentProvider;
 import com.mdiqentw.lifedots.ui.generic.BaseActivity;
 import com.mdiqentw.lifedots.ui.generic.DetailRecyclerViewAdapter;
-import com.mdiqentw.lifedots.ui.generic.EditActivity;
 import com.mdiqentw.lifedots.ui.main.NoteEditDialog;
 
 import java.text.ParseException;
@@ -128,10 +124,7 @@ public class HistoryActivity extends BaseActivity
 
     private HistoryRecyclerViewAdapter historyAdapter;
     private DetailRecyclerViewAdapter[] detailAdapters;
-    private MenuItem imagesMenuItem;
-    private MenuItem locationMenuItem;
     private SearchView searchView;
-    private TextView rangeTextView;
 
     private Long startTime, endTime, duration;
 
@@ -146,7 +139,7 @@ public class HistoryActivity extends BaseActivity
 
     @Override
     public void onItemClick(HistoryViewHolders viewHolder, int adapterPosition, int diaryID) {
-        Intent i = new Intent(this, HistoryDetailActivity.class);
+        Intent i = new Intent(this, EventDetailActivity.class);
         i.putExtra("diaryEntryID", diaryID);
         startActivity(i);
     }
@@ -154,7 +147,11 @@ public class HistoryActivity extends BaseActivity
     public boolean onItemLongClick(HistoryViewHolders viewHolder, int adapterPosition, int diaryID) {
         NoteEditDialog dialog = new NoteEditDialog();
         dialog.setDiaryId(diaryID);
-        dialog.setText(viewHolder.mNoteLabel.getText().toString());
+        if (viewHolder != null) {
+            CharSequence noteText = viewHolder.mNoteLabel.getText();
+            if (noteText != null && noteText.length()>0)
+                dialog.setInputText(noteText.toString());
+        }
         dialog.show(getSupportFragmentManager(), "NoteEditDialogFragment");
         return true;
     }
@@ -201,7 +198,7 @@ public class HistoryActivity extends BaseActivity
         return true;
     }
 
-    public boolean	onMenuItemClick(MenuItem item) {
+    public boolean onMenuItemClick(MenuItem item) {
         int mid = item.getItemId();
         if (mid == R.id.menu_notes) {
             obtainHistoryNotes();
@@ -213,16 +210,13 @@ public class HistoryActivity extends BaseActivity
                 endTime = selection.second;
                 duration = endTime - startTime;
 
-                rangeTextView.setText(String.format("%d Days", duration / MS_Per_Day));
+                binding.hisRangeTextView.setText(String.format("%d Days", duration / MS_Per_Day));
                 obtainHistoryInPeriod();
             });
 //        } else if (item.getItemId() == R.id.menu_images) {
-////            obtainHistoryImages();
-//            ;
-//        } else if (item.getItemId() == R.id.menu_location) {
-////            obtainHistoryImages();
-//            ;
+//            obtainHistoryImages();
         }
+
         return true;
     }
 
@@ -241,37 +235,41 @@ public class HistoryActivity extends BaseActivity
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_history_content);
         setContent(binding.getRoot());
+        binding.setActivity(this);
+
+        Intent i = getIntent();
+        long tstart = i.getLongExtra("StartTime", 0L);
+        long tend = i.getLongExtra("EndTime", 0L);
+        if (tstart > 0L && tend > 0L) {
+            startTime = tstart;
+            endTime = tend;
+        }
 
         detailAdapters = new DetailRecyclerViewAdapter[5];
 
-        RecyclerView historyRecyclerView = binding.historyList;
-
         StaggeredGridLayoutManager detailLayoutManager;
         int hov;
-        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE)
             hov = StaggeredGridLayoutManager.HORIZONTAL;
-        } else {
+        else
             hov = StaggeredGridLayoutManager.VERTICAL;
-        }
+
         detailLayoutManager = new MyStaggeredGridLayoutManager(hov);
 
 //        detailLayoutManager.setAutoMeasureEnabled(true);
 
-        historyRecyclerView.setLayoutManager(detailLayoutManager);
+        binding.historyList.setLayoutManager(detailLayoutManager);
 
         historyAdapter = new HistoryRecyclerViewAdapter(HistoryActivity.this, this, null);
-        historyRecyclerView.setAdapter(historyAdapter);
+        binding.historyList.setAdapter(historyAdapter);
 
-        rangeTextView = binding.hisRangeTextView;
-        rangeTextView.setText(String.format("%d Days", duration / MS_Per_Day));
-        ImageView rangeEarlierView = binding.hisImgEarlier;
-        rangeEarlierView.setOnClickListener(v -> {
+        binding.hisRangeTextView.setText(String.format("%d Days", duration / MS_Per_Day));
+        binding.hisImgEarlier.setOnClickListener(v -> {
             endTime = startTime;
             startTime -= duration;
             filterHistoryView(null);
         });
-        ImageView rangeLaterView = binding.hisImgLater;
-        rangeLaterView.setOnClickListener(v -> {
+        binding.hisImgLater.setOnClickListener(v -> {
             startTime = endTime;
             endTime += duration;
             filterHistoryView(null);
@@ -288,7 +286,7 @@ public class HistoryActivity extends BaseActivity
     }
 
     public void showDatePickerDialog(View v) {
-        HistoryDetailActivity.DatePickerFragment newFragment = new HistoryDetailActivity.DatePickerFragment();
+        EventDetailActivity.DatePickerFragment newFragment = new EventDetailActivity.DatePickerFragment();
         Calendar date = Calendar.getInstance();
         date.setTimeInMillis(startTime+duration/2);
         newFragment.setData((view, year, month, dayOfMonth) -> {
@@ -327,7 +325,6 @@ public class HistoryActivity extends BaseActivity
                 query = data.getLastPathSegment();
                 filterHistoryNotes(query);
             }
-
         } else if (LDContentProvider.SEARCH_GLOBAL.equals(action)) {
             Uri data = intent.getData();
             if (data != null) {
@@ -384,12 +381,9 @@ public class HistoryActivity extends BaseActivity
         MenuItem datesMenuItem = menu.findItem(R.id.menu_dates);
         datesMenuItem.setOnMenuItemClickListener(this);
 
-//        imagesMenuItem = menu.findItem(R.id.menu_images);
+//        MenuItem imagesMenuItem = menu.findItem(R.id.menu_images);
 //        imagesMenuItem.setOnMenuItemClickListener(this);
 //
-//        locationMenuItem = menu.findItem(R.id.menu_location);
-//        locationMenuItem.setOnMenuItemClickListener(this);
-
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         MenuItem searchMenuItem = menu.findItem(R.id.action_filter);
@@ -491,9 +485,11 @@ public class HistoryActivity extends BaseActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle your other action bar items...
-        if (item.getItemId() == R.id.action_add_activity) {
-            Intent intentaddact = new Intent(HistoryActivity.this, EditActivity.class);
-            startActivity(intentaddact);
+        if (item.getItemId() == R.id.action_map) {
+            Intent map = new Intent(HistoryActivity.this, MapActivity.class);
+            map.putExtra("StartTime", startTime);
+            map.putExtra("EndTime", endTime);
+            startActivity(map);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -521,6 +517,11 @@ public class HistoryActivity extends BaseActivity
                                 Contract.Diary.NOTE + " != ''" ;
                         sel_args = null;
                         break;
+//                    case OBTAIN_TYPE_IMAGE:
+//                        sel =  sel + " AND " + Contract.Diary. + " IS NOT NULL AND " +
+//                                Contract.Diary.NOTE + " != ''" ;
+//                        sel_args = null;
+//                        break;
                     case OBTAIN_TYPE_PERIOD:
                         sel = sel + " AND " + Contract.Diary.END + " >= " + args.getLong("START")
                             + " AND " + Contract.Diary.START + " <= " + args.getLong("END");
@@ -587,7 +588,7 @@ public class HistoryActivity extends BaseActivity
     }
 
     @Override
-    public void onNoteEditPositiveClock(String str, DialogFragment dialog) {
+    public void onNoteEditPositiveClick(String str, DialogFragment dialog) {
         /* update note */
         NoteEditDialog dlg = (NoteEditDialog) dialog;
 
@@ -600,7 +601,6 @@ public class HistoryActivity extends BaseActivity
                         Long.toString(dlg.getDiaryId())),
                 values,
                 null, null);
-
     }
 
     @Override

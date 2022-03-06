@@ -20,6 +20,10 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <data>
+        <variable name="activity" type="com.mdiqentw.lifedots.ui.history.AnalyticsActivity" />
+    </data>
+
     <LinearLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="vertical"
@@ -70,7 +74,7 @@
                     android:textAlignment="center"
                     android:textSize="24sp"
                     android:visibility="invisible"
-                    android:onClick="showDatePickerDialog"/>
+                    android:onClick="@{() -> activity.showDatePickerDialog()}" />
 
                 <ImageView
                     android:id="@+id/img_later"

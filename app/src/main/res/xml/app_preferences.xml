@@ -55,17 +55,17 @@
             android:summary="@string/setting_disable_on_click_summary_inactive"
             android:defaultValue="false"/>
 
-        <androidx.preference.SwitchPreferenceCompat
-            android:key="pref_show_cur_activity_notification"
-            android:title="@string/setting_show_cur_activitiy_notification"
-            android:summary="@string/setting_show_cur_activitiy_notification_summary_active"
-            android:defaultValue="false"/>
+<!--        <androidx.preference.SwitchPreferenceCompat-->
+<!--            android:key="pref_show_cur_activity_notification"-->
+<!--            android:title="@string/setting_show_cur_activitiy_notification"-->
+<!--            android:summary="@string/setting_show_cur_activitiy_notification_summary_active"-->
+<!--            android:defaultValue="false"/>-->
 
-        <androidx.preference.SwitchPreferenceCompat
-            android:key="pref_silent_renotification"
-            android:title="@string/setting_silent_renotification"
-            android:summary="@string/setting_silent_reconfication_summary_active"
-            android:defaultValue="true"/>
+<!--        <androidx.preference.SwitchPreferenceCompat-->
+<!--            android:key="pref_silent_renotification"-->
+<!--            android:title="@string/setting_silent_renotification"-->
+<!--            android:summary="@string/setting_silent_reconfication_summary_active"-->
+<!--            android:defaultValue="true"/>-->
 
 <!--        <androidx.preference.SwitchPreferenceCompat-->
 <!--            android:key="acra.enable"-->
@@ -101,23 +101,23 @@
             android:title="@string/setting_location_dist" />
 
     </androidx.preference.PreferenceCategory>
-    <androidx.preference.PreferenceCategory
-        android:title="@string/setting_images_category"
-        >
 
-        <androidx.preference.EditTextPreference
-            android:key="pref_storageFolder"
-            android:title="@string/setting_storage_folder"
-            android:summary="@string/setting_storage_folder_summary"
-            android:dialogMessage="@string/setting_storage_folder_description"
-            android:defaultValue="@string/default_storage_folder" />
+<!--    <androidx.preference.PreferenceCategory-->
+<!--        android:title="@string/setting_images_category">-->
 
-        <androidx.preference.SwitchPreferenceCompat
-            android:key="pref_tag_images"
-            android:title="@string/setting_tag_images"
-            android:summary="@string/setting_tag_yes"
-            android:defaultValue="true" />
-    </androidx.preference.PreferenceCategory>
+<!--        <androidx.preference.EditTextPreference-->
+<!--            android:key="pref_storageFolder"-->
+<!--            android:title="@string/setting_storage_folder"-->
+<!--            android:summary="@string/setting_storage_folder_summary"-->
+<!--            android:dialogMessage="@string/setting_storage_folder_description"-->
+<!--            android:defaultValue="@string/default_storage_folder" />-->
+
+<!--        <androidx.preference.SwitchPreferenceCompat-->
+<!--            android:key="pref_tag_images"-->
+<!--            android:title="@string/setting_tag_images"-->
+<!--            android:summary="@string/setting_tag_yes"-->
+<!--            android:defaultValue="true" />-->
+<!--    </androidx.preference.PreferenceCategory>-->
 
     <androidx.preference.PreferenceCategory
         android:title="@string/setting_condition_category"

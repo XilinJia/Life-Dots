@@ -34,19 +34,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.databinding.DataBindingUtil;
 
 import com.flask.colorpicker.ColorPickerView;
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
-import com.google.android.material.textfield.TextInputLayout;
 import com.mdiqentw.lifedots.MVApplication;
 import com.mdiqentw.lifedots.R;
 import com.mdiqentw.lifedots.databinding.ActivityEditContentBinding;
@@ -56,7 +51,6 @@ import com.mdiqentw.lifedots.helpers.GraphicsHelper;
 import com.mdiqentw.lifedots.model.DiaryActivity;
 
 import java.lang.ref.WeakReference;
-import java.util.LinkedList;
 import java.util.Objects;
 
 /*
@@ -90,85 +84,55 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
     private static final int QUERY_NAMES = 1;
     private static final int RENAME_DELETED_ACTIVITY = 2;
     private static final int TEST_DELETED_NAME = 3;
-    private static final int SIMILAR_ACTIVITY = 4;
+//    private static final int SIMILAR_ACTIVITY = 4;
 
     private static final String COLOR_KEY = "COLOR";
     private static final String NAME_KEY = "NAME";
 
     private static final int CHECK_STATE_CHECKING = 0;
     private static final int CHECK_STATE_OK = 1;
-    private static final int CHECK_STATE_WARNING = 2;
+//    private static final int CHECK_STATE_WARNING = 2;
     private static final int CHECK_STATE_ERROR = 3;
     private static final String[] NAME_TEST_PROJ = new String[]{Contract.DiaryActivity.NAME};
 
     private int checkState = CHECK_STATE_CHECKING;
 
-    private ImageView mActivityColorImg;
+    ActivityEditContentBinding binding;
+
     private int mActivityColor;
-
-    private EditText mActivityName;
-    private TextInputLayout mActivityNameTIL;
-    private ImageButton mQuickFixBtn1;
-    private ImageButton mBtnRenameDeleted;
-
-    private int getCheckState() {
-        return checkState;
-    }
 
     private void setCheckState(int checkState) {
         this.checkState = checkState;
-        if(checkState == CHECK_STATE_CHECKING && mActivityNameTIL != null){
-            mActivityNameTIL.setError("...");
-        }
-    }
-
-    public void doTokenSimilar(Cursor cursor) {
-        if (cursor.moveToFirst()) {
-            LinkedList<String> similarNames = new LinkedList<>();
-            String sims = android.text.TextUtils.join(", ", similarNames);
-            mActivityNameTIL.setError(getResources().getString(R.string.error_name_similar, sims));
-            setCheckState(CHECK_STATE_WARNING);
+        if(checkState == CHECK_STATE_CHECKING){
+            binding.editActivityNameTil.setError("...");
         }
     }
 
     public void doTokenQueryName(Cursor cursor, AsyncQueryHandler handler) {
+        binding.btnRename.setVisibility(View.GONE);
+        binding.btnRename.setOnClickListener(null);
         if(cursor.moveToFirst()) {
-            mQuickFixBtn1.setVisibility(View.VISIBLE);
+//            binding.btnQuickfix.setVisibility(View.VISIBLE);
             @SuppressLint("Range") boolean deleted = (cursor.getLong(cursor.getColumnIndex(Contract.DiaryActivity._DELETED)) != 0);
             @SuppressLint("Range") int actId = cursor.getInt(cursor.getColumnIndex(Contract.DiaryActivity._ID));
             @SuppressLint("Range") String name = cursor.getString(cursor.getColumnIndex(Contract.DiaryActivity.NAME));
             setCheckState(CHECK_STATE_ERROR);
 
-            if(deleted) {
+            if (deleted) {
                 CharSequence str = getResources().getString(R.string.error_name_already_used_in_deleted, cursor.getString(0));
-                mBtnRenameDeleted.setVisibility(View.VISIBLE);
-                setBtnTooltip(mBtnRenameDeleted, getResources().getString(R.string.tooltip_quickfix_btn_rename_deleted));
-                mBtnRenameDeleted.setContentDescription(getResources().getString(R.string.contentDesc_renameDeletedActivity));
+                binding.btnRename.setVisibility(View.VISIBLE);
+                setBtnTooltip(binding.btnRename, getResources().getString(R.string.tooltip_quickfix_btn_rename_deleted));
+                binding.btnRename.setContentDescription(getResources().getString(R.string.contentDesc_renameDeletedActivity));
 
-                mActivityNameTIL.setError(str);
-                mQuickFixBtn1.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.ic_undelete));
-                setBtnTooltip(mQuickFixBtn1, getResources().getString(R.string.tooltip_quickfix_btn_undelete_existing));
-                mQuickFixBtn1.setContentDescription(getResources().getString(R.string.contentDesc_undeleteActivity));
-
-
-                mQuickFixBtn1.setOnClickListener(v -> {
-                    currentActivity = ActivityHelper.helper.undeleteActivity(actId, name);
-                    assert currentActivity != null;
-                    Toast.makeText(this,
-                            getResources().getString(R.string.recover_activity_toast, currentActivity.getName()),
-                            Toast.LENGTH_LONG).show();
-
-                    refreshElements();
-                    setCheckState(CHECK_STATE_OK);
-                });
-                mBtnRenameDeleted.setOnClickListener(v -> {
+                binding.editActivityNameTil.setError(str);
+                binding.btnRename.setOnClickListener(v -> {
                     setCheckState(CHECK_STATE_CHECKING);
-                    Toast.makeText(this,
-                            getResources().getString(R.string.renamed_deleted_activity_toast, name),
-                            Toast.LENGTH_LONG).show();
 
                     ContentValues values = new ContentValues();
                     String newName = name + "_deleted";
+                    Toast.makeText(this,
+                            getResources().getString(R.string.renamed_deleted_activity_toast, newName),
+                            Toast.LENGTH_LONG).show();
 
                     values.put(Contract.DiaryActivity.NAME, newName);
                     values.put(Contract.DiaryActivity._ID, Long.valueOf(actId));
@@ -183,30 +147,11 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
                     setCheckState(CHECK_STATE_OK);
                 });
             } else {
-                mActivityNameTIL.setError(getResources().getString(R.string.error_name_already_used, cursor.getString(0)));
-                mBtnRenameDeleted.setVisibility(View.GONE);
-                mBtnRenameDeleted.setOnClickListener(null);
-                mQuickFixBtn1.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.ic_edit));
-                setBtnTooltip(mQuickFixBtn1, getResources().getString(R.string.tooltip_quickfix_btn_edit_existing));
-                mQuickFixBtn1.setContentDescription(getResources().getString(R.string.contentDesc_rejectAndOpenActivity));
-                mQuickFixBtn1.setOnClickListener(v -> {
-                    currentActivity = ActivityHelper.helper.activityWithId(actId);
-                    assert currentActivity != null;
-                    Toast.makeText(this,
-                            getResources().getString(R.string.edit_existing_activity_toast, currentActivity.getName()),
-                            Toast.LENGTH_LONG).show();
-
-                    refreshElements();
-                    setCheckState(CHECK_STATE_OK);
-                });
+                binding.editActivityNameTil.setError(getResources().getString(R.string.error_name_already_used, cursor.getString(0)));
+                setCheckState(CHECK_STATE_ERROR);
             }
-        }
-        else {
-            mActivityNameTIL.setError("");
-            mQuickFixBtn1.setVisibility(View.GONE);
-            mQuickFixBtn1.setOnClickListener(null);
-            mBtnRenameDeleted.setVisibility(View.GONE);
-            mBtnRenameDeleted.setOnClickListener(null);
+        } else {
+            binding.editActivityNameTil.setError("");
             setCheckState(CHECK_STATE_OK);
         }
     }
@@ -223,44 +168,43 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
         @Override
         protected void onQueryComplete(int token, Object cookie, Cursor cursor) {
             if ((cursor != null)) {
-                if(token == SIMILAR_ACTIVITY)
-                    act.doTokenSimilar(cursor);
-                else if(token == QUERY_NAMES)
-                    act.doTokenQueryName(cursor, this);
-                else if(token == TEST_DELETED_NAME) {
-                    ContentValues values = (ContentValues)cookie;
-                    if(cursor.moveToFirst()){
-                        // name already exists, choose another one
-                        String triedName = (String)values.get(Contract.Diary.NAME);
-                        String newName = triedName.replaceFirst("-\\d+$", "");
-                        String idx;
-                        if(triedName.length() == newName.length()) {
-                            // no "-x" at the end so far
-                            idx = "-2";
-                        }else{
-                            String x = triedName.substring(newName.length() + 1);
-                            idx = "-" + (Integer.parseInt(x) + 1);
+                switch (token) {
+                    case QUERY_NAMES:
+                        act.doTokenQueryName(cursor, this);
+                        break;
+                    case TEST_DELETED_NAME:
+                        ContentValues values = (ContentValues) cookie;
+                        if (cursor.moveToFirst()) {
+                            // name already exists, choose another one
+                            String triedName = (String) values.get(Contract.Diary.NAME);
+                            String newName = triedName.replaceFirst("-\\d+$", "");
+                            String idx;
+                            if (triedName.length() == newName.length()) {
+                                // no "-x" at the end so far
+                                idx = "-2";
+                            } else {
+                                String x = triedName.substring(newName.length() + 1);
+                                idx = "-" + (Integer.parseInt(x) + 1);
+                            }
+                            newName += idx;
+                            values.put(Contract.DiaryActivity.NAME, newName);
+                            startQuery(TEST_DELETED_NAME, values,
+                                    Contract.DiaryActivity.CONTENT_URI,
+                                    NAME_TEST_PROJ,
+                                    Contract.DiaryActivity.NAME + " = ?",
+                                    new String[]{newName},
+                                    null
+                            );
+
+                        } else {
+                            // name not found, use it for the deleted one
+                            Long actId = (Long) values.get(Contract.Diary._ID);
+                            values.remove(Contract.Diary._ID);
+                            startUpdate(RENAME_DELETED_ACTIVITY, null,
+                                    ContentUris.withAppendedId(Contract.DiaryActivity.CONTENT_URI, actId),
+                                    values, Contract.Diary._ID + " = " + actId, null);
                         }
-                        newName += idx;
-                        values.put(Contract.DiaryActivity.NAME, newName);
-                        startQuery(TEST_DELETED_NAME, values,
-                                Contract.DiaryActivity.CONTENT_URI,
-                                NAME_TEST_PROJ,
-                                Contract.DiaryActivity.NAME + " = ?",
-                                new String[]{newName},
-                                null
-                        );
-
-                    }
-
-                    else {
-                        // name not found, use it for the deleted one
-                        Long actId = (Long)values.get(Contract.Diary._ID);
-                        values.remove(Contract.Diary._ID);
-                        startUpdate(RENAME_DELETED_ACTIVITY, null,
-                                ContentUris.withAppendedId(Contract.DiaryActivity.CONTENT_URI, actId),
-                                values, Contract.Diary._ID + " = " + actId, null);
-                    }
+                        break;
                 }
                 cursor.close();
             }
@@ -291,13 +235,13 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
     /* refresh all view elements depending on currentActivity */
     private void refreshElements() {
         if (currentActivity != null) {
-            mActivityName.setText(currentActivity.getName());
+            binding.editActivityName.setText(currentActivity.getName());
             Objects.requireNonNull(getSupportActionBar()).setTitle(currentActivity.getName());
             mActivityColor = currentActivity.getColor();
         } else {
             mActivityColor = GraphicsHelper.prepareColorForNextActivity();
         }
-        mActivityColorImg.setBackgroundColor(mActivityColor);
+        binding.editActivityColor.setBackgroundColor(mActivityColor);
     }
 
     private final QHandler mQHandler = new QHandler(this);
@@ -305,23 +249,22 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        linkCol = ContextCompat.getColor(MVApplication.getAppContext(), R.color.colorAccent);
+
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_content);
+        setContent(binding.getRoot());
+
         setCheckState(CHECK_STATE_CHECKING);
 
-//        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         Intent i = getIntent();
         int actId = i.getIntExtra("activityID", -1);
-        if(actId == -1) {
+//        System.out.println("ActId: " + actId);
+        if (actId == -1) {
             currentActivity = null;
-        }else {
+        } else {
             currentActivity = ActivityHelper.helper.activityWithId(actId);
         }
 
-        ActivityEditContentBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_edit_content);
-        setContent(binding.getRoot());
-
-        mActivityName = binding.editActivityName;
-        mActivityName.addTextChangedListener(new TextWatcher(){
+        binding.editActivityName.addTextChangedListener(new TextWatcher(){
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -333,15 +276,11 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
             @Override
             public void afterTextChanged(Editable s) {
                 checkConstraints();
-                checkSimilarNames();
+//                checkSimilarNames();
             }
         });
-        mActivityNameTIL = binding.editActivityNameTil;
-        mQuickFixBtn1 = binding.quickFixButton1;
-        mBtnRenameDeleted = binding.quickFixButtonRename;
 
-        mActivityColorImg = binding.editActivityColor;
-        mActivityColorImg.setOnClickListener(v -> ColorPickerDialogBuilder
+        binding.editActivityColor.setOnClickListener(v -> ColorPickerDialogBuilder
                 .with(EditActivity.this)
                 .setTitle("Choose color")
                 .initialColor(R.color.activityTextColorLight)
@@ -352,7 +291,7 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
                 })
                 .setPositiveButton("ok", (dialog, selectedColor, allColors) -> {
                     mActivityColor = selectedColor;
-                    mActivityColorImg.setBackgroundColor(mActivityColor);
+                    binding.editActivityColor.setBackgroundColor(mActivityColor);
 //                                changeBackgroundColor(selectedColor);
                 })
                 .setNegativeButton("cancel", (dialog, which) -> {
@@ -363,7 +302,7 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
         if(savedInstanceState != null) {
             String name = savedInstanceState.getString(NAME_KEY);
             mActivityColor = savedInstanceState.getInt(COLOR_KEY);
-            mActivityName.setText(name);
+            binding.editActivityName.setText(name);
             Objects.requireNonNull(getSupportActionBar()).setTitle(name);
             checkConstraints();
         }else{
@@ -392,7 +331,7 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putString(NAME_KEY, mActivityName.getText().toString());
+        outState.putString(NAME_KEY, Objects.requireNonNull(binding.editActivityName.getText()).toString());
         outState.putInt(COLOR_KEY, mActivityColor);
         // call superclass to save any view hierarchy
         super.onSaveInstanceState(outState);
@@ -415,17 +354,16 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
             finish();
         } else if (mid == R.id.action_edit_done) {
             if(checkState != CHECK_STATE_CHECKING) {
-                CharSequence error = mActivityNameTIL.getError();
                 if (checkState == CHECK_STATE_ERROR) {
                     Toast.makeText(EditActivity.this,
-                            error,
+                            binding.editActivityNameTil.getError(),
                             Toast.LENGTH_LONG
                     ).show();
                 } else {
                     if (currentActivity == null) {
-                        ActivityHelper.helper.insertActivity(new DiaryActivity(-1, mActivityName.getText().toString(), mActivityColor));
+                        ActivityHelper.helper.insertActivity(new DiaryActivity(-1, Objects.requireNonNull(binding.editActivityName.getText()).toString(), mActivityColor));
                     } else {
-                        currentActivity.setName(mActivityName.getText().toString());
+                        currentActivity.setName(Objects.requireNonNull(binding.editActivityName.getText()).toString());
                         currentActivity.setColor(mActivityColor);
                         ActivityHelper.helper.updateActivity(currentActivity);
                     }
@@ -447,7 +385,7 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
                     Contract.DiaryActivity.CONTENT_URI,
                     new String[]{Contract.DiaryActivity.NAME, Contract.DiaryActivity._DELETED, Contract.DiaryActivity._ID},
                     Contract.DiaryActivity.NAME + "=?",
-                    new String[]{mActivityName.getText().toString()}, null);
+                    new String[]{Objects.requireNonNull(binding.editActivityName.getText()).toString()}, null);
         } else {
             mQHandler.startQuery(QUERY_NAMES,
                     null,
@@ -455,19 +393,9 @@ public class EditActivity extends BaseActivity implements ActivityHelper.DataCha
                     new String[]{Contract.DiaryActivity.NAME, Contract.DiaryActivity._DELETED, Contract.DiaryActivity._ID},
                     Contract.DiaryActivity.NAME + "=? AND " +
                             Contract.DiaryActivity._ID + " != ?",
-                    new String[]{mActivityName.getText().toString(), Long.toString(currentActivity.getId())},
+                    new String[]{Objects.requireNonNull(binding.editActivityName.getText()).toString(), Long.toString(currentActivity.getId())},
                     null);
         }
-    }
-
-    private void checkSimilarNames() {
-        setCheckState(CHECK_STATE_CHECKING);
-
-        mQHandler.startQuery(SIMILAR_ACTIVITY,
-                null,
-                Contract.DiaryActivity.CONTENT_URI,
-                new String[]{Contract.DiaryActivity.NAME, Contract.DiaryActivity._DELETED, Contract.DiaryActivity._ID},
-                null, null,null);
     }
 
     /**

@@ -19,6 +19,6 @@
   -->
 
 <paths>
-    <external-path name="public_images" path="Pictures" />
+    <external-path name="public_images" path="/" />
     <files-path name="private_images" path="/" />
 </paths>

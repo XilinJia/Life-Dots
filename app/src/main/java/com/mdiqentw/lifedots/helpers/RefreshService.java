@@ -27,6 +27,7 @@ import android.util.Log;
  * LifeDots
  *
  * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
+ * Copyright (C) 2018 Raphael Mack http://www.raphael-mack.de
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,7 +55,7 @@ public class RefreshService extends JobService {
         isWorking = true;
 
         /* UI refresh is so fast we can do it directly here */
-        ActivityHelper.helper.updateNotification();
+//        ActivityHelper.helper.updateNotification();
 
         // We need 'jobParameters' so we can call 'jobFinished'
         startWorkOnNewThread(jobParameters);
@@ -67,13 +68,12 @@ public class RefreshService extends JobService {
     }
 
     private void refresh(JobParameters jobParameters) {
-
         if (jobCancelled)
             return;
 
         isWorking = false;
-        boolean needsReschedule = false;
-        ActivityHelper.helper.scheduleRefresh();
+//        boolean needsReschedule = false;
+        LocationHelper.helper.scheduleRefresh();
         LocationHelper.helper.updateLocation();
         jobFinished(jobParameters, false);
     }

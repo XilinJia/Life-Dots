@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.mdiqentw.lifedots.R
 import com.mdiqentw.lifedots.db.Contract
 import com.mdiqentw.lifedots.model.DetailViewModel
+import com.mdiqentw.lifedots.ui.generic.BaseActivity
 import com.mdiqentw.lifedots.ui.generic.DetailRecyclerViewAdapter
 
 //import androidx.gridlayout.widget.GridLayoutManager;
@@ -56,20 +57,22 @@ import com.mdiqentw.lifedots.ui.generic.DetailRecyclerViewAdapter
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 class DetailPictureFragement : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
+
     private lateinit var detailRecyclerView: RecyclerView
     private lateinit var detailAdapter: DetailRecyclerViewAdapter
     private var viewModel: DetailViewModel? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+
         val view = inflater.inflate(R.layout.fragment_detail_pictures, container, false)
         viewModel = ViewModelProvider(requireActivity()).get(DetailViewModel::class.java)
         detailRecyclerView = view.findViewById(R.id.picture_recycler)
         val detailLayoutManager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
         detailRecyclerView.layoutManager = detailLayoutManager
 
-// TODO:check        detailRecyclerView.setNestedScrollingEnabled(true);
-        detailAdapter = DetailRecyclerViewAdapter(requireActivity().applicationContext, null)
+        // TODO:check  detailRecyclerView.setNestedScrollingEnabled(true);
+        detailAdapter = DetailRecyclerViewAdapter(activity as BaseActivity, null)
         detailRecyclerView.adapter = detailAdapter
         reload()
         return view
@@ -105,12 +108,6 @@ class DetailPictureFragement : Fragment(), LoaderManager.LoaderCallbacks<Cursor>
         // longer using it.
         detailAdapter.swapCursor(null)
     }
-
-//    override fun onDestroy() {
-//        super.onDestroy()
-////        detailRecyclerView = null
-////        detailAdapter = null
-//    }
 
     companion object {
         private val PROJECTION_IMG = arrayOf(

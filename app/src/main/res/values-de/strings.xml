@@ -22,12 +22,17 @@
   -->
 <resources>
     <string name="about_text_version">Version <b>%1$s</b></string>
-    <string name="about_text_intro">Verfolgen Sie Ihre Lebensereignisse mit Zeit und Ort einfach mit einer Berührung auf dem Bildschirm. Fügen Sie jedem Ereignis ganz einfach detaillierte Notizen hinzu. Analysieren Sie Ihre vergangenen Ereignisse auf verschiedene Weise.</string>
+    <string name="about_text_intro">Zeichnen Sie Ihre Lebensereignisse mit Zeit und Ort einfach mit einer Berührung auf dem Bildschirm auf.          Fügen Sie einfach detaillierte Notizen und Fotos für jede Veranstaltung hinzu. Analysieren Sie Ihre vergangenen Ereignisse auf verschiedene Weise mit Diagrammen und Karten.          Fotos werden auf die Größe von 500 Pixel geschrumpft und mit einer JPEG-Qualität von 60 komprimiert, was zu einer resultierenden Größe von jeweils etwa 70 KB führt.</string>
     <string name="about_text_licence_h">Lizenz</string>
     <string name="about_text_licence"><![CDATA[Das Programm %1$s ist freie Software: Du darst es weitergeben und verändern unter den Bedingungen der <a href="https://www.gnu.org/licenses/gpl.html">GNU General Public License</a>, wie von der Free Software Foundation veröffentlicht, entweder gemäß Version 3 der Lizenz oder jeder späteren Version.]]></string>
     <string name="about_text_license_2">Dieses Programm wird in der Hoffnung verbreitet, dass es nützlich ist, aber OHNE IRGENDEINE GARANTIE, insbesondere ohne eine implizite Garantie der Marktreife oder der Eignung für einen bestimmten Zweck. Lies die GNU General Public License für weitere Details.</string>
     <string name="about_text_privacy_h">Datenschutzerklärung</string>
-    <string name="about_text_privacy"><![CDATA[%1$s und seine Autoren haben ein großes Interesse daran, Ihre Privatsphäre zu respektieren. Der Zweck dieser App ist das Verfolgen und Speichern Ihrer Aktivitäten und wo und wie Sie diese ausführen. Dennoch liegen Ihre Daten in Ihrer Hand und werden von der App ohne Ihren ausdrücklichen Wunsch nicht an einen Server oder eine externe Partei übermittelt <a href="https://github.com/XilinJia/LifeDots">Github</a>.]]>  </string>
+    <string name="about_text_privacy"><![CDATA[%1$s und ihre Autoren haben ein großes Interesse daran, Ihre Privatsphäre zu respektieren.
+     Die Natur dieser App besteht darin, Ihre Ereignisse auf Ihrem eigenen Gerät aufzuzeichnen.
+     Die Daten bleiben in Ihren Händen und werden von der App nicht an Server oder Externe übermittelt.
+     Wenn Sie Standorte aufzeichnen möchten, fordert die App Sie auf, die Standortberechtigung zu erteilen.
+     Standortinformationen werden über die einfachen Standortschnittstellen von Android und nicht über Google Services abgerufen.
+     Der Zugang für das Internet dient ausschließlich zum Abrufen von Kartenkacheln. ]]> </string>
     <string name="about_text_contact_h">Kontakt</string>
     <string name="about_text_contact"><![CDATA[Verwenden Sie für Fehlerberichte und Verbesserungsvorschläge das <a href="https://github.com/XilinJia/LifeDots/issues">Ticketsystem</a>, vorzugsweise in englischer Sprache.]]></string>
     <string name="about_text_contact_2"><![CDATA[Der Quellcode ist auf <a href="https://github.com/XilinJia/LifeDots">Github</a> zu finden.]]></string>
@@ -58,16 +63,13 @@
     <string name="contentDesc_logo">LifeDots Logo</string>
     <string name="drawer_open">Navigation öffnen</string>
     <string name="drawer_close">Navigation schließen</string>
-    <!-- Notification Channels -->
-    <string name="notif_channel_current_activity_name">Aktuelle Aktivität</string>
-    <string name="notif_channel_current_activity_desc">Benachrichtigung anzeigen für die Aktivität, die Sie gerade ausführen</string>
     <!-- settings -->
     <string name="setting_view_category">Anzeige</string>
     <string name="setting_behavior_category">Verhalten</string>
     <string name="setting_location_category">Standort</string>
     <string name="setting_images_category">Fotos</string>
     <string name="setting_backup_category">Backup</string>
-    <string name="setting_condition_category">Bedingungen</string>
+    <string name="setting_condition_category">Sortierung</string>
     <string name="setting_datetime_format">Datumsformat</string>
     <string name="setting_datetime_format_summary">@string/default_datetime_format</string>
     <string name="setting_datetime_format_description">Anzeigeformat für Datum und Zeit der Aktivitätsstarts. Häufige Formate sind dd.MM. hh:mm oder yyyy-MM-dd HH:mm</string>
@@ -80,43 +82,21 @@
     <string name="setting_auto_select_new">Neue Aktivitäten aktivieren</string>
     <string name="setting_auto_select_new_summary_active">Eine neu angelegte Aktivität wird direkt als die aktive gesetzt</string>
     <string name="setting_auto_select_new_summary_inactive">Anlegen neuer Aktivitäten hat keinen Einfluss auf die gerade laufende Aktivität</string>
-    <string name="setting_show_cur_activitiy_notification">Benachrichtigung für die aktuelle Aktivität</string>
-    <string name="setting_show_cur_activitiy_notification_summary_active">Die aktuelle Aktivität wird als Benachrichtigung angezeigt</string>
-    <string name="setting_show_cur_activitiy_notification_summary_inactive">Es wird keine Benachrichtigung für die aktuelle Aktivität angezeigt</string>
     <string name="setting_disable_on_click">Aktivität durch anklicken beenden</string>
     <string name="setting_disable_on_click_summary_active">Aktuelle Aktivität kann durch Anklicken beendet werden</string>
     <string name="setting_disable_on_click_summary_inactive">Aktuelle Aktivität kann nur durch Auswahl einer neuen beendet werden</string>
-    <string name="setting_enable_acra">Absturzbericht</string>
-    <string name="setting_acra_enabled">Fehlerberichte bei Absturz senden</string>
-    <string name="setting_acra_disabled">Keine Berichte senden wenn die App abstürzt</string>
     <string name="setting_use_location">Standortdienst</string>
     <string name="setting_use_location_summary">%1$s wird verwendet um den Gerätestandort zu verfolgen</string>
     <string name="setting_use_location_off_summary">Standort des Benutzers wird nicht aufgezeichnet</string>
     <string name="perm_location_xplain">Die ausgewählte Option um deinen Standort zu verfolgen erfordert die Berechtigung für den Zugriff auf Ihren geografischen Standort deines Gerätes &#8230;</string>
-    <string name="setting_storage_folder">Ablageort für Bilder</string>
-    <string name="setting_storage_folder_summary">Fotos im Verzeichnis %1$s ablegen</string>
-    <string name="setting_storage_folder_description">Verzeichnis für die Ablage von Fotos</string>
-    <string name="default_storage_folder">LifeDots</string>
-    <string name="setting_tag_images">Metadaten</string>
-    <string name="setting_tag_yes">Für neue Fotos die laufende Aktivität in das EXIF-Attribut UserComment schreiben</string>
-    <string name="setting_tag_no">EXIF-Attribute neuer Fotos nicht verändern</string>
     <!-- Conditions -->
     <string name="pref_cond_off">AUS</string>
     <string name="setting_cond_alpha">Alphabetische Sortierung</string>
     <string name="setting_cond_alpha_summary">Alphabetische Sortierung wird mit Gewichtung %1$s verwendet um nächste Aktivitäten vorzuschlagen</string>
     <string name="setting_cond_alpha_not_used_summary">Alphabetische Sortierung wird nicht verwendet um nächste Aktivitäten vorzuschlagen</string>
-    <string name="setting_cond_predecessor">Aktivitätshistorie</string>
-    <string name="setting_cond_predecessor_summary">Aktivitätshistorie wird mit Gewichtung %1$s verwendet um nächste Aktivitäten vorzuschlagen</string>
-    <string name="setting_cond_predecessor_not_used_summary">Aktivitätshistorie wird nicht verwendet um nächste Aktivitäten vorzuschlagen</string>
-    <string name="setting_cond_paused">Aktivitätsunterbrechungen</string>
-    <string name="setting_cond_paused_summary">Kürzlich beendete Aktivitäten werden mit Gewichtung %1$s verwendet um nächste Aktivitäten vorzuschlagen</string>
-    <string name="setting_cond_paused_not_used_summary">Kürzlich beendete Aktivitäten werden nicht verwendet um nächste Aktivitäten vorzuschlagen</string>
     <string name="setting_cond_occurrence">Aktivitätshäufigkeit</string>
     <string name="setting_cond_occurrence_summary">Häufigkeit der Aktivität im Tagebuch wird mit Gewichtung %1$s verwendet um nächste Aktivitäten vorzuschlagen</string>
     <string name="setting_cond_occurrence_not_used_summary">Aktivitätshäufigkeit wird nicht verwendet um nächste Aktivitäten vorzuschlagen</string>
-    <string name="setting_cond_daytime">Tageszeit</string>
-    <string name="setting_cond_daytime_summary">Die Uhrzeit der Aktivitäten im Tagebuch wird mit Gewichtung %1$s verwendet um nächste Aktivitäten vorzuschlagen</string>
-    <string name="setting_cond_daytime_not_used_summary">Tageszeit wird nicht verwendet um nächste Aktivitäten vorzuschlagen</string>
     <string name="pref_location_age">Standortaktualisierung wird alle %1$s Minuten angefordert</string>
     <string name="setting_location_age">Aktualisierungszeitraum</string>
     <string name="pref_location_dist">Standortaktualisierung wird alle %1$s m angefordert</string>
@@ -248,17 +228,10 @@
     <string name="privacy_what_subText1a">Die Daten, die Sie zur Aufzeichnung Ihrer Aktivitäten eingeben, einschließlich Datum und Uhrzeit von Beginn und Ende der Aktivität, kombiniert mit Formatierungen, Notizen, Bildern und Abhängigkeiten zwischen verschiedenen Aktivitäten, welche Sie mit Aktivitäten verknüpfen, werden gespeichert. Durch das Löschen von Einträgen wie Aktivitäten oder Bildern werden diese nicht vollständig aus der Datenbank entfernt, sondern nur ausgeblendet.</string>
     <string name="privacy_what_subTitle2">Standortinformationen (ACCESS_FINE_LOCATION, GPS)</string>
     <string name="privacy_what_subText2a">Falls konfiguriert, greift die Anwendung auf ortsbezogene Daten Ihres mobilen Gerätes zu, um die Aktivitäten mit dem Standort zu verknüpfen und Aktivitäten basierend auf den Standortinformationen vorzuschlagen. Wenn Sie den Zugriff oder die Berechtigungen von Aktivitätstagebuch ändern möchten, können Sie dies in den Einstellungen Ihres Geräts tun oder die Verwendung von Ortungsdiensten in den Anwendungseinstellungen deaktivieren. Beachten Sie, dass dies die bereits erfassten Standortdaten nicht beeinflusst oder entfernt.</string>
-    <string name="privacy_what_subTitle3">Gerätespeicher (WRITE_EXTERNAL_STORAGE)</string>
-    <string name="privacy_what_subText3a">Für das Speichern und Wiederherstellen von Backups, Fotos und anderen Dateien, die Sie an Ihr Aktivitätstagebuch anhängen, benötigt die App Zugriff auf die externe SD-Karte von Android.</string>
     <string name="privacy_what_subTitle4">Kamera</string>
     <string name="privacy_what_subText4a">Mit der App können Sie Fotos mit der Kamera Ihres Geräts aufnehmen und diese an Ihr Aktivitätstagebuch anhängen. Dies ist die einzige Verwendung der Kameraberechtigung.</string>
     <string name="privacy_what_subTitle5">Netzwerkstatus (ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE)</string>
     <string name="privacy_what_subText5a">Netzwerk- und WLAN-Status wird gespeichert, um Aktivitäten mit diesen Daten zu korrelieren und auf der Grundlage des aktuellen Status nächste Aktivitäten vorzuschlagen und festzulegen.</string>
-    <string name="privacy_what_subTitle6">Absturzbericht</string>
-    <string name="privacy_what_subText6a">Bei einem Programmfehler (Absturz) erstellt die Anwendung einen Bericht, der uns dabei hilft, das Verhalten der Anwendung zu verbessern. Dieser Bericht enthält viele technische Daten zu Ihrem Gerät und Betriebssystem, den vollständigen Einstellungen der App und der Ablaufverfolgung der Programmschritte, die unmittelbar vor dem Absturz ausgeführt wurden. Die Hardware Ihres Geräts, einschließlich der Bildschirmgröße und -auflösung, des Herstellers, der Spracheinstellung und der Versionen des Betriebssystems sowie der App, ist identifizierbar. Der vorbereitete Bericht wird nicht automatisch übertragen, sondern in einer neu zusammengestellten E-Mail an Ihre E-Mail-App weitergegeben, die Sie - nach Ihrem Willen - an uns oder wen auch immer Sie möchen, senden können. Der Schutz der Daten während der Übertragung durch verschlüsselte E-Mail-Übertragung liegt in der Verantwortung von Ihnen und Ihrem E-Mail-Diensteanbieter. Wir empfehlen dringend, den Bericht gründlich zu überprüfen und alle Daten zu entfernen, die Sie nicht verstehen und/oder teilen möchten.</string>
-    <string name="privacy_what_subText6b">Da es sich bei dem verwendeten Medium um eine E-Mail handelt, geben Sie Ihren Namen, Ihre E-Mail-Adresse und verschiedene andere technische Daten wie IP-Adresse und E-Mail-Dienstanbieter an, indem Sie einen Absturzbericht senden. Wir werden diese Informationen nicht für andere Zwecke verwenden, als Sie wegen des Absturzes zu kontaktieren.</string>
-    <string name="privacy_what_subText6c">Anonyme Auszüge des Berichts, die Ihre Identifizierung nicht zulassen, werden möglicherweise im öffentlichen Ticket-System zur Dokumentation des Absturzes und zur Nachverfolgung der Korrekturen verwendet.</string>
-    <string name="privacy_what_subText6d">Zusätzlich zu diesem von der App erstellten Bericht kann Ihr Betriebssystem oder die Dienste auf Ihrem Gerät Absturz- oder Verwendungsberichte übertragen. Diese Berichte sind jedoch nicht Teil von Aktivitätstagebuch, werden nicht von dieser Datenschutzrichtlinie abgedeckt und liegen in Ihrer Verantwortung.</string>
     <string name="privacy_why_title">Warum speichert die App Daten?</string>
     <string name="privacy_why_text1">Die App erstellen eine Aufzeichnung Ihrer Aktivitäten. Dies wird durch die manuelle oder automatische Auswahl der aktuellen Aktivität auf Grundlage der von Ihnen eingegebenen oder Ihrem Gerät gesammelten Daten erreicht. Die Daten, die Sie in die Anwendung eingeben, werden vom Benutzer für eine spätere Verwendung gespeichert. Die Anwendung speichert und wertet Daten verschiedener Sensoren Ihres Geräts aus, um die nächsten Aktivitäten vorzuschlagen oder sogar automatisch auszuwählen. Es werden keine Daten erhoben, übertragen oder gespeichert, die nicht für die beabsichtigte Funktionalität erforderlich sind.</string>
     <string name="privacy_why_text2">Wenn Sie die App verwenden werden Ihre persönlichen Informationen lokal auf Ihrem Gerät gespeichert und ausgewertet und nicht an eine Organisation oder ein Unternehmen übermittelt es sei denn Sie geben die explizite Aufforderung hierzu.</string>
@@ -271,9 +244,6 @@
     <string name="privacy_rights_text">Sie haben jederzeit das Recht, uns zu fragen, welche Daten wir über Sie speichern. Sie können jederzeit die Berichtigung oder Entfernung personenbezogener Daten verlangen oder die Verwendung Ihrer Daten einschränken.</string>
     <string name="privacy_contact_title">Kontakt</string>
     <string name="privacy_contact_text">Bei Fragen oder Anmerkungen zu dieser Datenschutzerklärung kontaktieren Sie uns bitte über:</string>
-    <string name="setting_silent_renotification">Stille Benachrichtigungen</string>
-    <string name="setting_silent_reconfication_summary_active">Keine Benachrichtigung bei Änderung des Benachrichtigungstextes</string>
-    <string name="setting_silent_reconfication_summary_inactive">Aggressive Warnungen (mit Ton und Vibration wie konfiguriert) bei jeder Änderung des Benachrichtigungstextes</string>
     <string name="setting_cond_recency">Jüngstes Vorkommen</string>
     <string name="setting_cond_recency_summary">Die Aktivitätshäufigkeit im Tagebuch hat eine Gewichtung von %1$s auf vorgeschlagene nächste Aktivitäten</string>
     <string name="setting_cond_recency_not_used_summary">Die Aktivitätshäufigkeit im Tagebuch wird nicht verwendet, um nächste Aktivitäten vorzuschlagen</string>
@@ -289,4 +259,8 @@
     <string name="history_detail_end">Ende</string>
     <string name="main_page">Hauptseite</string>
     <string name="about_fork">Diese Arbeit ist inspiriert von und weiterentwickelt von einem Fork von <a href="https://github.com/ramack/ActivityDiary">Activity Diary of version 1.4.0</a></string>
+    <string name="no_valid_points">Keine gültigen Punkte aufgezeichnet. Kommen Sie später noch einmal vorbei</string>
+    <string name="num_valid_points">gültige Punkte. Tippen Sie auf eine beliebige, um den Zeitstempel zu erhalten</string>
+    <string name="delete_event_entry_msg">Deleting event entry not implemented</string>
+    <string name="review_that_day">Möchten Sie diesen Tag Revue passieren lassen?</string>
 </resources>

@@ -18,18 +18,22 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/noteText"
+        android:id="@+id/note_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:hint="@string/notes"
         android:ems="10"
+        android:minLines="10"
+        android:gravity="top|start"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:inputType="textCapSentences|textAutoCorrect|textMultiLine"
-        android:lines="4"
         android:importantForAutofill="no" />
 
-</ScrollView>
+</LinearLayout>

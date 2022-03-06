@@ -20,6 +20,10 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <data>
+        <variable name="activity" type="com.mdiqentw.lifedots.ui.history.EventDetailActivity" />
+    </data>
+
     <LinearLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:orientation="vertical"
@@ -63,7 +67,7 @@
                 android:layout_weight="7"
                 android:text="@string/desc_start_date"
                 android:contentDescription="@string/desc_start_date"
-                android:onClick="showStartDatePickerDialog"
+                android:onClick="@{(view) -> activity.showStartDatePickerDialog(view)}"
                 style="?android:attr/buttonBarButtonStyle" />
 
             <Button
@@ -73,7 +77,7 @@
                 android:layout_weight="4"
                 android:text="@string/desc_start_time"
                 android:contentDescription="@string/desc_start_time"
-                android:onClick="showStartTimePickerDialog"
+                android:onClick="@{(view) -> activity.showStartTimePickerDialog(view)}"
                 style="?android:attr/buttonBarButtonStyle" />
         </LinearLayout>
 
@@ -97,7 +101,7 @@
                 android:contentDescription="@string/desc_end_date"
                 android:singleLine="true"
                 android:text="@string/desc_end_date"
-                android:onClick="showEndDatePickerDialog"
+                android:onClick="@{(view) -> activity.showEndDatePickerDialog(view)}"
                 style="?android:attr/buttonBarButtonStyle" />
 
             <Button
@@ -107,7 +111,7 @@
                 android:layout_weight="4"
                 android:text="@string/desc_end_time"
                 android:contentDescription="@string/desc_end_time"
-                android:onClick="showEndTimePickerDialog"
+                android:onClick="@{(view) -> activity.showEndTimePickerDialog(view)}"
                 style="?android:attr/buttonBarButtonStyle" />
         </LinearLayout>
 

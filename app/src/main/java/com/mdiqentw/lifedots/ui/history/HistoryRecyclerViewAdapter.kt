@@ -18,6 +18,9 @@
  */
 package com.mdiqentw.lifedots.ui.history
 
+import java.text.SimpleDateFormat
+import java.util.*
+
 import android.database.Cursor
 import android.database.DataSetObserver
 import android.text.format.DateFormat
@@ -28,6 +31,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+
 import com.mdiqentw.lifedots.MVApplication
 import com.mdiqentw.lifedots.R
 import com.mdiqentw.lifedots.databinding.ActivityHistoryEntryBinding
@@ -36,8 +40,6 @@ import com.mdiqentw.lifedots.helpers.GraphicsHelper
 import com.mdiqentw.lifedots.helpers.TimeSpanFormatter
 import com.mdiqentw.lifedots.ui.generic.DetailRecyclerViewAdapter
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
-import java.text.SimpleDateFormat
-import java.util.*
 
 /*
  * LifeDots
@@ -57,7 +59,11 @@ import java.util.*
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity, private val mListener: SelectListener, private var mCursor: Cursor?) : RecyclerView.Adapter<HistoryViewHolders>() {
+class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity,
+                                 private val mListener: SelectListener,
+                                 private var mCursor: Cursor?) :
+    RecyclerView.Adapter<HistoryViewHolders>() {
+
     private val mDataObserver: DataSetObserver?
     private var idRowIdx = -1
     private var startRowIdx = -1
@@ -89,23 +95,23 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity, private 
     override fun onBindViewHolder(holder: HistoryViewHolders, position: Int) {
         var showHeader = false
         var header = ""
+
         check(mCursor!!.moveToPosition(position)) { "couldn't move cursor to position $position" }
+
         val start = Date(mCursor!!.getLong(startRowIdx))
         val name = mCursor!!.getString(nameRowIdx)
         val color = mCursor!!.getInt(colorRowIdx)
         holder.mBackground.setBackgroundColor(color)
         holder.mName.setTextColor(GraphicsHelper.textColorOnBackground(color))
         holder.diaryEntryID = mCursor!!.getInt(idRowIdx)
-        val end: Date? = if (mCursor!!.isNull(endRowIdx)) {
-            null
-        } else {
-            Date(mCursor!!.getLong(endRowIdx))
-        }
+        val end: Date? =
+            if (mCursor!!.isNull(endRowIdx)) null
+            else Date(mCursor!!.getLong(endRowIdx))
+
         val startCal = Calendar.getInstance()
         startCal.timeInMillis = mCursor!!.getLong(startRowIdx)
-        if (mCursor!!.isFirst) {
-            showHeader = true
-        } else {
+        if (mCursor!!.isFirst) showHeader = true
+        else {
             mCursor!!.moveToPrevious()
             val clast = Calendar.getInstance()
             clast.timeInMillis = mCursor!!.getLong(startRowIdx)
@@ -114,6 +120,7 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity, private 
                 showHeader = true
             }
         }
+
         if (showHeader) {
             val now = Calendar.getInstance()
             header = when {
@@ -140,9 +147,9 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity, private 
         if (showHeader) {
             holder.mSeparator.visibility = View.VISIBLE
             holder.mSeparator.text = header
-        } else {
+        } else
             holder.mSeparator.visibility = View.GONE
-        }
+
         holder.mName.text = name
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(MVApplication.getAppContext())
         val formatString = sharedPref.getString(SettingsActivity.KEY_PREF_DATETIME_FORMAT,
@@ -152,14 +159,14 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity, private 
         if (!mCursor!!.isNull(noteRowIdx)) {
             noteStr = mCursor!!.getString(noteRowIdx)
             holder.mNoteLabel.visibility = View.VISIBLE
-        } else {
+        } else
             holder.mNoteLabel.visibility = View.GONE
-        }
+
         holder.mNoteLabel.text = noteStr
         val duration: String
-        if (end == null) {
+        if (end == null)
             duration = MVApplication.getAppContext().resources.getString(R.string.duration_description, TimeSpanFormatter.fuzzyFormat(start, Date()))
-        } else {
+        else {
             holder.mStartLabel.text = MVApplication.getAppContext().resources.getString(R.string.history_start, DateFormat.format(formatString, start))
             duration = MVApplication.getAppContext().resources.getString(R.string.history_end, DateFormat.format(formatString, end),
                     TimeSpanFormatter.format(end.time - start.time))
@@ -177,12 +184,10 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity, private 
     }
 
     override fun getItemCount(): Int {
-        return if (mCursor != null) {
-            mCursor!!.count
-        } else 0
+        return if (mCursor != null) mCursor!!.count
+        else 0
     }
 
-    //    XJ edit
     fun swapCursor(newCursor: Cursor) {
         if (newCursor === mCursor) {
 //            if (newCursor != null) {

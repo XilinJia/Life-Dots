@@ -72,6 +72,9 @@
         <item>All</item>
         <item>Last 7 Days</item>
         <item>Last 30 Days</item>
+        <item>Last 90 Days</item>
+        <item>Last 180 Days</item>
+        <item>Last 365 Days</item>
         <item>Day</item>
         <item>Week</item>
         <item>Month</item>

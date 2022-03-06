@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.mdiqentw.lifedots.R
@@ -52,22 +53,26 @@ class DetailNoteFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
+
         val binding: FragmentDetailNoteBinding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_detail_note, container, false)
-        val view = binding.root
         //here data must be an instance of the class MarsDataProvider
-        view.setOnClickListener {
-            // Handle the click on the FAB
+
+        binding.note.setOnClickListener{
             if (viewModel!!.currentActivity().value != null) {
                 val dialog = NoteEditDialog()
-                dialog.setText(viewModel!!.mNote.value)
+//                dialog.setStyle(DialogFragment.STYLE_NO_FRAME, 0)
+                val noteText = viewModel!!.mNote.value
+                if (noteText != null && noteText.isNotBlank())
+                    dialog.inputText = noteText.toString()
                 dialog.show(parentFragmentManager, "NoteEditDialogFragment")
             }
         }
+
         viewModel = ViewModelProvider(requireActivity()).get(DetailViewModel::class.java)
         binding.viewModel = viewModel
         // Specify the current activity as the lifecycle owner.
         binding.lifecycleOwner = this
-        return view
+        return binding.root
     }
 }

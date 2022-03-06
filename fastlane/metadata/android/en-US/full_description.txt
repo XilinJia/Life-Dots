@@ -1,3 +1,5 @@
- LifeDots is for keeping track of your life events with time and locations; easily adding detailed notes to any event; and analyzing your past events in various ways.
+ LifeDots is for recording and analysing your life with ease in the 7 dimensions of time, location, notes and photo.
 
-Currently you can record your current event by touching on an icon that you create, attach notes and pictures, browse your history, analyze your history with statistics, check the timeline of any event, and see your geo locations.
+Currently you can record any event by touching on an icon that you create, entering notes and attaching photos.  Locations are automatically recorded (after you activate) in the background.  Then you can browse your history, analyze statistics in charts, check the timeline of any event, and see your past geo locations.  Further more, for easier viewing life from various perspectives, these analytic functionalities are interconnected: check timeline on any pieve of a piechart, review related history about a dot on the timeline, look at geographical passages related to a period of history, and go back to related history on a dot on the map.
+
+LifeDots is a free and open-source software.  There is no advertising and no requirement for purchase of kind.  All of your data remain on your own device.  Internet connection is only needed for dynamically downloading the necessary and free map tiles when you need.

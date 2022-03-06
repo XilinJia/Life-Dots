@@ -21,49 +21,31 @@
 
 package com.mdiqentw.lifedots.helpers;
 
-import static android.content.Context.JOB_SCHEDULER_SERVICE;
-import static android.content.Context.NOTIFICATION_SERVICE;
-
 import android.annotation.SuppressLint;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
 import android.content.AsyncQueryHandler;
-import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
 
 import com.mdiqentw.lifedots.MVApplication;
-import com.mdiqentw.lifedots.R;
-import com.mdiqentw.lifedots.db.LDContentProvider;
 import com.mdiqentw.lifedots.db.Contract;
-import com.mdiqentw.lifedots.model.DetailViewModel;
+import com.mdiqentw.lifedots.db.LDContentProvider;
 import com.mdiqentw.lifedots.model.DiaryActivity;
 import com.mdiqentw.lifedots.model.conditions.AlphabeticalCondition;
 import com.mdiqentw.lifedots.model.conditions.Condition;
 import com.mdiqentw.lifedots.model.conditions.GlobalOccurrenceCondition;
 import com.mdiqentw.lifedots.model.conditions.RecentOccurrenceCondition;
-import com.mdiqentw.lifedots.ui.main.MainActivity;
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity;
 
 import java.util.ArrayList;
@@ -79,7 +61,7 @@ import java.util.Objects;
  * LifeDots
  *
  * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
-  ~ Copyright (C) 2017-2018 Raphael Mack http://www.raphael-mack.de
+ * Copyright (C) 2017-2018 Raphael Mack http://www.raphael-mack.de
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -127,10 +109,6 @@ public class ActivityHelper extends AsyncQueryHandler{
     private static final String SELECTION = Contract.DiaryActivity._DELETED + "=0";
 
     public static final ActivityHelper helper = new ActivityHelper();
-    private static final String CURRENT_ACTIVITY_CHANNEL_ID = "CurrentActivity";
-    private static final int CURRENT_ACTIVITY_NOTIFICATION_ID = 0;
-
-    private static final int ACTIVITY_HELPER_REFRESH_JOB = 0;
 
     /* list of all activities, not including deleted ones */
     private List<DiaryActivity> activities;
@@ -138,12 +116,12 @@ public class ActivityHelper extends AsyncQueryHandler{
     private final List<DiaryActivity> unsortedActivities;
 
     private DiaryActivity mCurrentActivity = null;
-    private final Date mCurrentActivityStartTime;
+    final Date mCurrentActivityStartTime;
     private @Nullable Uri mCurrentDiaryUri;
     private /* @NonNull */ String mCurrentNote;
     private final Condition[] conditions;
 
-    private DetailViewModel viewModel;
+//    private DetailViewModel viewModel;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         /*
@@ -169,12 +147,6 @@ public class ActivityHelper extends AsyncQueryHandler{
 
     };
 
-    /* null if either no notification has be shown yet, or notification is disabled in settings */
-    private @Nullable NotificationCompat.Builder notificationBuilder;
-    private NotificationManagerCompat notificationManager;
-
-    JobInfo refreshJobInfo;
-
     /* to be used only in the UI thread, consider getActivitiesCopy() */
     public List<DiaryActivity> getActivities() {
         return activities;
@@ -196,31 +168,6 @@ public class ActivityHelper extends AsyncQueryHandler{
             result.addAll(unsortedActivities);
         }
         return result;
-    }
-
-    public void scheduleRefresh() {
-        int cycleTime;
-        long delta = (new Date().getTime() - mCurrentActivityStartTime.getTime() + 500) / 1000;
-        if(delta <= 15) {
-            cycleTime = 1000 * 10;
-        }else if(delta <= 45){
-            cycleTime = 1000 * 20;
-        }else if(delta <= 95){
-            cycleTime = 1000 * 60;
-        }else{
-            cycleTime = 1000 * 60 * 5; /* 5 min for now. if we want we can make this time configurable in the settings */
-        }
-        ComponentName componentName = new ComponentName(MVApplication.getAppContext(), RefreshService.class);
-        JobInfo.Builder builder = new JobInfo.Builder(ACTIVITY_HELPER_REFRESH_JOB, componentName);
-        builder.setMinimumLatency(cycleTime);
-        refreshJobInfo = builder.build();
-
-        JobScheduler jobScheduler = (JobScheduler) MVApplication.getAppContext().getSystemService(JOB_SCHEDULER_SERVICE);
-        int resultCode = jobScheduler.schedule(refreshJobInfo);
-        if (resultCode != JobScheduler.RESULT_SUCCESS) {
-            Log.w(TAG, "RefreshJob not scheduled");
-        }
-// TODO: do we need to keep track on the scheduled jobs, or is a waiting job with the same ID as a new one automatically canceled?
     }
 
     public static ArrayList<DiaryActivity> sortedActivities(String query) {
@@ -302,8 +249,6 @@ public class ActivityHelper extends AsyncQueryHandler{
 
         LocationHelper.helper.updateLocation();
         mCurrentActivityStartTime = new Date();
-        createNotificationChannels();
-        scheduleRefresh();
     }
 
     /* reload all the activities from the database */
@@ -323,22 +268,6 @@ public class ActivityHelper extends AsyncQueryHandler{
                 null);
     }
 
-    /* create all the notification channels */
-    private static void createNotificationChannels() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Create the NotificationChannel for the "current activity"
-            CharSequence name = MVApplication.getAppContext().getResources().getString(R.string.notif_channel_current_activity_name);
-            String description = MVApplication.getAppContext().getResources().getString(R.string.notif_channel_current_activity_desc);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel nChannel = new NotificationChannel(CURRENT_ACTIVITY_CHANNEL_ID, name, importance);
-            nChannel.setDescription(description);
-
-            NotificationManager notificationManagerL = (NotificationManager) MVApplication.getAppContext().getSystemService(
-                    NOTIFICATION_SERVICE);
-            notificationManagerL.createNotificationChannel(nChannel);
-        }
-    }
-
     /* start the query to read the current activity
      * will trigger the update of currentActivity and send notifications afterwards */
     public void readCurrentActivity() {
@@ -355,7 +284,7 @@ public class ActivityHelper extends AsyncQueryHandler{
     protected void onQueryComplete(int token, Object cookie,
                                    Cursor cursor) {
         if ((cursor != null) && cursor.moveToFirst()) {
-            if(token == QUERY_ALL_ACTIVITIES) {
+            if (token == QUERY_ALL_ACTIVITIES) {
                 synchronized (this) {
                     activities.clear();
                     unsortedActivities.clear();
@@ -370,16 +299,16 @@ public class ActivityHelper extends AsyncQueryHandler{
                     }
                 }
                 readCurrentActivity();
-                for(DataChangedListener listener : mDataChangeListeners) {
+                for (DataChangedListener listener : mDataChangeListeners) {
                     listener.onActivityDataChanged();
                 }
-            }else if(token == QUERY_CURRENT_ACTIVITY){
-                if(!cursor.isNull(cursor.getColumnIndex(Contract.Diary.END))){
+            } else if (token == QUERY_CURRENT_ACTIVITY) {
+                if (!cursor.isNull(cursor.getColumnIndex(Contract.Diary.END))) {
                     /* no current activity */
                     mCurrentNote = "";
                     mCurrentDiaryUri = null;
                     mCurrentActivityStartTime.setTime(cursor.getLong(cursor.getColumnIndex(Contract.Diary.END)));
-                }else {
+                } else {
                     mCurrentActivity = activityWithId(cursor.getInt(cursor.getColumnIndex(Contract.Diary.ACT_ID)));
                     mCurrentActivityStartTime.setTime(cursor.getLong(cursor.getColumnIndex(Contract.Diary.START)));
                     mCurrentNote = cursor.getString(cursor.getColumnIndex(Contract.Diary.NOTE));
@@ -387,12 +316,12 @@ public class ActivityHelper extends AsyncQueryHandler{
                                         Long.toString(cursor.getLong(cursor.getColumnIndex(Contract.Diary._ID))));
 
                 }
-                showCurrentActivityNotification();
+//                showCurrentActivityNotification();
 
-                for(DataChangedListener listener : mDataChangeListeners) {
+                for (DataChangedListener listener : mDataChangeListeners) {
                     listener.onActivityChanged();
                 }
-            }else if(token == UNDELETE_ACTIVITY){
+            } else if (token == UNDELETE_ACTIVITY){
 
                 DiaryActivity act = (DiaryActivity)cookie;
                 act.setColor(cursor.getInt(cursor.getColumnIndex(Contract.DiaryActivity.COLOR)));
@@ -441,92 +370,7 @@ public class ActivityHelper extends AsyncQueryHandler{
                 }
             }
             LocationHelper.helper.updateLocation();
-            showCurrentActivityNotification();
-        }
-    }
-
-    public void showCurrentActivityNotification() {
-        if(PreferenceManager
-                .getDefaultSharedPreferences(MVApplication.getAppContext())
-                .getBoolean(SettingsActivity.KEY_PREF_NOTIF_SHOW_CUR_ACT, true)
-                && mCurrentActivity != null) {
-            int col = ContextCompat.getColor(MVApplication.getAppContext(), R.color.colorPrimary);
-            notificationBuilder =
-                    new NotificationCompat.Builder(MVApplication.getAppContext(),
-                            CURRENT_ACTIVITY_CHANNEL_ID)
-                            .setColor(col)
-                            .setSmallIcon(R.mipmap.ic_launcher) // TODO: use ic_nav_select in orange
-                            .setContentTitle(mCurrentActivity.getName())
-                            .setPriority(NotificationCompat.PRIORITY_LOW)
-                            .setShowWhen(false);
-            // TODO: add icon on implementing #33
-
-            notificationBuilder.setOnlyAlertOnce(PreferenceManager
-                    .getDefaultSharedPreferences(MVApplication.getAppContext())
-                    .getBoolean(SettingsActivity.KEY_PREF_SILENT_RENOTIFICATIONS, true));
-
-            notificationManager = NotificationManagerCompat.from(MVApplication.getAppContext());
-
-            Intent intent = new Intent(MVApplication.getAppContext(), MainActivity.class);
-            PendingIntent pIntent = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                pIntent = PendingIntent.getActivity(MVApplication.getAppContext(),
-                        (int) System.currentTimeMillis(), intent,
-                        PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-            }
-            notificationBuilder.setContentIntent(pIntent);
-            updateNotification();
-        }else{
-            if(notificationManager != null) {
-                notificationManager.cancel(CURRENT_ACTIVITY_NOTIFICATION_ID);
-            }
-            notificationBuilder = null;
-        }
-    }
-
-    @SuppressLint("RestrictedApi")
-    public void updateNotification(){
-        String duration = MVApplication.getAppContext().getResources().
-                getString(R.string.duration_description, TimeSpanFormatter.fuzzyFormat(ActivityHelper.helper.mCurrentActivityStartTime, new Date()));
-
-        if(notificationBuilder != null) {
-            // if this comes faster than building the first notification we just ignore the update.
-            // also in case the notification is disabled in the settings notificationBuilder is null
-            boolean needUpdate = false;
-            int idx = 0;
-            for(NotificationCompat.Action a: notificationBuilder.mActions){
-                if(notificationBuilder.mActions.size() - idx - 1 < activities.size()
-                    &&
-                   activities.get(notificationBuilder.mActions.size() - idx - 1).getId() != a.getExtras().getInt("SELECT_ACTIVITY_WITH_ID")) {
-                    needUpdate = true;
-                }
-                idx++;
-            }
-            if(needUpdate || notificationBuilder.mActions.size() < 1) {
-                notificationBuilder.mActions.clear();
-
-                for (int i = 2; i >= 0; i--) {
-                    if (i < activities.size()) {
-                        DiaryActivity act = activities.get(i);
-                        SpannableString coloredActivity = new SpannableString(act.getName());
-                        coloredActivity.setSpan(new ForegroundColorSpan(act.getColor()), 0, coloredActivity.length(), 0);
-
-                        Intent intent = new Intent(MVApplication.getAppContext(), MainActivity.class);
-                        intent.putExtra("SELECT_ACTIVITY_WITH_ID", act.getId());
-                        PendingIntent pIntent = null;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                            pIntent = PendingIntent.getActivity(MVApplication.getAppContext(),
-                                    (int) System.currentTimeMillis(), intent,
-                                    PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-                        }
-                        NotificationCompat.Action a = new NotificationCompat.Action(R.drawable.ic_nav_select, coloredActivity, pIntent);
-                        a.getExtras().putInt("SELECT_ACTIVITY_WITH_ID", act.getId());
-                        notificationBuilder.addAction(a);
-                    }
-                }
-            }
-            notificationBuilder.setContentText(duration);
-            notificationManager.notify(CURRENT_ACTIVITY_NOTIFICATION_ID, notificationBuilder.build());
+//            showCurrentActivityNotification();
         }
     }
 
@@ -591,13 +435,13 @@ public class ActivityHelper extends AsyncQueryHandler{
 
     @Override
     protected void onInsertComplete(int token, Object cookie, Uri uri) {
-        if(token == INSERT_NEW_DIARY_ENTRY){
+        if (token == INSERT_NEW_DIARY_ENTRY) {
             mCurrentDiaryUri = uri;
             for(DataChangedListener listener : mDataChangeListeners) {
                 listener.onActivityChanged();
             }
 
-        }else if(token == INSERT_NEW_ACTIVITY){
+        } else if (token == INSERT_NEW_ACTIVITY) {
 
             DiaryActivity act = (DiaryActivity)cookie;
             act.setId(Integer.parseInt(uri.getLastPathSegment()));
@@ -667,8 +511,8 @@ public class ActivityHelper extends AsyncQueryHandler{
         synchronized (this) {
             if (activities.remove(act)) {
                 unsortedActivities.remove(act);
-            }else{
-                Log.e(TAG, "removal of activity " + act.toString() + " failed");
+            } else {
+                Log.e(TAG, "removal of activity " + act + " failed");
             }
         }
         for(DataChangedListener listener : mDataChangeListeners) {
@@ -689,6 +533,7 @@ public class ActivityHelper extends AsyncQueryHandler{
                 }
             }
             for (DiaryActivity a : activities) {
+//                System.out.println("activity: " + a.getName());
                 if (a.getId() == id) {
                     return a;
                 }
@@ -709,7 +554,6 @@ public class ActivityHelper extends AsyncQueryHandler{
     }
 
     /* calculate the "search" distance between search string and model
-     *
      * Code based on Levensthein distance from https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#Java
      */
     public static int searchDistance(CharSequence inSearch, CharSequence inModel) {
@@ -821,14 +665,14 @@ public class ActivityHelper extends AsyncQueryHandler{
             activities = list;
 
             /* is one of the conditions currently evaluating? */
-            boolean reorderingInProgress = false;
+//            boolean reorderingInProgress = false;
         }
 
         for(DataChangedListener listener : mDataChangeListeners) {
             listener.onActivityOrderChanged();
         }
 
-        updateNotification();
+//        updateNotification();
     }
 
     /*

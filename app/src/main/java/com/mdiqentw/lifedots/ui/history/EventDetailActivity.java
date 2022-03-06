@@ -26,7 +26,6 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Editable;
@@ -36,26 +35,19 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.DialogFragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
-import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import com.google.android.material.textfield.TextInputLayout;
 import com.mdiqentw.lifedots.MVApplication;
 import com.mdiqentw.lifedots.R;
-import com.mdiqentw.lifedots.databinding.ActivityHistoryDetailContentBinding;
+import com.mdiqentw.lifedots.databinding.ActivityEventDetailContentBinding;
 import com.mdiqentw.lifedots.db.Contract;
 import com.mdiqentw.lifedots.helpers.ActivityHelper;
 import com.mdiqentw.lifedots.ui.generic.BaseActivity;
@@ -90,7 +82,7 @@ import java.util.Objects;
  * HistoryDetailActivity to show details of and modify diary entries
  *
  * */
-public class HistoryDetailActivity extends BaseActivity
+public class EventDetailActivity extends BaseActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String[] PROJECTION_IMG = new String[] {
@@ -103,16 +95,17 @@ public class HistoryDetailActivity extends BaseActivity
     private static final int UPDATE_PRE = 3;
     private static final int UPDATE_SUCC = 4;
 
-    ActivityHistoryDetailContentBinding binding;
+    ActivityEventDetailContentBinding binding;
 
     private DetailRecyclerViewAdapter detailAdapter;
 
     private final boolean[] mUpdatePending = new boolean[UPDATE_SUCC + 1];
-    private static final int OVERLAP_CHECK = 5;
+//    private static final int OVERLAP_CHECK = 5;
 
     private final String[] ENTRY_PROJ = new String[]{
             Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivity.NAME,
             Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivity.COLOR,
+            Contract.Diary.TABLE_NAME + "." + Contract.Diary.ACT_ID,
             Contract.Diary.TABLE_NAME + "." + Contract.Diary._ID,
             Contract.Diary.NOTE,
             Contract.Diary.START,
@@ -124,22 +117,16 @@ public class HistoryDetailActivity extends BaseActivity
 
     final String dateFormatString = MVApplication.getAppContext().getResources().getString(R.string.date_format);
     final String timeFormatString = MVApplication.getAppContext().getResources().getString(R.string.time_format);
-    private final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MVApplication.getAppContext());
+//    private final SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(MVApplication.getAppContext());
 
     /* the id of the currently displayed diary entry */
     private long diaryEntryID;
+//    private int actId;
 
-    private TextView mActivityName;
-    private CheckBox mAdjustAdjacent;
-    private Button mStartDate, mEndDate, mStartTime, mEndTime;
     private Calendar start, storedStart;
     private Calendar end, storedEnd;
 
-    private EditText mNote;
-    private View mBackground;
-
     private ContentValues updateValues = new ContentValues();
-    private TextView mTimeError;
     private boolean mIsCurrent;
 
     public static class TimePickerFragment extends DialogFragment{
@@ -195,20 +182,28 @@ public class HistoryDetailActivity extends BaseActivity
             storedEnd = Calendar.getInstance();
             long endMillis = cursor.getLong(cursor.getColumnIndex(Contract.Diary.END));
             storedEnd.setTimeInMillis(endMillis);
-            if(endMillis != 0) {
+            if (endMillis != 0) {
                 end.setTimeInMillis(endMillis);
                 mIsCurrent = false;
-            }else{
+            } else {
                 mIsCurrent = true;
             }
 
             if(!updateValues.containsKey(Contract.Diary.NOTE)) {
-                mNote.setText(cursor.getString(cursor.getColumnIndex(Contract.Diary.NOTE)));
+                binding.editActivityNote.setText(cursor.getString(cursor.getColumnIndex(Contract.Diary.NOTE)));
             }
-            mActivityName.setText(
+//            actId = cursor.getInt(cursor.getColumnIndex(Contract.Diary.ACT_ID));
+//            System.out.println("Contract.DiaryActivity: " + cursor.getString(cursor.getColumnIndex(Contract.DiaryActivity.NAME)) +
+//                    " " + actId);
+            binding.row.name.setText(
                     cursor.getString(cursor.getColumnIndex(Contract.DiaryActivity.NAME)));
-
-            mBackground.setBackgroundColor(cursor.getInt(cursor.getColumnIndex(Contract.DiaryActivity.COLOR)));
+//            binding.activityCard.setOnLongClickListener((view) -> {
+//                Intent i = new Intent(EventDetailActivity.this, EditActivity.class);
+//                i.putExtra("activityID", actId);
+//                startActivity(i);
+//                return true;
+//            });
+            binding.row.background.setBackgroundColor(cursor.getInt(cursor.getColumnIndex(Contract.DiaryActivity.COLOR)));
 
             if(diaryEntryID == -1){
                 diaryEntryID = cursor.getLong(cursor.getColumnIndex(Contract.Diary._ID));
@@ -242,9 +237,9 @@ public class HistoryDetailActivity extends BaseActivity
     }
 
     private static class QHandler extends AsyncQueryHandler {
-        final HistoryDetailActivity act;
+        final EventDetailActivity act;
 
-        private QHandler(HistoryDetailActivity act){
+        private QHandler(EventDetailActivity act){
             super(MVApplication.getAppContext().getContentResolver());
             this.act = new WeakReference<>(act).get();
         }
@@ -268,7 +263,7 @@ public class HistoryDetailActivity extends BaseActivity
     // override the UI by the values in updateValues
     private void overrideUpdates() {
         if(updateValues.containsKey(Contract.Diary.NOTE)) {
-            mNote.setText((CharSequence) updateValues.get(Contract.Diary.NOTE));
+            binding.editActivityNote.setText((CharSequence) updateValues.get(Contract.Diary.NOTE));
         }
         if(updateValues.containsKey(Contract.Diary.START)) {
             start.setTimeInMillis(updateValues.getAsLong(Contract.Diary.START));
@@ -280,10 +275,10 @@ public class HistoryDetailActivity extends BaseActivity
     }
 
     private void updateDateTimes() {
-        mStartDate.setText(DateFormat.format(dateFormatString, start));
-        mStartTime.setText(DateFormat.format(timeFormatString, start));
-        mEndDate.setText(DateFormat.format(dateFormatString, end));
-        mEndTime.setText(DateFormat.format(timeFormatString, end));
+        binding.dateStart.setText(DateFormat.format(dateFormatString, start));
+        binding.timeStart.setText(DateFormat.format(timeFormatString, start));
+        binding.dateEnd.setText(DateFormat.format(dateFormatString, end));
+        binding.timeEnd.setText(DateFormat.format(timeFormatString, end));
         checkConstraints();
     }
 
@@ -293,27 +288,14 @@ public class HistoryDetailActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_history_detail_content);
-
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_event_detail_content);
         setContent(binding.getRoot());
-//        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        binding.setActivity(this);
+
         Intent i = getIntent();
         diaryEntryID = i.getIntExtra("diaryEntryID", -1);
 
-//        View contentView = View.inflate(this, R.layout.activity_history_detail_content, null);
-
-//        setContent(binding.getRoot());
-        CardView mActivityCard = binding.activityCard;
-        assert binding.row != null;
-        mActivityName = binding.row.name;
-        mBackground = binding.row.background;
-
-        mAdjustAdjacent = binding.adjustAdjacent;
-
-        TextInputLayout mNoteTIL = binding.editActivityNoteTil;
-        mNote = binding.editActivityNote;
-
-        mNote.addTextChangedListener(new TextWatcher() {
+        binding.editActivityNote.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 // empty
@@ -331,26 +313,20 @@ public class HistoryDetailActivity extends BaseActivity
             }
         });
 
-        mStartDate = binding.dateStart;
-        mEndDate = binding.dateEnd;
-        mStartTime = binding.timeStart;
-        mEndTime = binding.timeEnd;
         start = Calendar.getInstance();
         end = Calendar.getInstance();
-        mTimeError = binding.timeError;
 
-        RecyclerView detailRecyclerView = binding.pictureRecycler;
         RecyclerView.LayoutManager layoutMan = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
-        detailRecyclerView.setLayoutManager(layoutMan);
+        binding.pictureRecycler.setLayoutManager(layoutMan);
         detailAdapter = new DetailRecyclerViewAdapter(this,null);
-        detailRecyclerView.setAdapter(detailAdapter);
+        binding.pictureRecycler.setAdapter(detailAdapter);
 
         LoaderManager.getInstance(this).restartLoader(0, null, this);
 
         if(savedInstanceState != null) {
             updateValues = savedInstanceState.getParcelable(UPDATE_VALUE_KEY);
             diaryEntryID = savedInstanceState.getLong(DIRAY_ENTRY_ID_KEY);
-            mAdjustAdjacent.setChecked(savedInstanceState.getBoolean(ADJUST_ADJACENT_KEY));
+            binding.adjustAdjacent.setChecked(savedInstanceState.getBoolean(ADJUST_ADJACENT_KEY));
             overrideUpdates();
         }
         Arrays.fill(mUpdatePending, false);
@@ -390,7 +366,7 @@ public class HistoryDetailActivity extends BaseActivity
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putBoolean(ADJUST_ADJACENT_KEY, mAdjustAdjacent.isChecked());
+        outState.putBoolean(ADJUST_ADJACENT_KEY, binding.adjustAdjacent.isChecked());
         outState.putLong(DIRAY_ENTRY_ID_KEY, diaryEntryID);
         outState.putParcelable(UPDATE_VALUE_KEY, updateValues);
         // call superclass to save any view hierarchy
@@ -407,11 +383,12 @@ public class HistoryDetailActivity extends BaseActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int mid = item.getItemId();
-        if (mid == R.id.action_edit_delete) {
-            /* TODO: DELETE diary entry */
-            System.out.println("Deleting diary entry not implemented");
-            finish();
-        } else if (mid == android.R.id.home) {
+//        if (mid == R.id.action_edit_delete) {
+//            /* TODO: DELETE diary entry */
+//            Toast.makeText(this, R.string.delete_event_entry_msg, Toast.LENGTH_SHORT).show();
+//            finish();
+//        } else
+        if (mid == android.R.id.home) {
             /* cancel edit */
             finish();
         } else if (mid == R.id.action_edit_done) {
@@ -423,7 +400,7 @@ public class HistoryDetailActivity extends BaseActivity
                             updateValues, null, null);
                     mUpdatePending[UPDATE_ENTRY] = true;
 
-                    if (mAdjustAdjacent.isChecked()) {
+                    if (binding.adjustAdjacent.isChecked()) {
                         if (updateValues.containsKey(Contract.Diary.START)) {
                             // update also the predecessor
                             ContentValues updateEndTime = new ContentValues();
@@ -458,19 +435,19 @@ public class HistoryDetailActivity extends BaseActivity
         boolean result = true;
         if(end.getTimeInMillis() != 0 && !end.after(start)){
             result = false;
-            mTimeError.setText(R.string.constraint_positive_duration);
+            binding.timeError.setText(R.string.constraint_positive_duration);
         }
 
         checkForOverlap();
-// TODO
+        // TODO
         // end >= start + 1000
         // no overlap OR adjust adjacent (but still no oerlap with the next next and last last
 
         if(!result) {
             // TODO: make animation here, and do so only if it is not already visibile
-            mTimeError.setVisibility(View.VISIBLE);
+            binding.timeError.setVisibility(View.VISIBLE);
         }else{
-            mTimeError.setVisibility(View.GONE);
+            binding.timeError.setVisibility(View.GONE);
         }
         return result;
     }
@@ -558,14 +535,14 @@ public class HistoryDetailActivity extends BaseActivity
     public void showStartDatePickerDialog(View v) {
         DatePickerFragment newFragment = new DatePickerFragment();
         newFragment.setData((view, year, month, dayOfMonth) -> {
-            start.set(Calendar.YEAR, year);
-            start.set(Calendar.MONTH, month);
-            start.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    start.set(Calendar.YEAR, year);
+                    start.set(Calendar.MONTH, month);
+                    start.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-            Long newStart = start.getTimeInMillis();
-            updateValues.put(Contract.Diary.START, newStart);
-            updateDateTimes();
-        }
+                    Long newStart = start.getTimeInMillis();
+                    updateValues.put(Contract.Diary.START, newStart);
+                    updateDateTimes();
+                }
                 , start.get(Calendar.YEAR), start.get(Calendar.MONTH), start.get(Calendar.DAY_OF_MONTH));
         newFragment.show(getSupportFragmentManager(), "startDatePicker");
     }
