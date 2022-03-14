@@ -34,6 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.mdiqentw.lifedots.MVApplication
 import com.mdiqentw.lifedots.db.Contract
+import com.mdiqentw.lifedots.helpers.DateHelper.DAY_IN_MS
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
 import kotlin.math.*
 
@@ -63,8 +64,10 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
     private var minDist = 0f
     private var setting: String? = null
     var currentLocation: Location private set
-    private val locationManager: LocationManager = MVApplication.getAppContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(MVApplication.getAppContext())
+    private val locationManager: LocationManager =
+        MVApplication.getAppContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    private val sharedPreferences: SharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(MVApplication.getAppContext())
     private val mHandler: Handler
 
     private lateinit var refreshJobInfo: JobInfo
@@ -92,50 +95,32 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
         if (locationProvider.isNotBlank()) {
             val location = locationManager.getLastKnownLocation(locationProvider)
             var locAge = 0L
+            var updated = false
             if (location != null) {
                 locAge = System.currentTimeMillis() - location.time
-//                println("LastLocation: " + location.longitude + ":" + location.latitude + " " + locAge)
+                println("LastLocation: " + location.longitude + ":" + location.latitude + " " + locAge)
 
-                if (isAtZero(currentLocation)) {
-                    if (locAge < minTime) {
-                        onLocationChanged(location)
-//                        println("currentLocation recorded: " + location.longitude + ":" + location.latitude)
-                    } else {
-                        currentLocation = location
-                    }
+                if (locAge < minTime && location.time != currentLocation.time) {
+                    onLocationChanged(location)
+                    updated = true
                 }
+//                else if (isAtZero(currentLocation)) currentLocation = location
             }
-//            if (location == null ||
-//                locAge > 0.5*minTime ||
-//                distance(location, currentLocation) > 0.5*minDist) {
-//                locationManager.requestLocationUpdates(
-//                    locationProvider,
-//                    60000L,
-//                    5f,
-//                    this,
-//                    Looper.getMainLooper()
-//                )
-////                println("requestLocationUpdates sent")
-//                mHandler.sendEmptyMessageDelayed(
-//                    LOCATION_UPDATE,
-//                    5 * MIN_TIME_FACTOR
-//                ) // time out in 5 minutes
-//            }
-            if (location == null ||
-                locAge > 0.5*minTime ||
-                distance(location, currentLocation) > 0.5*minDist) {
+
+            if (location == null || locAge > minTime || !updated ||
+                distance(location, currentLocation) > minDist) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 //                    println("calling getCurrentLocation")
                     locationManager.getCurrentLocation(locationProvider,
                         null,
-                        MVApplication.getAppContext().mainExecutor,
-                        {
-                            fun accept(location: Location) {
-                                onLocationChanged(location)
-                            }
-                        })
+                        MVApplication.getAppContext().mainExecutor
+                    ) {
+                        fun accept(location: Location) {
+                            onLocationChanged(location)
+                        }
+                    }
                 } else {
-//                    println("calling requestSingleUpdate")
+                    println("calling requestSingleUpdate")
                     @Suppress("DEPRECATION")
                     locationManager.requestSingleUpdate(
                         locationProvider, this, Looper.getMainLooper())
@@ -197,13 +182,15 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
     override fun onLocationChanged(location: Location) {
         stopLocationUpdates()
 
-//        println("onLocationChanged: " + location.time + " " + location.longitude + " " + location.latitude)
+        println("onLocationChanged: " + location.time + " " + location.longitude + " " + location.latitude + " " +
+                distance(location, currentLocation))
 
         @Suppress("SENSELESS_COMPARISON", "DEPRECATION")
         if (location == null || isAtZero(location)) return
-        if (distance(location, currentLocation) < minDist) return
+        if (System.currentTimeMillis() - currentLocation.time < DAY_IN_MS &&
+            distance(location, currentLocation) < minDist) return
 
-//        println("Adding location point: " + location.time + " " + location.longitude + " " + location.latitude)
+        println("Adding location point: " + location.time + " " + location.longitude + " " + location.latitude)
         val values = ContentValues()
         currentLocation = location
         values.put(Contract.DiaryLocation.TIMESTAMP, location.time)
@@ -284,7 +271,7 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
         val builder = JobInfo.Builder(ACTIVITY_HELPER_REFRESH_JOB, componentName)
         builder.setMinimumLatency(minTime)
         refreshJobInfo = builder.build()
-//        println("Job scheduled: $minTime")
+        println("Job scheduled: $minTime")
         val jobScheduler = MVApplication.getAppContext()
             .getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val resultCode = jobScheduler.schedule(refreshJobInfo)

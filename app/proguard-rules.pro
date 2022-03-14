@@ -16,13 +16,13 @@
 #   public *;
 #}
 
--dontwarn okio.**
--dontwarn com.squareup.okhttp3.**
--keep class com.squareup.okhttp3.** { *; }
--keep interface com.squareup.okhttp3.** { *; }
+#-dontwarn okio.**
+#-dontwarn com.squareup.okhttp3.**
+#-keep class com.squareup.okhttp3.** { *; }
+#-keep interface com.squareup.okhttp3.** { *; }
+#-dontwarn okhttp3.internal.platform.*
 -dontwarn javax.annotation.Nullable
 -dontwarn javax.annotation.ParametersAreNonnullByDefault
--dontwarn okhttp3.internal.platform.*
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.

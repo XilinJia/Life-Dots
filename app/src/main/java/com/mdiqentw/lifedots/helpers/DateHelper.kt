@@ -46,6 +46,7 @@ object DateHelper {
     const val FULLDAY = 3324
     const val FULLWEEK = 3407
     const val FULLMONTH = 2530
+
     const val DAY_IN_MS = (1000 * 60 * 60 * 24).toLong()
 
     /* Get the start of the time span from timeRef
