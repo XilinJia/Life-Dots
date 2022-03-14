@@ -150,22 +150,28 @@
     <string name="duration_description">Depuis %1$s</string>
     <string name="just_now">juste maintenant</string>
     <string name="few_seconds">quelques secondes</string>
+
     <plurals name="seconds_short">
         <item quantity="one">%d sec</item>
         <item quantity="other">%d sec</item>
+        <item quantity="many">%d secs</item>
     </plurals>
     <plurals name="minutes_short">
         <item quantity="one">%d min</item>
         <item quantity="other">%d min</item>
+        <item quantity="many">%d mins</item>
     </plurals>
     <plurals name="hours_short">
         <item quantity="one">%d h</item>
         <item quantity="other">%d h</item>
+        <item quantity="many">%d hs</item>
     </plurals>
     <plurals name="days">
         <item quantity="one">%d jour</item>
         <item quantity="other">%d jours</item>
+        <item quantity="many">%d jours</item>
     </plurals>
+
     <string name="avg_duration_description">Average duration: %1$s</string>
     <string name="last_done_description">Last start: %1$s</string>
     <string name="camera_error">Quelque chose s\'est mal passé ici. Impossible de stocker l\'image.</string>

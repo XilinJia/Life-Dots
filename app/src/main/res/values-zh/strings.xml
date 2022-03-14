@@ -27,7 +27,7 @@
     <string name="about_text_licence">%1$s是免费软件：您可以根据&lt;a href="https://www.gnu.org/licenses/gpl-3.0.en.html"&gt; GNU常规条款重新分发和/或修改它公共许可证&lt;/a&gt;</string>
     <string name="about_text_license_2">分发该程序的目的是希望它会有用，但不作任何担保；甚至没有对适销性或特定用途适用性的暗示保证。有关更多详细信息，请参见GNU通用公共许可证。</string>
     <string name="about_text_privacy_h">隐私政策</string>
-    <string name="about_text_privacy">%<![CDATA[%1$s 並且其作者對尊重您的隱私有著濃厚的興趣。
+    <string name="about_text_privacy"><![CDATA[%1$s 並且其作者對尊重您的隱私有著濃厚的興趣。
      這個應用程序的本質是在您自己的設備上記錄您的事件。
      數據保留在您的手中，不會通過應用程序傳輸到任何服務器或外部方。
      如果您選擇記錄位置，應用程序會請求您授予位置權限。
