@@ -585,24 +585,29 @@ public class SettingsActivity extends BaseActivity
             String mode = csr.getString(0);
             //Log.d(TAGLocal, "Mode is " + mode);
             if (mode.equalsIgnoreCase("wal")) {
-                csr = db.rawQuery("PRAGMA wal_checkpoint",null);
-                if (csr.moveToFirst()) {
-                    wal_busy = csr.getInt(0);
-                    wal_log = csr.getInt(1);
-                    wal_checkpointed = csr.getInt(2);
+                Cursor csr1 = db.rawQuery("PRAGMA wal_checkpoint",null);
+                if (csr1.moveToFirst()) {
+                    wal_busy = csr1.getInt(0);
+                    wal_log = csr1.getInt(1);
+                    wal_checkpointed = csr1.getInt(2);
                 }
                 Log.d(TAGLocal,"Checkpoint pre checkpointing Busy = " + wal_busy + " LOG = " +
                         wal_log + " CHECKPOINTED = " + wal_checkpointed);
-                csr = db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)",null);
-                csr.getCount();
-                csr = db.rawQuery("PRAGMA wal_checkpoint",null);
-                if (csr.moveToFirst()) {
-                    wal_busy = csr.getInt(0);
-                    wal_log = csr.getInt(1);
-                    wal_checkpointed = csr.getInt(2);
+                csr1.close();
+                
+                Cursor csr2 = db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)",null);
+                csr2.getCount();
+                csr2.close();
+                
+                Cursor csr3 = db.rawQuery("PRAGMA wal_checkpoint",null);
+                if (csr3.moveToFirst()) {
+                    wal_busy = csr3.getInt(0);
+                    wal_log = csr3.getInt(1);
+                    wal_checkpointed = csr3.getInt(2);
                 }
                 Log.d(TAGLocal,"Checkpoint post checkpointing Busy = " + wal_busy + " LOG = " +
                         wal_log + " CHECKPOINTED = " + wal_checkpointed);
+                csr3.close();
             }
         }
         csr.close();
