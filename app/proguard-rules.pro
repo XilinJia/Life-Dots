@@ -17,16 +17,21 @@
 #}
 
 #-dontwarn okio.**
--dontwarn com.squareup.okhttp3.**
--keep class com.squareup.okhttp3.** { *; }
--keep interface com.squareup.okhttp3.** { *; }
--dontwarn okhttp3.internal.platform.*
+#-dontwarn com.squareup.okhttp3.**
+#-keep class com.squareup.okhttp3.** { *; }
+#-keep interface com.squareup.okhttp3.** { *; }
+#-dontwarn okhttp3.internal.platform.*
+
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.OpenSSLProvider
+
 -dontwarn javax.annotation.Nullable
 -dontwarn javax.annotation.ParametersAreNonnullByDefault
 
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 -keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
 
 -keepattributes InnerClasses,EnclosingMethod
 
@@ -56,3 +61,6 @@
 
 #we do not want to obfuscate at all, just the optimization of proguard is of interest
 -dontobfuscate
+
+#-printusage ./usage.txt
+#-printconfiguration ./full-r8-config.txt
