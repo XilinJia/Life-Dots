@@ -8,6 +8,10 @@ Currently you can record any event by touching on an icon that you create, enter
 
 Photos are shrunk to the size of 500 pixels and compressed with Jpeg quality of 60, resulting of reduced size around 70KB each. 
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/com.mdiqentw.lifedots/)
+
 <img src="./Images/start.jpg" width="238" /> <img src="./Images/main.jpg" width="238" /> 
 <img src="./Images/history.jpg" width="238" /> <img src="./Images/note.jpg" width="238" /> <img src="./Images/notes.jpg" width="238" />  
 <img src="./Images/analytics_menu.jpg" width="238" /> <img src="./Images/analitics_month.jpg" width="238" />  
