@@ -8,7 +8,7 @@ signing.properties
 /.idea/caches
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
+**/build
 /captures
 .externalNativeBuild
 gplay-developer-9607db552238.p12

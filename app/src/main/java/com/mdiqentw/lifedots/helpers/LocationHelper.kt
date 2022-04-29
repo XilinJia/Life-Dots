@@ -182,13 +182,16 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
     override fun onLocationChanged(location: Location) {
         stopLocationUpdates()
 
-        println("onLocationChanged: " + location.time + " " + location.longitude + " " + location.latitude + " " +
-                distance(location, currentLocation))
-
         @Suppress("SENSELESS_COMPARISON", "DEPRECATION")
         if (location == null || isAtZero(location)) return
+
+        val distFromCur = distance(location, currentLocation)
+        println("onLocationChanged: " + location.time + " " +
+                location.longitude + " " + location.latitude + " " +
+                distFromCur + " " + minDist)
+
         if (System.currentTimeMillis() - currentLocation.time < DAY_IN_MS &&
-            distance(location, currentLocation) < minDist) return
+            distFromCur < minDist) return
 
         println("Adding location point: " + location.time + " " + location.longitude + " " + location.latitude)
         val values = ContentValues()

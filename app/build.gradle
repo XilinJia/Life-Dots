@@ -58,8 +58,8 @@ android {
         applicationId "com.mdiqentw.lifedots"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 151
-        versionName "2.1.0"
+        versionCode 152
+        versionName "2.1.1"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "LifeDots-" + defaultConfig.versionName)
