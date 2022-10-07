@@ -2,6 +2,7 @@
  * LifeDots
  *
  * Copyright (C) 2017 Raphael Mack http://www.raphael-mack.de
+ * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,24 +42,6 @@ import com.mdiqentw.lifedots.helpers.TimeSpanFormatter
 import com.mdiqentw.lifedots.ui.generic.DetailRecyclerViewAdapter
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
 
-/*
- * LifeDots
- *
- * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity,
                                  private val mListener: SelectListener,
                                  private var mCursor: Cursor?) :
@@ -151,10 +134,10 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity,
             holder.mSeparator.visibility = View.GONE
 
         holder.mName.text = name
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(MVApplication.getAppContext())
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(MVApplication.appContext!!)
         val formatString = sharedPref.getString(SettingsActivity.KEY_PREF_DATETIME_FORMAT,
                 mContext.resources.getString(R.string.default_datetime_format))
-        /* TODO: #36 register listener on preference change to redraw the date time formatting */holder.mStartLabel.text = MVApplication.getAppContext().resources.getString(R.string.history_start, DateFormat.format(formatString, start))
+        /* TODO: #36 register listener on preference change to redraw the date time formatting */holder.mStartLabel.text = MVApplication.appContext!!.resources.getString(R.string.history_start, DateFormat.format(formatString, start))
         var noteStr: String? = ""
         if (!mCursor!!.isNull(noteRowIdx)) {
             noteStr = mCursor!!.getString(noteRowIdx)
@@ -165,16 +148,16 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity,
         holder.mNoteLabel.text = noteStr
         val duration: String
         if (end == null)
-            duration = MVApplication.getAppContext().resources.getString(R.string.duration_description, TimeSpanFormatter.fuzzyFormat(start, Date()))
+            duration = MVApplication.appContext!!.resources.getString(R.string.duration_description, TimeSpanFormatter.fuzzyFormat(start, Date()))
         else {
-            holder.mStartLabel.text = MVApplication.getAppContext().resources.getString(R.string.history_start, DateFormat.format(formatString, start))
-            duration = MVApplication.getAppContext().resources.getString(R.string.history_end, DateFormat.format(formatString, end),
+            holder.mStartLabel.text = MVApplication.appContext!!.resources.getString(R.string.history_start, DateFormat.format(formatString, start))
+            duration = MVApplication.appContext!!.resources.getString(R.string.history_end, DateFormat.format(formatString, end),
                     TimeSpanFormatter.format(end.time - start.time))
         }
         holder.mDurationLabel.text = duration
 
         /* TODO #33: set activity picture (icon + main pciture if available) */holder.mDetailAdapter = DetailRecyclerViewAdapter(mContext, null)
-        mContext.addDetailAdapter(mCursor!!.getLong(idRowIdx), holder.mDetailAdapter)
+        mContext.addDetailAdapter(mCursor!!.getLong(idRowIdx), holder.mDetailAdapter!!)
 
         /* TODO: make it a configuration option how many picture columns we should show */
         val layoutMan: RecyclerView.LayoutManager = StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL)
@@ -188,7 +171,7 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity,
         else 0
     }
 
-    fun swapCursor(newCursor: Cursor) {
+    fun swapCursor(newCursor: Cursor?) {
         if (newCursor === mCursor) {
 //            if (newCursor != null) {
 //                newCursor.close();    // not sure if this should be closed,  leave it open for now

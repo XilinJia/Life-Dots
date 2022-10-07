@@ -2,6 +2,7 @@
  * LifeDots
  *
  * Copyright (C) 2018 Raphael Mack http://www.raphael-mack.de
+ * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,24 +25,6 @@ import java.lang.RuntimeException
 import java.text.SimpleDateFormat
 import java.util.*
 
-/*
- * LifeDots
- *
- * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 object DateHelper {
     const val FULLDAY = 3324
     const val FULLWEEK = 3407
@@ -75,7 +58,7 @@ object DateHelper {
 
     @JvmStatic
     fun dateFormat(field: Int): SimpleDateFormat {
-        val res = MVApplication.getAppContext().resources
+        val res = MVApplication.appContext!!.resources
         val result: SimpleDateFormat = when (field) {
             Calendar.DAY_OF_MONTH, Calendar.DAY_OF_WEEK, Calendar.DAY_OF_WEEK_IN_MONTH, Calendar.DAY_OF_YEAR -> SimpleDateFormat(res.getString(R.string.day_format))
             Calendar.WEEK_OF_YEAR -> SimpleDateFormat(res.getString(R.string.week_format))

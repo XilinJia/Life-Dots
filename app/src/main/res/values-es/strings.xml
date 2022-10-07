@@ -263,4 +263,8 @@
     <string name="num_valid_points">puntos válidos. Toque cualquiera para obtener la marca de tiempo</string>
     <string name="delete_event_entry_msg">Deleting event entry not implemented</string>
     <string name="review_that_day">¿Quieres revisar ese día?</string>
+    <string name="pref_location_start">Comenzar a rastrear la ubicación a las %1$s en punto</string>
+    <string name="setting_location_start">Iniciar seguimiento a las (0 en punto -> 24)</string>
+    <string name="pref_location_stop">Dejar de rastrear la ubicación a las %1$s en punto</string>
+    <string name="setting_location_stop">Detener el seguimiento a las (0 en punto -> 24)</string>
 </resources>

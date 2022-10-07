@@ -269,4 +269,8 @@
     <string name="num_valid_points">points valides. Appuyez sur n\'importe lequel pour obtenir l\'horodatage</string>
     <string name="delete_event_entry_msg">Deleting event entry not implemented</string>
     <string name="review_that_day">Voulez-vous revoir ce jour-là ?</string>
+    <string name="pref_location_start">Commencer le suivi de l\'emplacement à %1$s heures</string>
+    <string name="setting_location_start">Commencer le suivi à (O\'clock 0 -> 24)</string>
+    <string name="pref_location_stop">Arrêter le suivi de l\'emplacement à %1$s heures</string>
+    <string name="setting_location_stop">Arrêter le suivi à (O\'clock 0 -> 24)</string>
 </resources>

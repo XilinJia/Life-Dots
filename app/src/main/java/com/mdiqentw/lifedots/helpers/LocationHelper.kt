@@ -2,7 +2,8 @@
  * LifeDots
  *
  * Copyright (C) 2018 Raphael Mack http://www.raphael-mack.de
- *
+ * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
+`*
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -36,53 +37,65 @@ import com.mdiqentw.lifedots.MVApplication
 import com.mdiqentw.lifedots.db.Contract
 import com.mdiqentw.lifedots.helpers.DateHelper.DAY_IN_MS
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
+import java.util.*
 import kotlin.math.*
 
-
-/*
- * LifeDots
- *
- * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentResolver),
+class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResolver),
     LocationListener, OnSharedPreferenceChangeListener {
 
+    private var startTime: Long = 0
+    private var stopTime: Long = 24
     private var minTime: Long = 0
     private var minDist = 0f
     private var setting: String? = null
     var currentLocation: Location private set
     private val locationManager: LocationManager =
-        MVApplication.getAppContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        MVApplication.appContext!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private val sharedPreferences: SharedPreferences =
-        PreferenceManager.getDefaultSharedPreferences(MVApplication.getAppContext())
+        PreferenceManager.getDefaultSharedPreferences(MVApplication.appContext!!)
     private val mHandler: Handler
 
     private lateinit var refreshJobInfo: JobInfo
 
-    fun updateLocation() {
+    fun isOutOfHours() : Boolean {
+        val cal: Calendar = Calendar.getInstance()
+        val hourofday = cal[Calendar.HOUR_OF_DAY]
+
+        if (startTime <= stopTime) {
+            if (hourofday < startTime || hourofday > stopTime) {
+//                println("no location tracking out of hour $startTime $stopTime")
+                return true
+            }
+        } else {
+            if (hourofday > startTime || hourofday < stopTime) {
+//                println("no location tracking out of hour $startTime $stopTime")
+                return true
+            }
+        }
+
+//        println("location tracking in hour $startTime $stopTime")
+        return false
+    }
+
+    fun isTrackingSet() : Boolean {
+        return setting != "off"
+    }
+
+    fun updateLocation(scheduled : Boolean) {
         if (setting == "off") return
+
+        if (scheduled && isOutOfHours()) return
+
+        println("LocationHelper: getting location")
 
         var permissionCheckFine = PackageManager.PERMISSION_DENIED
         var permissionCheckCoarse = PackageManager.PERMISSION_DENIED
         if (setting == "gps" && locationManager.allProviders.contains(LocationManager.GPS_PROVIDER)) {
-            permissionCheckFine = ContextCompat.checkSelfPermission(MVApplication.getAppContext(),
+            permissionCheckFine = ContextCompat.checkSelfPermission(MVApplication.appContext!!,
                 Manifest.permission.ACCESS_FINE_LOCATION)
             permissionCheckCoarse = permissionCheckFine
         } else if (locationManager.allProviders.contains(LocationManager.NETWORK_PROVIDER)) {
-            permissionCheckCoarse = ContextCompat.checkSelfPermission(MVApplication.getAppContext(),
+            permissionCheckCoarse = ContextCompat.checkSelfPermission(MVApplication.appContext!!,
                 Manifest.permission.ACCESS_COARSE_LOCATION)
         }
 
@@ -98,7 +111,7 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
             var updated = false
             if (location != null) {
                 locAge = System.currentTimeMillis() - location.time
-                println("LastLocation: " + location.longitude + ":" + location.latitude + " " + locAge)
+//                println("LastLocation: " + location.longitude + ":" + location.latitude + " " + locAge)
 
                 if (locAge < minTime && location.time != currentLocation.time) {
                     onLocationChanged(location)
@@ -113,14 +126,14 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
 //                    println("calling getCurrentLocation")
                     locationManager.getCurrentLocation(locationProvider,
                         null,
-                        MVApplication.getAppContext().mainExecutor
+                        MVApplication.appContext!!.mainExecutor
                     ) {
                         fun accept(location: Location) {
                             onLocationChanged(location)
                         }
                     }
                 } else {
-                    println("calling requestSingleUpdate")
+//                    println("calling requestSingleUpdate")
                     @Suppress("DEPRECATION")
                     locationManager.requestSingleUpdate(
                         locationProvider, this, Looper.getMainLooper())
@@ -182,18 +195,18 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
     override fun onLocationChanged(location: Location) {
         stopLocationUpdates()
 
-        @Suppress("SENSELESS_COMPARISON", "DEPRECATION")
+        @Suppress("SENSELESS_COMPARISON")
         if (location == null || isAtZero(location)) return
 
         val distFromCur = distance(location, currentLocation)
-        println("onLocationChanged: " + location.time + " " +
-                location.longitude + " " + location.latitude + " " +
-                distFromCur + " " + minDist)
+//        println("onLocationChanged: " + location.time + " " +
+//                location.longitude + " " + location.latitude + " " +
+//                distFromCur + " " + minDist)
 
         if (System.currentTimeMillis() - currentLocation.time < DAY_IN_MS &&
             distFromCur < minDist) return
 
-        println("Adding location point: " + location.time + " " + location.longitude + " " + location.latitude)
+//        println("Adding location point: " + location.time + " " + location.longitude + " " + location.latitude)
         val values = ContentValues()
         currentLocation = location
         values.put(Contract.DiaryLocation.TIMESTAMP, location.time)
@@ -228,6 +241,7 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
     }
 
     // deprecated for Android Q
+    @Deprecated("Deprecated in Java")
     override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
 
     /**
@@ -250,32 +264,42 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         if (key == SettingsActivity.KEY_PREF_USE_LOCATION ||
+            key == SettingsActivity.KEY_PREF_LOCATION_START ||
+            key == SettingsActivity.KEY_PREF_LOCATION_STOP ||
             key == SettingsActivity.KEY_PREF_LOCATION_AGE ||
             key == SettingsActivity.KEY_PREF_LOCATION_DIST) {
             loadFromPreferences()
-            updateLocation()
+            updateLocation(false)
         }
     }
 
     private fun loadFromPreferences() {
         try {
             setting = sharedPreferences.getString(SettingsActivity.KEY_PREF_USE_LOCATION, "off")
-            val minTimeS = sharedPreferences.getString(SettingsActivity.KEY_PREF_LOCATION_AGE, (MIN_TIME_DEF).toString())
-            minTime = MIN_TIME_FACTOR * (minTimeS!!.toLong())
-            val minDistS = sharedPreferences.getString(SettingsActivity.KEY_PREF_LOCATION_DIST, MIN_DISTANCE_DEF.toString())
-            minDist = minDistS!!.toFloat()
+            var startTimeS = sharedPreferences.getString(SettingsActivity.KEY_PREF_LOCATION_START, (START_TIME_DEF).toString())
+            if (startTimeS == null) startTimeS = "0"
+            startTime = startTimeS.toLong()
+            var stopTimeS = sharedPreferences.getString(SettingsActivity.KEY_PREF_LOCATION_STOP, (STOP_TIME_DEF).toString())
+            if (stopTimeS == null) stopTimeS = "24"
+            stopTime = stopTimeS.toLong()
+            var minTimeS = sharedPreferences.getString(SettingsActivity.KEY_PREF_LOCATION_AGE, (MIN_TIME_DEF).toString())
+            if (minTimeS == null) minTimeS = "10"
+            minTime = MIN_TIME_FACTOR * (minTimeS.toLong())
+            var minDistS = sharedPreferences.getString(SettingsActivity.KEY_PREF_LOCATION_DIST, MIN_DISTANCE_DEF.toString())
+            if (minDistS == null) minDistS = "50"
+            minDist = minDistS.toFloat()
         } catch (e: NumberFormatException) {
             /* no change in settings on invalid config */
         }
     }
 
     fun scheduleRefresh() {
-        val componentName = ComponentName(MVApplication.getAppContext(), RefreshService::class.java)
+        val componentName = ComponentName(MVApplication.appContext!!, RefreshService::class.java)
         val builder = JobInfo.Builder(ACTIVITY_HELPER_REFRESH_JOB, componentName)
         builder.setMinimumLatency(minTime)
         refreshJobInfo = builder.build()
-        println("Job scheduled: $minTime")
-        val jobScheduler = MVApplication.getAppContext()
+//        println("Job scheduled: $minTime")
+        val jobScheduler = MVApplication.appContext!!
             .getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val resultCode = jobScheduler.schedule(refreshJobInfo)
         if (resultCode != JobScheduler.RESULT_SUCCESS) {
@@ -289,6 +313,10 @@ class LocationHelper : AsyncQueryHandler(MVApplication.getAppContext().contentRe
         val helper = LocationHelper()
         private const val LOCATION_UPDATE = 1
         private const val MIN_TIME_DEF: Long = 5 // for now every 5 minutes
+        private const val START_TIME_DEF: Long = 0 // for now every 5 minutes
+        private const val STOP_TIME_DEF: Long = 24 // for now every 5 minutes
+
+        private const val HOUR_FACTOR = (1000 * 60 * 60).toLong()
         private const val MIN_TIME_FACTOR = (1000 * 60).toLong()
         private const val MIN_DISTANCE_DEF = 50.0f
         private const val ACTIVITY_HELPER_REFRESH_JOB = 0

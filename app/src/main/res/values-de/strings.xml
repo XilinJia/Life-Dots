@@ -263,4 +263,8 @@
     <string name="num_valid_points">gültige Punkte. Tippen Sie auf eine beliebige, um den Zeitstempel zu erhalten</string>
     <string name="delete_event_entry_msg">Deleting event entry not implemented</string>
     <string name="review_that_day">Möchten Sie diesen Tag Revue passieren lassen?</string>
+    <string name="pref_location_start">Starten Sie die Standortverfolgung um %1$s Uhr</string>
+    <string name="setting_location_start">Tracking starten um (Uhr 0 -> 24)</string>
+    <string name="pref_location_stop">Beenden Sie die Standortverfolgung um %1$s Uhr</string>
+    <string name="setting_location_stop">Stoppen Sie die Verfolgung um (Uhr 0 -> 24)</string>
 </resources>

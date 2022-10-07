@@ -1,8 +1,8 @@
 /*
  * LifeDots
  *
+ * Copyright (C) 2017-2018 Raphael Mack http://www.raphael-mack.de
  * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
-  ~ Copyright (C) 2017-2018 Raphael Mack http://www.raphael-mack.de
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ object TimeSpanFormatter {
 
     @JvmStatic
     fun fuzzyFormat(start: Date, end: Date): String {
-        val res = MVApplication.getAppContext().resources
+        val res = MVApplication.appContext!!.resources
         val delta = (end.time - start.time + 500) / 1000
 
         return when {
@@ -85,10 +85,10 @@ object TimeSpanFormatter {
         if (duration < 1E4) {
             return (duration / 100f).toString() + "%"
         }
-        val res = MVApplication.getAppContext().resources
+        val res = MVApplication.appContext!!.resources
         val delta = duration / 1000
         val displayFormat = PreferenceManager
-                .getDefaultSharedPreferences(MVApplication.getAppContext())
+                .getDefaultSharedPreferences(MVApplication.appContext!!)
                 .getString(SettingsActivity.KEY_PREF_DURATION_FORMAT, "dynamic")
         var result = ""
         val sec = (delta % 60).toInt()

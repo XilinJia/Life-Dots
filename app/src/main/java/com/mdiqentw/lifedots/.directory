@@ -1,5 +1,7 @@
 [Dolphin]
-SortOrder=1
-SortRole=modificationtime
-Timestamp=2020,7,22,21,21,40
+Timestamp=2022,10,7,9,14,43.097
 Version=4
+ViewMode=1
+
+[Settings]
+HiddenFilesShown=true

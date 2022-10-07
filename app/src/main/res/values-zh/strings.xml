@@ -293,5 +293,9 @@
     <string name="num_valid_points">有效積分。 點擊任何以獲取時間戳</string>
     <string name="delete_event_entry_msg">Deleting event entry not implemented</string>
     <string name="review_that_day">你想那天復習嗎？</string>
+    <string name="pref_location_start">%1$s 點開始跟踪位置</string>
+    <string name="setting_location_start">開始跟踪 (O\'clock 0 -> 24)</string>
+    <string name="pref_location_stop">在 %1$s 點停止跟踪位置</string>
+    <string name="setting_location_stop">在 (O\'clock 0 -> 24) 停止跟踪</string>
 
 </resources>

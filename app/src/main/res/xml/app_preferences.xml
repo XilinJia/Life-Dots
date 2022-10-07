@@ -74,9 +74,8 @@
 <!--            android:summaryOff="@string/setting_acra_disabled"-->
 <!--            android:defaultValue="true"/>-->
     </androidx.preference.PreferenceCategory>
-    <androidx.preference.PreferenceCategory
-        android:title="@string/setting_location_category"
-        >
+    <androidx.preference.PreferenceCategory android:title="@string/setting_location_category">
+
         <ListPreference
             android:key="pref_use_location"
             android:title="@string/setting_use_location"
@@ -86,8 +85,24 @@
             android:defaultValue="off" />
 
         <EditTextPreference
+            android:key="pref_location_start"
+            android:defaultValue="@string/pref_location_start_default"
+            android:dialogTitle="@string/setting_location_start"
+            android:inputType="numberDecimal"
+            android:digits="0123456789"
+            android:title="@string/setting_location_start" />
+
+        <EditTextPreference
+            android:key="pref_location_stop"
+            android:defaultValue="@string/pref_location_stop_default"
+            android:dialogTitle="@string/setting_location_stop"
+            android:inputType="numberDecimal"
+            android:digits="0123456789"
+            android:title="@string/setting_location_stop" />
+
+        <EditTextPreference
             android:key="pref_location_age"
-            android:defaultValue="5"
+            android:defaultValue="@string/pref_location_age_default"
             android:dialogTitle="@string/setting_location_age"
             android:inputType="number"
             android:digits="0123456789"
@@ -95,7 +110,7 @@
 
         <EditTextPreference
             android:key="pref_location_dist"
-            android:defaultValue="50"
+            android:defaultValue="@string/pref_location_dist_default"
             android:dialogTitle="@string/setting_location_dist"
             android:inputType="number"
             android:title="@string/setting_location_dist" />

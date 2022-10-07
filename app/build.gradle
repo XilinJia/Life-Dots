@@ -42,8 +42,8 @@ android {
         checkDependencies true
     }
 
-    compileSdkVersion 31
-    buildToolsVersion '31.0.0'
+    compileSdkVersion 33
+    buildToolsVersion '33.0.0'
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
@@ -57,9 +57,9 @@ android {
     defaultConfig {
         applicationId "com.mdiqentw.lifedots"
         minSdkVersion 21
-        targetSdkVersion 31
-        versionCode 152
-        versionName "2.1.1"
+        targetSdkVersion 33
+        versionCode 153
+        versionName "2.2.0"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "LifeDots-" + defaultConfig.versionName)
@@ -121,18 +121,20 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.9.0'
+
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
 
     implementation 'androidx.preference:preference-ktx:1.2.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
-    implementation('com.google.android.material:material:1.5.0')
+    implementation('com.google.android.material:material:1.6.1')
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
     
     implementation 'com.github.QuadFlask:colorpicker:0.0.15'
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'org.osmdroid:osmdroid-android:6.1.11'
+    implementation 'org.osmdroid:osmdroid-android:6.1.14'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }
 

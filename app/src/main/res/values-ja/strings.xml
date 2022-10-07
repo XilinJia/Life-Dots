@@ -259,4 +259,8 @@
     <string name="num_valid_points">有効なポイント。 いずれかをタップしてタイムスタンプを取得します</string>
     <string name="delete_event_entry_msg">Deleting event entry not implemented</string>
     <string name="review_that_day">その日を確認しますか？</string>
+    <string name="pref_location_start">%1$s 時に位置の追跡を開始します</string>
+    <string name="setting_location_start">追跡開始 (0時 -> 24時)</string>
+    <string name="pref_location_stop">%1$s 時に位置の追跡を停止</string>
+    <string name="setting_location_stop">トラッキングを停止 (0 時 -> 24)</string>
 </resources>

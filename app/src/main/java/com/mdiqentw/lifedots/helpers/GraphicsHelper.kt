@@ -2,6 +2,7 @@
  * LifeDots
  *
  * Copyright (C) 2017 Raphael Mack http://www.raphael-mack.de
+ * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,25 +36,6 @@ import java.util.*
 import kotlin.math.ln
 import kotlin.math.sqrt
 
-/*
- * LifeDots
- *
- * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 object GraphicsHelper {
     const val TAG = "GraphicsHelper"
 
@@ -63,7 +45,7 @@ object GraphicsHelper {
 
     @JvmStatic
     fun imageStorageDirectory(): File {
-        val root = File(MVApplication.getAppContext().getExternalFilesDir("/"), "")
+        val root = File(MVApplication.appContext!!.getExternalFilesDir("/"), "")
         if (!root.exists()) {
             if (!root.mkdirs()) {
                 Log.e(TAG, "failed to create directory")
@@ -113,7 +95,7 @@ object GraphicsHelper {
      * */
     fun getFileExifRotation(uri: Uri?): Int {
         return try {
-            val inputStream = MVApplication.getAppContext().contentResolver.openInputStream(uri!!)
+            val inputStream = MVApplication.appContext!!.contentResolver.openInputStream(uri!!)
             val exifInterface = ExifInterface(inputStream!!)
             when (exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)) {
                 ExifInterface.ORIENTATION_ROTATE_90 -> 90
@@ -136,7 +118,7 @@ object GraphicsHelper {
     @Suppress("UNUSED_PARAMETER")
     @JvmStatic
     fun textColorOnBackground(color: Int): Int {
-        return ContextCompat.getColor(MVApplication.getAppContext(), R.color.activityTextColorLight)
+        return ContextCompat.getColor(MVApplication.appContext!!, R.color.activityTextColorLight)
 //        return ContextCompat.getColor(MVApplication.getAppContext(), color)
     }
 
@@ -151,7 +133,7 @@ object GraphicsHelper {
         for (c in activityColorPalette) {
             var dist = 0.0
             for (a in acts) {
-                dist += ln(1 + colorDistance(c, a.color).toDouble())
+                dist += ln(1 + colorDistance(c, a.mColor).toDouble())
             }
             if (dist > maxDistance) {
                 // this one is better than the last

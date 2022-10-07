@@ -1,9 +1,8 @@
 [Dolphin]
-SortOrder=1
-SortRole=modificationtime
-Timestamp=2020,7,24,21,59,39
+HeaderColumnWidths=560,108,191
+Timestamp=2022,9,26,17,37,0.638
 Version=4
-ViewMode=2
+ViewMode=1
 
 [Settings]
 HiddenFilesShown=true

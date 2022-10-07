@@ -271,4 +271,8 @@
     <string name="num_valid_points">действительные баллы. Нажмите на любой, чтобы получить отметку времени</string>
     <string name="delete_event_entry_msg">Deleting event entry not implemented</string>
     <string name="review_that_day">Вы хотите пересмотреть этот день?</string>
+    <string name="pref_location_start">Начать отслеживание местоположения в %1$s часов</string>
+    <string name="setting_location_start">Начать отслеживание в (часы 0 -> 24)</string>
+    <string name="pref_location_stop">Остановить отслеживание местоположения в %1$s часов</string>
+    <string name="setting_location_stop">Остановить отслеживание в (часы 0 -> 24)</string>
 </resources>

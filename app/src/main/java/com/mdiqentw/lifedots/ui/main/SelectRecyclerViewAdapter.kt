@@ -2,6 +2,7 @@
  * LifeDots
  *
  * Copyright (C) 2017 Raphael Mack http://www.raphael-mack.de
+ * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,24 +28,6 @@ import com.mdiqentw.lifedots.databinding.SelectRecyclerItemBinding
 import com.mdiqentw.lifedots.helpers.GraphicsHelper
 import com.mdiqentw.lifedots.model.DiaryActivity
 
-/*
- * LifeDots
- *
- * Copyright (C) 2020 Xilin Jia https://github.com/XilinJia
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
 class SelectRecyclerViewAdapter(private val mSelectListener: SelectListener, private var mActivityList: List<DiaryActivity>) : RecyclerView.Adapter<SelectViewHolders>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectViewHolders {
         val binding: SelectRecyclerItemBinding = DataBindingUtil.inflate(
@@ -58,13 +41,13 @@ class SelectRecyclerViewAdapter(private val mSelectListener: SelectListener, pri
     override fun onBindViewHolder(holder: SelectViewHolders, position: Int) {
         val act = mActivityList[position]
 //        val formatter: NumberFormat = DecimalFormat("#0.00")
-        holder.mName.text = act.name
+        holder.mName.text = act.mName
 
         // show likelyhood in activity name
         //     holder.mName.setText(act.getName() + " (" + formatter.format(ActivityHelper.helper.likelihoodFor(act)) + ")");
         // TODO #33:        holder.mSymbol.setImageResource(act.getPhoto());
-        holder.mBackground.setBackgroundColor(act.color)
-        holder.mName.setTextColor(GraphicsHelper.textColorOnBackground(act.color))
+        holder.mBackground.setBackgroundColor(act.mColor)
+        holder.mName.setTextColor(GraphicsHelper.textColorOnBackground(act.mColor))
 
         // TODO #31: set the width based on the likelyhood
     }
@@ -84,7 +67,7 @@ class SelectRecyclerViewAdapter(private val mSelectListener: SelectListener, pri
     }
 
     override fun getItemId(position: Int): Long {
-        return mActivityList[position].id.toLong()
+        return mActivityList[position].mId.toLong()
     }
 
     fun positionOf(activity: DiaryActivity): Int {
