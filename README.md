@@ -14,6 +14,24 @@ Photos are shrunk to the size of 500 pixels and compressed with Jpeg quality of 
 <img src="./Images/map.jpg" width="238" /> <img src="./Images/timeline.jpg" width="238" />  
 <img src="./Images/date_range.jpg" width="238" /> <img src="./Images/edit_color.jpg" width="238" />
 
+
+# Installation
+
+There are different ways to get the LifeDots app for Android; through
+the F-Droid store, from github or building it yourself.
+
+
+### F-Droid Store
+
+<a href="https://f-droid.org/en/packages/com.mdiqentw.lifedots/">
+  <img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80"/>
+  </a>
+
+### From GitHub
+
+Download the .apk from https://github.com/XilinJia/Life-Dots/releases
+
+
 # Getting Started
 LifeDots is designed to be intuitive, but if you have trouble, check out the [Frequently Asked Questions](/FAQ.md) and try the [User Guide](https://github.com/XilinJia/Life-Dots/wiki/How-to-help). In case of further trouble do not hesitate to [create a ticket](https://github.com/XilinJia/Life-Dots/issues/new) and we will try to help you and improve the documentation.
 

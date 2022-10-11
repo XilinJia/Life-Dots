@@ -61,12 +61,12 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
         val cal: Calendar = Calendar.getInstance()
         val hourofday = cal[Calendar.HOUR_OF_DAY]
 
-        if (startTime <= stopTime) {
+        if (startTime < stopTime) {
             if (hourofday < startTime || hourofday > stopTime) {
 //                println("no location tracking out of hour $startTime $stopTime")
                 return true
             }
-        } else {
+        } else if (startTime > stopTime)  {
             if (hourofday > startTime || hourofday < stopTime) {
 //                println("no location tracking out of hour $startTime $stopTime")
                 return true
