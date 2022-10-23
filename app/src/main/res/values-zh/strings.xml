@@ -22,7 +22,11 @@
 
 <resources>
     <string name="about_text_version">版本 <b>%1$s</b></string>
-    <string name="about_text_intro">只需輕觸屏幕，只需輕觸屏幕，即可記錄您的生活事件和時間和地點。          為任何事件輕鬆添加詳細的註釋和照片。 使用圖表和地圖以各種方式分析您過去的事件。          照片被縮小到 500 像素大小，並以 60 的 Jpeg 質量壓縮，結果每張大小約為 70KB。。 輕鬆為任何事件添加詳細註釋。 用各種方式分析你過去的事件。</string>
+    <string name="about_text_intro">只需輕觸屏幕，只需輕觸屏幕，即可記錄您的生活事件和時間和地點。
+        為任何事件輕鬆添加詳細的註釋和照片。 使用圖表和地圖以各種方式分析您過去的事件。
+        照片被縮小到 500 像素大小，並以 60 的 Jpeg 質量壓縮，結果每張大小約為 70KB。。 輕鬆為任何事件添加詳細註釋。 用各種方式分析你過去的事件。
+        For more info, check out <a href="https://xilinjia.github.io/2022/10/19/diary-8=dimensions.html">my article</a>
+    </string>
     <string name="about_text_licence_h">许可</string>
     <string name="about_text_licence">%1$s是免费软件：您可以根据&lt;a href="https://www.gnu.org/licenses/gpl-3.0.en.html"&gt; GNU常规条款重新分发和/或修改它公共许可证&lt;/a&gt;</string>
     <string name="about_text_license_2">分发该程序的目的是希望它会有用，但不作任何担保；甚至没有对适销性或特定用途适用性的暗示保证。有关更多详细信息，请参见GNU通用公共许可证。</string>

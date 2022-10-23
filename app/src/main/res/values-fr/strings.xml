@@ -22,7 +22,12 @@
   -->
 <resources>
     <string name="about_text_version">version <b>%1$s</b></string>
-    <string name="about_text_intro">Enregistrez vos événements de la vie avec le temps et les lieux simplement avec une touche sur l\'écran.          Ajoutez facilement des notes et des photos détaillées pour tout événement. Analysez vos événements passés de différentes manières avec des graphiques et des cartes.          Les photos sont réduites à la taille de 500 pixels et compressées avec une qualité Jpeg de 60, ce qui donne une taille résultante d\'environ 70 Ko chacune.</string>
+    <string name="about_text_intro">Enregistrez vos événements de la vie avec le temps et les lieux simplement avec une touche sur l\'écran.
+        Ajoutez facilement des notes et des photos détaillées pour tout événement.
+        Analysez vos événements passés de différentes manières avec des graphiques et des cartes.
+        Les photos sont réduites à la taille de 500 pixels et compressées avec une qualité Jpeg de 60, ce qui donne une taille résultante d\'environ 70 Ko chacune.
+        For more info, check out <a href="https://xilinjia.github.io/2022/10/19/diary-8=dimensions.html">my article</a>
+    </string>
     <string name="about_text_licence_h">Licence</string>
     <string name="about_text_licence"><![CDATA[%1$s est un logiciel libre: vous pouvez le redistribuer et / ou le modifier selon les termes de la <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU General Public License</a>]]></string>
     <string name="about_text_license_2">Ce programme est distribué dans l\'espoir qu\'il sera utile, mais SANS AUCUNE GARANTIE; sans même la garantie implicite de QUALITÉ MARCHANDE ou d\'ADÉQUATION À UN USAGE PARTICULIER. Voir la Licence publique générale GNU pour plus de détails.</string>

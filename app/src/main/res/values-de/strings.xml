@@ -22,7 +22,12 @@
   -->
 <resources>
     <string name="about_text_version">Version <b>%1$s</b></string>
-    <string name="about_text_intro">Zeichnen Sie Ihre Lebensereignisse mit Zeit und Ort einfach mit einer Berührung auf dem Bildschirm auf.          Fügen Sie einfach detaillierte Notizen und Fotos für jede Veranstaltung hinzu. Analysieren Sie Ihre vergangenen Ereignisse auf verschiedene Weise mit Diagrammen und Karten.          Fotos werden auf die Größe von 500 Pixel geschrumpft und mit einer JPEG-Qualität von 60 komprimiert, was zu einer resultierenden Größe von jeweils etwa 70 KB führt.</string>
+    <string name="about_text_intro">Zeichnen Sie Ihre Lebensereignisse mit Zeit und Ort einfach mit einer Berührung auf dem Bildschirm auf.
+        Fügen Sie einfach detaillierte Notizen und Fotos für jede Veranstaltung hinzu.
+        Analysieren Sie Ihre vergangenen Ereignisse auf verschiedene Weise mit Diagrammen und Karten.
+        Fotos werden auf die Größe von 500 Pixel geschrumpft und mit einer JPEG-Qualität von 60 komprimiert, was zu einer resultierenden Größe von jeweils etwa 70 KB führt.
+        For more info, check out <a href="https://xilinjia.github.io/2022/10/19/diary-8=dimensions.html">my article</a>
+    </string>
     <string name="about_text_licence_h">Lizenz</string>
     <string name="about_text_licence"><![CDATA[Das Programm %1$s ist freie Software: Du darst es weitergeben und verändern unter den Bedingungen der <a href="https://www.gnu.org/licenses/gpl.html">GNU General Public License</a>, wie von der Free Software Foundation veröffentlicht, entweder gemäß Version 3 der Lizenz oder jeder späteren Version.]]></string>
     <string name="about_text_license_2">Dieses Programm wird in der Hoffnung verbreitet, dass es nützlich ist, aber OHNE IRGENDEINE GARANTIE, insbesondere ohne eine implizite Garantie der Marktreife oder der Eignung für einen bestimmten Zweck. Lies die GNU General Public License für weitere Details.</string>

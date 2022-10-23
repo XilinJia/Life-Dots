@@ -22,7 +22,11 @@
   -->
 <resources>
     <string name="about_text_version">バージョン <b>%1$s</b></string>
-    <string name="about_text_intro">画面をタッチするだけで、時間と場所を使ってライフイベントを記録できます。          イベントの詳細なメモや写真を簡単に追加できます。 チャートやマップを使用して、過去のイベントをさまざまな方法で分析します。          写真は500ピクセルのサイズに縮小され、60のJpeg品質で圧縮されます。その結果、それぞれ約70KBのサイズになります。</string>
+    <string name="about_text_intro">画面をタッチするだけで、時間と場所を使ってライフイベントを記録できます。
+        イベントの詳細なメモや写真を簡単に追加できます。 チャートやマップを使用して、過去のイベントをさまざまな方法で分析します。
+        写真は500ピクセルのサイズに縮小され、60のJpeg品質で圧縮されます。その結果、それぞれ約70KBのサイズになります。
+        For more info, check out <a href="https://xilinjia.github.io/2022/10/19/diary-8=dimensions.html">my article</a>
+    </string>
     <string name="about_text_licence_h">ライセンス</string>
     <string name="about_text_licence"><![CDATA[%1$s フリーソフトウェアです：あなたはそれを再配布および/またはの条件で修正することができます <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">GNU一般公衆利用許諾契約書</a>]]></string>
     <string name="about_text_license_2">このプログラムは有用であることを期待して配布されていますが、いかなる保証もありません。商品性または特定目的への適合性の暗黙の保証さえも含みません。詳細については、GNU General Public Licenseを参照してください。</string>

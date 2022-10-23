@@ -2,11 +2,15 @@
 ![LifeDots-logotype](./Images/logo.png)
 
 # Functionality
-LifeDots is for recording and analysing your life with ease in the 7 dimensions of time, location, notes and photo.
+LifeDots is for recording and analysing your life with ease in the 8 dimensions of time, event, location, notes and photo.
 
 Currently you can record any event by touching on an icon that you create, entering notes and attaching photos.  Locations are automatically recorded (after you activate) in the background.  Then you can browse your history, analyze statistics in charts, check the timeline of any event, and see your past geo locations.  Further more, for easier viewing life from various perspectives, these analytic functionalities are interconnected: check timeline on any pieve of a piechart, review related history about a dot on the timeline, look at geographical passages related to a period of history, and go back to related history on a dot on the map.
 
 Photos are shrunk to the size of 500 pixels and compressed with Jpeg quality of 60, resulting of reduced size around 70KB each. 
+
+For more info, check out [my article](https://xilinjia.github.io/2022/10/19/diary-8=dimensions.html)
+
+### Screenshots
 
 <img src="./Images/start.jpg" width="238" /> <img src="./Images/main.jpg" width="238" /> 
 <img src="./Images/history.jpg" width="238" /> <img src="./Images/note.jpg" width="238" /> <img src="./Images/notes.jpg" width="238" />  
