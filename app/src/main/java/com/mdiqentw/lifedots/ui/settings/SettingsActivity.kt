@@ -74,10 +74,7 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
     private var locationDistPref: EditTextPreference? = null
     private lateinit var mPreferenceManager: PreferenceManager
 
-    override fun onSharedPreferenceChanged(
-        sharedPreferences: SharedPreferences,
-        key: String
-    ) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
         when (key) {
             KEY_PREF_DATETIME_FORMAT -> {
                 val def = resources.getString(R.string.default_datetime_format)

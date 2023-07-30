@@ -2,10 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Java-Kotlin.LifeDots.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Java-Kotlin.LifeDots.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Java-Kotlin.LifeDots.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Java-Kotlin.LifeDots.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Java-Kotlin.LifeDots.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Java-Kotlin.LifeDots.app.unitTest.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/LifeDots.iml" filepath="$PROJECT_DIR$/.idea/modules/LifeDots.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/LifeDots.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/LifeDots.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/LifeDots.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/LifeDots.app.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/LifeDots.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/LifeDots.app.unitTest.iml" />
     </modules>
   </component>
 </project>

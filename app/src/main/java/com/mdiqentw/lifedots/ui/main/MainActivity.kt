@@ -75,8 +75,11 @@ import java.util.*
  * MainActivity to show most of the UI, based on switching the fragements
  *
  * */
-class MainActivity : BaseActivity(), SelectRecyclerViewAdapter.SelectListener, DataChangedListener,
-    NoteEditDialogListener, OnLongClickListener, SearchView.OnQueryTextListener, SearchView.OnCloseListener {
+class MainActivity : BaseActivity(),
+    SelectRecyclerViewAdapter.SelectListener, DataChangedListener,
+    NoteEditDialogListener, OnLongClickListener, SearchView.OnQueryTextListener,
+    SearchView.OnCloseListener {
+
     lateinit var binding: ActivityMainContentBinding
     private var viewModel: DetailViewModel? = null
     private var mCurrentPhotoPath: String? = null
@@ -84,6 +87,8 @@ class MainActivity : BaseActivity(), SelectRecyclerViewAdapter.SelectListener, D
     private var selectAdapter: SelectRecyclerViewAdapter? = null
     private var filter: String? = ""
     private var searchView: SearchView? = null
+    private var mQHandler: MainAsyncQueryHandler? = null
+
     private fun setSearchMode(searchMode: Boolean) {
         if (searchMode) {
             binding.headerArea.visibility = View.GONE
@@ -96,7 +101,6 @@ class MainActivity : BaseActivity(), SelectRecyclerViewAdapter.SelectListener, D
         }
     }
 
-    private var mQHandler: MainAsyncQueryHandler? = null
     public override fun onSaveInstanceState(outState: Bundle) {
         outState.putString("currentPhotoPath", mCurrentPhotoPath)
 
@@ -435,9 +439,7 @@ class MainActivity : BaseActivity(), SelectRecyclerViewAdapter.SelectListener, D
         viewPager.adapter = adapter
     }
 
-    internal class ViewPagerAdapter(manager: FragmentManager?) : FragmentPagerAdapter(
-        manager!!
-    ) {
+    internal class ViewPagerAdapter(manager: FragmentManager?) : FragmentPagerAdapter(manager!!) {
         private val mFragmentList: MutableList<Fragment> = ArrayList(50)
         private val mFragmentTitleList: MutableList<String> = ArrayList(50)
         override fun getItem(position: Int): Fragment {

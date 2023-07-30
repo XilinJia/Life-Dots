@@ -38,28 +38,30 @@ android {
         mavenCentral()
     }
 
-    lintOptions {
-        checkDependencies true
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
-    compileSdkVersion 33
-    buildToolsVersion '33.0.0'
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+    kotlin {
+        jvmToolchain 17
     }
 
     kotlinOptions {
-        jvmTarget="11"
+        jvmTarget = "17"
     }
+
+    buildToolsVersion = "34.0.0"
 
     defaultConfig {
         applicationId "com.mdiqentw.lifedots"
+
+        compileSdk 34
+        targetSdkVersion 34
         minSdkVersion 21
-        targetSdkVersion 33
+
         versionCode 155
-        versionName "2.2.2"
+        versionName "2.2.3"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "LifeDots-" + defaultConfig.versionName)
@@ -68,12 +70,12 @@ android {
     signingConfigs {
         release {
             if (keystoreProperties['storeFile']) {
+                v1SigningEnabled true
+                v2SigningEnabled true
                 storeFile file(keystoreProperties['storeFile'])
                 storePassword keystoreProperties['storePassword']
                 keyAlias keystoreProperties['keyAlias']
                 keyPassword keystoreProperties['keyPassword']
-                v1SigningEnabled true
-                v2SigningEnabled true
             }
         }
     }
@@ -115,26 +117,30 @@ android {
     buildFeatures {
         dataBinding true
     }
+    lint {
+        checkDependencies true
+    }
+    namespace 'com.mdiqentw.lifedots'
 
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.core:core-ktx:1.10.1'
 
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
 
     implementation 'androidx.preference:preference-ktx:1.2.0'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.1'
 
-    implementation('com.google.android.material:material:1.6.1')
+    implementation('com.google.android.material:material:1.9.0')
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
     
     implementation 'com.github.QuadFlask:colorpicker:0.0.15'
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'org.osmdroid:osmdroid-android:6.1.14'
+    implementation 'org.osmdroid:osmdroid-android:6.1.16'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }
 

@@ -262,7 +262,7 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
      */
     override fun onProviderDisabled(provider: String) {}
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
         if (key == SettingsActivity.KEY_PREF_USE_LOCATION ||
             key == SettingsActivity.KEY_PREF_LOCATION_START ||
             key == SettingsActivity.KEY_PREF_LOCATION_STOP ||
