@@ -67,6 +67,18 @@ android {
         setProperty("archivesBaseName", "LifeDots-" + defaultConfig.versionName)
     }
 
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = false
+        }
+        abi {
+            enableSplit = false
+        }
+    }
+
     signingConfigs {
         release {
             if (keystoreProperties['storeFile']) {
@@ -83,17 +95,16 @@ android {
     buildTypes {
         debug {
             applicationIdSuffix ".D"
-            manifestPlaceholders = [AppName: "LifeDots-D"]
+            manifestPlaceholders.AppName = "LifeDots-D"
             testCoverageEnabled true
             ext.enableCrashlytics = false
             ext.alwaysUpdateBuildId = false
 //            pseudoLocalesEnabled true
         }
         release {
-            manifestPlaceholders = [AppName: "Life Dots"]
-            signingConfig signingConfigs.release
+            manifestPlaceholders.AppName = "Life Dots"
+            signingConfig = signingConfigs.release
 
-//            debuggable true
             minifyEnabled true
 //            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -127,15 +138,15 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation 'androidx.core:core-ktx:1.10.1'
+    implementation 'androidx.core:core-ktx:1.12.0'
 
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
 
-    implementation 'androidx.preference:preference-ktx:1.2.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.recyclerview:recyclerview:1.3.1'
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
 
-    implementation('com.google.android.material:material:1.9.0')
+    implementation('com.google.android.material:material:1.11.0')
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
     
     implementation 'com.github.QuadFlask:colorpicker:0.0.15'
