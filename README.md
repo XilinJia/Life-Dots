@@ -25,16 +25,13 @@ For more info, check out [my article](https://xilinjia.github.io/2022/10/19/diar
 There are different ways to get the LifeDots app for Android; through
 the F-Droid store, from github or building it yourself.
 
-
-### F-Droid Store
+### [Amazon Appstore](https://www.amazon.com/Life-Dots-Diary-8-dimensions/dp/B0CQWC7584/ref=sr_1_1?keywords=Life+Dots&qid=1704022044&s=mobile-apps&sr=1-1)
 
 <a href="https://f-droid.org/en/packages/com.mdiqentw.lifedots/">
   <img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80"/>
   </a>
 
-### From GitHub
-
-Download the .apk from https://github.com/XilinJia/Life-Dots/releases
+### [Github](https://github.com/XilinJia/Life-Dots/releases)
 
 
 # Getting Started
