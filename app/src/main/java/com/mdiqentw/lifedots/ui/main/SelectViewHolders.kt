@@ -43,9 +43,7 @@ class SelectViewHolders(listener: SelectRecyclerViewAdapter.SelectListener, bind
 
     override fun onLongClick(v: View): Boolean {
         val position = bindingAdapterPosition
-        return if (position != RecyclerView.NO_POSITION) {
-            mListener.onItemLongClick(position)
-        } else false
+        return position != RecyclerView.NO_POSITION && mListener.onItemLongClick(position)
     }
 
     init {

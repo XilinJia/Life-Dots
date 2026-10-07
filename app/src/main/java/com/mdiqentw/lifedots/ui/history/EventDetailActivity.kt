@@ -53,12 +53,9 @@ import com.mdiqentw.lifedots.helpers.ActivityHelper
 import com.mdiqentw.lifedots.ui.generic.BaseActivity
 import com.mdiqentw.lifedots.ui.generic.DetailRecyclerViewAdapter
 import java.lang.ref.WeakReference
-import java.util.*
+import java.util.Arrays
+import java.util.Calendar
 
-/*
- * HistoryDetailActivity to show details of and modify diary entries
- *
- * */
 class EventDetailActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor> {
     lateinit var binding: ActivityEventDetailContentBinding
     private var detailAdapter: DetailRecyclerViewAdapter? = null
@@ -200,11 +197,7 @@ class EventDetailActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor
 
     private class QHandler(act: EventDetailActivity) :
         AsyncQueryHandler(MVApplication.appContext!!.contentResolver) {
-        val act: EventDetailActivity?
-
-        init {
-            this.act = WeakReference(act).get()
-        }
+        val act: EventDetailActivity? = WeakReference(act).get()
 
         @SuppressLint("Range")
         override fun onQueryComplete(token: Int, cookie: Any?, cursor: Cursor) {

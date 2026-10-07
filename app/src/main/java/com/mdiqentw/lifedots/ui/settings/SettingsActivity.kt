@@ -48,10 +48,15 @@ import com.mdiqentw.lifedots.db.LocalDBHelper
 import com.mdiqentw.lifedots.helpers.ActivityHelper
 import com.mdiqentw.lifedots.helpers.LocationHelper
 import com.mdiqentw.lifedots.ui.generic.BaseActivity
-import org.jetbrains.annotations.NonNls
-import java.io.*
 import java.text.SimpleDateFormat
-import java.util.*
+import androidx.core.content.edit
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.util.Date
 
 class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
     private var dateformatPref: Preference? = null
@@ -76,13 +81,7 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
         when (key) {
-            KEY_PREF_DATETIME_FORMAT -> {
-                val def = resources.getString(R.string.default_datetime_format)
-                // Set summary to be the user-description for the selected value
-                dateformatPref!!.summary =
-                    DateFormat.format(sharedPreferences.getString(key, def), Date())
-            }
-
+            KEY_PREF_DATETIME_FORMAT -> dateformatPref!!.summary = DateFormat.format(sharedPreferences.getString(key, resources.getString(R.string.default_datetime_format)), Date())
             KEY_PREF_AUTO_SELECT -> updateAutoSelectSummary()
             KEY_PREF_COND_ALPHA -> updateCondAlphaSummary()
             KEY_PREF_COND_OCCURRENCE -> updateCondOccurenceSummary()
@@ -98,30 +97,38 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
     }
 
     private fun updateDurationFormat() {
-        val value = PreferenceManager
-            .getDefaultSharedPreferences(applicationContext)
-            .getString(KEY_PREF_DURATION_FORMAT, "dynamic")
+        val value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_DURATION_FORMAT, "dynamic")
         when (value) {
-            "dynamic" -> durationFormatPref!!.summary =
-                resources.getString(R.string.setting_duration_format_summary_dynamic)
-
-            "nodays" -> durationFormatPref!!.summary =
-                resources.getString(R.string.setting_duration_format_summary_nodays)
-
-            "precise" -> durationFormatPref!!.summary =
-                resources.getString(R.string.setting_duration_format_summary_precise)
-
-            "hour_min" -> durationFormatPref!!.summary =
-                resources.getString(R.string.setting_duration_format_summary_hour_min)
+            "dynamic" -> durationFormatPref!!.summary = resources.getString(R.string.setting_duration_format_summary_dynamic)
+            "nodays" -> durationFormatPref!!.summary = resources.getString(R.string.setting_duration_format_summary_nodays)
+            "precise" -> durationFormatPref!!.summary = resources.getString(R.string.setting_duration_format_summary_precise)
+            "hour_min" -> durationFormatPref!!.summary = resources.getString(R.string.setting_duration_format_summary_hour_min)
         }
     }
 
+    private fun requestForegroundLocation(requireFineLocation: Boolean) {
+        val permissions = if (requireFineLocation) arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION) else arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION)
+        val showRationale = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) || (requireFineLocation && ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION))
+        if (showRationale) Toast.makeText(this, R.string.perm_location_xplain, Toast.LENGTH_LONG).show()
+        ActivityCompat.requestPermissions(this, permissions, REQ_CODE_FOREGROUND_LOCATION)
+    }
+    private fun requestBackgroundLocation() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            onLocationPermissionsGranted()
+            return
+        }
+        val hasBg = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (hasBg) {
+            onLocationPermissionsGranted()
+            return
+        }
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION))
+            Toast.makeText(this, R.string.perm_bg_location_explain, Toast.LENGTH_LONG).show()
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), REQ_CODE_BACKGROUND_LOCATION)
+    }
+
     private fun updateUseLocation() {
-        val permissionCheckFine: Int
-        val permissionCheckCoarse: Int
-        @NonNls val value = PreferenceManager
-            .getDefaultSharedPreferences(applicationContext)
-            .getString(KEY_PREF_USE_LOCATION, "off")
+        val value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_USE_LOCATION, "off")
         if (value == "off") {
             locationStartPref!!.isEnabled = false
             locationStopPref!!.isEnabled = false
@@ -133,231 +140,144 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
             locationStopPref!!.isEnabled = true
             locationAgePref!!.isEnabled = true
             locationDistPref!!.isEnabled = true
-            useLocationPref!!.summary =
-                resources.getString(R.string.setting_use_location_summary, useLocationPref!!.entry)
+            useLocationPref!!.summary = resources.getString(R.string.setting_use_location_summary, useLocationPref!!.entry)
+
+            checkAndRequestLocationPermissions(value)
         }
+    }
+
+    fun checkAndRequestLocationPermissions(value: String?) {
         if (value == "gps") {
-            permissionCheckFine = ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-            if (permissionCheckFine != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(
-                        this,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    )
-                ) Toast.makeText(this, R.string.perm_location_xplain, Toast.LENGTH_LONG).show()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    ActivityCompat.requestPermissions(
-                        this, arrayOf(
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION
-                        ),
-                        4711
-                    )
-                } else {
-                    ActivityCompat.requestPermissions(
-                        this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        4712
-                    )
-                }
-            }
+            val permissionCheckFine = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)
+            if (permissionCheckFine != PackageManager.PERMISSION_GRANTED) requestForegroundLocation(true)
         } else if (value == "network") {
-            permissionCheckCoarse = ContextCompat.checkSelfPermission(
-                applicationContext,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            )
-            if (permissionCheckCoarse != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(
-                        this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    )
-                ) Toast.makeText(this, R.string.perm_location_xplain, Toast.LENGTH_LONG).show()
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    ActivityCompat.requestPermissions(
-                        this, arrayOf(
-                            Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                        ),
-                        4711
-                    )
-                } else {
-                    ActivityCompat.requestPermissions(
-                        this, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                        4713
-                    )
-                }
-            }
+            val permissionCheckCoarse = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+            if (permissionCheckCoarse != PackageManager.PERMISSION_GRANTED) requestForegroundLocation(false)
         }
+    }
+
+    private fun onLocationPermissionsGranted() {
+        LocationHelper.helper.updateLocation(false)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 4712 || requestCode == 4713) {
-            if (grantResults[0] == 0) {
-                LocationHelper.helper.updateLocation(false)
+        when (requestCode) {
+            REQ_CODE_FOREGROUND_LOCATION -> {
+                val isGranted = grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+                if (isGranted) requestBackgroundLocation()
+                else Toast.makeText(this, "Foreground location is required.", Toast.LENGTH_SHORT).show()
+            }
+            REQ_CODE_BACKGROUND_LOCATION -> {
+                val isBgGranted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                if (isBgGranted) onLocationPermissionsGranted()
+                else {
+                    Toast.makeText(this, "Background location denied. Using foreground location only.", Toast.LENGTH_SHORT).show()
+                    onLocationPermissionsGranted()
+                }
             }
         }
     }
 
     private fun updateLocationDist() {
         val def = resources.getString(R.string.pref_location_dist_default)
-        @NonNls var value = PreferenceManager
-            .getDefaultSharedPreferences(applicationContext)
-            .getString(KEY_PREF_LOCATION_DIST, def)
+        var value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_LOCATION_DIST, def)
         if (value.isNullOrBlank() || !value.isDigitsOnly()) value = def
 
         var v = value.replace("\\D".toRegex(), "").toInt()
-        if (v < 5) {
-            v = 5
-        }
+        if (v < 5) v = 5
         val nvalue = v.toString()
         if (value != nvalue) {
-            val editor = PreferenceManager
-                .getDefaultSharedPreferences(applicationContext).edit()
-            editor.putString(KEY_PREF_LOCATION_DIST, nvalue)
-            editor.apply()
-            value = PreferenceManager
-                .getDefaultSharedPreferences(applicationContext)
-                .getString(KEY_PREF_LOCATION_DIST, def)
+            PreferenceManager.getDefaultSharedPreferences(applicationContext).edit {
+                putString(KEY_PREF_LOCATION_DIST, nvalue)
+            }
+            value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_LOCATION_DIST, def)
         }
         locationDistPref!!.summary = resources.getString(R.string.pref_location_dist, value)
     }
 
     private fun updateLocationAge() {
         val def = resources.getString(R.string.pref_location_age_default)
-        var value = PreferenceManager
-            .getDefaultSharedPreferences(applicationContext)
-            .getString(KEY_PREF_LOCATION_AGE, def)
+        var value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_LOCATION_AGE, def)
         if (value.isNullOrBlank() || !value.isDigitsOnly()) value = def
 
         var v = value.replace("\\D".toRegex(), "").toInt()
-        if (v < 2) {
-            v = 2
-        } else if (v > 720) {
-            v = 720
-        }
+        if (v < 2) v = 2
+        else if (v > 720) v = 720
+
         val nvalue = v.toString()
         if (value != nvalue) {
-            val editor = PreferenceManager
-                .getDefaultSharedPreferences(applicationContext).edit()
-            editor.putString(KEY_PREF_LOCATION_AGE, nvalue)
-            editor.apply()
-            value = PreferenceManager
-                .getDefaultSharedPreferences(applicationContext)
-                .getString(KEY_PREF_LOCATION_AGE, def)
+            PreferenceManager.getDefaultSharedPreferences(applicationContext).edit {
+                putString(KEY_PREF_LOCATION_AGE, nvalue)
+            }
+            value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_LOCATION_AGE, def)
         }
         locationAgePref!!.summary = resources.getString(R.string.pref_location_age, value)
     }
 
     private fun updateLocationStart() {
         val def = resources.getString(R.string.pref_location_start_default)
-        var value = PreferenceManager
-            .getDefaultSharedPreferences(applicationContext)
-            .getString(KEY_PREF_LOCATION_START, def)
+        var value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_LOCATION_START, def)
         if (value.isNullOrBlank() || !value.isDigitsOnly()) value = def
-
         var v = value.replace("\\D".toRegex(), "").toInt()
-        if (v < 0) {
-            v = 0
-        } else if (v > 24) {
-            v = 24
-        }
+        if (v < 0) v = 0
+        else if (v > 24) v = 24
         val nvalue = v.toString()
         if (value != nvalue) {
-            val editor = PreferenceManager
-                .getDefaultSharedPreferences(applicationContext).edit()
-            editor.putString(KEY_PREF_LOCATION_START, nvalue)
-            editor.apply()
-            value = PreferenceManager
-                .getDefaultSharedPreferences(applicationContext)
-                .getString(KEY_PREF_LOCATION_START, def)
+            PreferenceManager.getDefaultSharedPreferences(applicationContext).edit {
+                putString(KEY_PREF_LOCATION_START, nvalue)
+            }
+            value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_LOCATION_START, def)
         }
         locationStartPref!!.summary = resources.getString(R.string.pref_location_start, value)
     }
 
     private fun updateLocationStop() {
         val def = resources.getString(R.string.pref_location_stop_default)
-        var value = PreferenceManager
-            .getDefaultSharedPreferences(applicationContext)
-            .getString(KEY_PREF_LOCATION_STOP, def)
+        var value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_LOCATION_STOP, def)
         if (value.isNullOrBlank() || !value.isDigitsOnly()) value = def
-
         var v = value.replace("\\D".toRegex(), "").toInt()
-        if (v < 0) {
-            v = 0
-        } else if (v > 24) {
-            v = 24
-        }
+        if (v < 0) v = 0
+        else if (v > 24) v = 24
         val nvalue = v.toString()
         if (value != nvalue) {
-            val editor = PreferenceManager
-                .getDefaultSharedPreferences(applicationContext).edit()
-            editor.putString(KEY_PREF_LOCATION_STOP, nvalue)
-            editor.apply()
-            value = PreferenceManager
-                .getDefaultSharedPreferences(applicationContext)
-                .getString(KEY_PREF_LOCATION_STOP, def)
+            PreferenceManager.getDefaultSharedPreferences(applicationContext).edit { putString(KEY_PREF_LOCATION_STOP, nvalue) }
+            value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_LOCATION_STOP, def)
         }
         locationStopPref!!.summary = resources.getString(R.string.pref_location_stop, value)
     }
 
     private fun updateDisableCurrent() {
-        if (PreferenceManager
-                .getDefaultSharedPreferences(applicationContext)
-                .getBoolean(KEY_PREF_DISABLE_CURRENT, true)
-        ) {
+        if (PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean(KEY_PREF_DISABLE_CURRENT, true))
             disableOnClickPref!!.summary = resources.getString(R.string.setting_disable_on_click_summary_active)
-        } else {
-            disableOnClickPref!!.summary = resources.getString(R.string.setting_disable_on_click_summary_inactive)
-        }
+        else disableOnClickPref!!.summary = resources.getString(R.string.setting_disable_on_click_summary_inactive)
     }
 
     private fun updateCondAlphaSummary() {
         val def = resources.getString(R.string.pref_cond_alpha_default)
-        val value = PreferenceManager
-            .getDefaultSharedPreferences(applicationContext)
-            .getString(KEY_PREF_COND_ALPHA, def)
-        if (value!!.toDouble() == 0.0) {
-            condAlphaPref!!.summary = resources.getString(R.string.setting_cond_alpha_not_used_summary)
-        } else {
-            condAlphaPref!!.summary = resources.getString(R.string.setting_cond_alpha_summary, value)
-        }
+        val value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_COND_ALPHA, def)
+        if (value!!.toDouble() == 0.0) condAlphaPref!!.summary = resources.getString(R.string.setting_cond_alpha_not_used_summary)
+        else condAlphaPref!!.summary = resources.getString(R.string.setting_cond_alpha_summary, value)
     }
 
     private fun updateCondOccurenceSummary() {
         val def = resources.getString(R.string.pref_cond_occurrence_default)
-        val value = PreferenceManager
-            .getDefaultSharedPreferences(applicationContext)
-            .getString(KEY_PREF_COND_OCCURRENCE, def)
-        if (value!!.toDouble() == 0.0) {
-            condOccurrencePref!!.summary = resources.getString(R.string.setting_cond_occurrence_not_used_summary)
-        } else {
-            condOccurrencePref!!.summary = resources.getString(R.string.setting_cond_occurrence_summary, value)
-        }
+        val value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_COND_OCCURRENCE, def)
+        if (value!!.toDouble() == 0.0) condOccurrencePref!!.summary = resources.getString(R.string.setting_cond_occurrence_not_used_summary)
+        else condOccurrencePref!!.summary = resources.getString(R.string.setting_cond_occurrence_summary, value)
     }
 
     private fun updateCondRecencySummary() {
         val def = resources.getString(R.string.pref_cond_recency_default)
-        val value = PreferenceManager
-            .getDefaultSharedPreferences(applicationContext)
-            .getString(KEY_PREF_COND_RECENCY, def)
-        if (value!!.toDouble() == 0.0) {
-            condRecencyPref!!.summary = resources.getString(R.string.setting_cond_recency_not_used_summary)
-        } else {
-            condRecencyPref!!.summary = resources.getString(R.string.setting_cond_recency_summary, value)
-        }
+        val value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_COND_RECENCY, def)
+        if (value!!.toDouble() == 0.0) condRecencyPref!!.summary = resources.getString(R.string.setting_cond_recency_not_used_summary)
+        else condRecencyPref!!.summary = resources.getString(R.string.setting_cond_recency_summary, value)
     }
 
     private fun updateAutoSelectSummary() {
-        if (PreferenceManager
-                .getDefaultSharedPreferences(applicationContext)
-                .getBoolean(KEY_PREF_AUTO_SELECT, true)
-        ) {
+        if (PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean(KEY_PREF_AUTO_SELECT, true))
             autoSelectPref!!.summary = resources.getString(R.string.setting_auto_select_new_summary_active)
-        } else {
-            autoSelectPref!!.summary = resources.getString(R.string.setting_auto_select_new_summary_inactive)
-        }
+        else autoSelectPref!!.summary = resources.getString(R.string.setting_auto_select_new_summary_inactive)
     }
 
     //    private void updateNotifShowCurActivity() {
@@ -391,11 +311,7 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
         mPreferenceManager = sf!!.preferenceManager
         dateformatPref = mPreferenceManager.findPreference(KEY_PREF_DATETIME_FORMAT)
         val def = resources.getString(R.string.default_datetime_format)
-        dateformatPref!!.summary = DateFormat.format(
-            PreferenceManager
-                .getDefaultSharedPreferences(applicationContext)
-                .getString(KEY_PREF_DATETIME_FORMAT, def), Date()
-        )
+        dateformatPref!!.summary = DateFormat.format(PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_DATETIME_FORMAT, def), Date())
         durationFormatPref = mPreferenceManager.findPreference(KEY_PREF_DURATION_FORMAT)
         autoSelectPref = mPreferenceManager.findPreference(KEY_PREF_AUTO_SELECT)
         disableOnClickPref = mPreferenceManager.findPreference(KEY_PREF_DISABLE_CURRENT)
@@ -414,15 +330,9 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
             /* export database */
             val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
             intent.type = "application/x-sqlite3"
-            intent.putExtra(
-                Intent.EXTRA_TITLE, resources.getString(R.string.db_export_name_suggestion) + "_" +
-                        SimpleDateFormat("yyyy-MM-dd").format(Date()) + ".sqlite3"
-            )
+            intent.putExtra(Intent.EXTRA_TITLE, resources.getString(R.string.db_export_name_suggestion) + "_" + SimpleDateFormat("yyyy-MM-dd").format(Date()) + ".sqlite3")
             intent.addCategory(Intent.CATEGORY_OPENABLE)
-            startActivityForResult(
-                Intent.createChooser(intent, resources.getString(R.string.db_export_selection)),
-                ACTIVITIY_RESULT_EXPORT
-            )
+            startActivityForResult(Intent.createChooser(intent, resources.getString(R.string.db_export_selection)), ACTIVITIY_RESULT_EXPORT)
             true
         }
         val importPref = mPreferenceManager.findPreference<Preference>(KEY_PREF_DB_IMPORT)
@@ -431,10 +341,7 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "application/*"
             intent.addCategory(Intent.CATEGORY_OPENABLE)
-            startActivityForResult(
-                Intent.createChooser(intent, resources.getString(R.string.db_import_selection)),
-                ACTIVITIY_RESULT_IMPORT
-            )
+            startActivityForResult(Intent.createChooser(intent, resources.getString(R.string.db_import_selection)), ACTIVITIY_RESULT_IMPORT)
             true
         }
         condAlphaPref = mPreferenceManager.findPreference(KEY_PREF_COND_ALPHA)
@@ -459,14 +366,12 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
     public override fun onResume() {
         mNavigationView.menu.findItem(R.id.nav_settings).isChecked = true
         super.onResume()
-        mPreferenceManager.preferenceScreen.sharedPreferences!!
-            .registerOnSharedPreferenceChangeListener(this)
+        mPreferenceManager.preferenceScreen.sharedPreferences!!.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        mPreferenceManager.preferenceScreen.sharedPreferences!!
-            .unregisterOnSharedPreferenceChangeListener(this)
+        mPreferenceManager.preferenceScreen.sharedPreferences!!.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     @Deprecated("Deprecated in Java")
@@ -498,26 +403,12 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
                 val sdb = SQLiteDatabase.openDatabase(db.path, null, SQLiteDatabase.OPEN_READONLY)
                 val v = sdb.version
                 sdb.close()
-                if (v > LocalDBHelper.CURRENT_VERSION) {
-                    throw Exception("selected file has version $v which is too high...")
-                }
+                if (v > LocalDBHelper.CURRENT_VERSION) throw Exception("selected file has version $v which is too high...")
                 ActivityHelper.helper.reloadAll()
                 Toast.makeText(this@SettingsActivity, s, Toast.LENGTH_LONG).show()
             } catch (e: Exception) {
-                if (inputStream != null) {
-                    try {
-                        inputStream.close()
-                    } catch (e1: IOException) {
-                        /* ignore */
-                    }
-                }
-                if (outputStream != null) {
-                    try {
-                        outputStream.close()
-                    } catch (e1: IOException) {
-                        /* ignore */
-                    }
-                }
+                if (inputStream != null) try { inputStream.close() } catch (e1: IOException) {/* ignore */ }
+                if (outputStream != null) try { outputStream.close() } catch (e1: IOException) {/* ignore */ }
                 bak.renameTo(db)
                 Log.e(TAG, "error on database import: " + e.message)
                 val s = resources.getString(R.string.db_import_error, data.data.toString())
@@ -526,7 +417,6 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
             }
         }
         if (requestCode == ACTIVITIY_RESULT_EXPORT && resultCode == RESULT_OK) {
-
             // export
             checkpointIfWALEnabled(applicationContext)
 
@@ -577,6 +467,9 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
         const val KEY_PREF_DURATION_FORMAT = "pref_duration_format"
         const val ACTIVITIY_RESULT_EXPORT = 17
         const val ACTIVITIY_RESULT_IMPORT = 18
+        const val REQ_CODE_FOREGROUND_LOCATION = 2860
+        const val  REQ_CODE_BACKGROUND_LOCATION = 2861
+
         var mOpenHelper = LocalDBHelper(MVApplication.appContext!!)
         private fun checkpointIfWALEnabled(context: Context) {
             val TAGLocal = "WALCHKPNT"
@@ -584,11 +477,7 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
             var wal_busy = -99
             var wal_log = -99
             var wal_checkpointed = -99
-            val db = SQLiteDatabase.openDatabase(
-                context.getDatabasePath(Contract.AUTHORITY).path,
-                null,
-                SQLiteDatabase.OPEN_READWRITE
-            )
+            val db = SQLiteDatabase.openDatabase(context.getDatabasePath(Contract.AUTHORITY).path, null, SQLiteDatabase.OPEN_READWRITE)
             csr = db.rawQuery("PRAGMA journal_mode", null)
             if (csr.moveToFirst()) {
                 val mode = csr.getString(0)
@@ -600,10 +489,7 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
                         wal_log = csr1.getInt(1)
                         wal_checkpointed = csr1.getInt(2)
                     }
-                    Log.d(
-                        TAGLocal, "Checkpoint pre checkpointing Busy = " + wal_busy + " LOG = " +
-                                wal_log + " CHECKPOINTED = " + wal_checkpointed
-                    )
+                    Log.d(TAGLocal, "Checkpoint pre checkpointing Busy = $wal_busy LOG = $wal_log CHECKPOINTED = $wal_checkpointed")
                     csr1.close()
                     val csr2 = db.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null)
                     csr2.count
@@ -614,10 +500,7 @@ class SettingsActivity : BaseActivity(), OnSharedPreferenceChangeListener {
                         wal_log = csr3.getInt(1)
                         wal_checkpointed = csr3.getInt(2)
                     }
-                    Log.d(
-                        TAGLocal, "Checkpoint post checkpointing Busy = " + wal_busy + " LOG = " +
-                                wal_log + " CHECKPOINTED = " + wal_checkpointed
-                    )
+                    Log.d(TAGLocal, "Checkpoint post checkpointing Busy = $wal_busy LOG = $wal_log CHECKPOINTED = $wal_checkpointed")
                     csr3.close()
                 }
             }

@@ -99,6 +99,7 @@ By making a contribution to this project, I certify that:
 So to say submission of a pull request is considered as the act of signing this certificate. This is also why each contributor shall setup his/her development environment such that the full name and a valid email address is part of the commit meta data. Modified files shall contain an updated copyright notice to include all authors.
 
 # Status
+
 This App has been tested for over a year with actual usage and is fully functional.  The number of available languages is still very limited and it would be great if you could support translating this app on https://crowdin.com/translate/life-dots.  Please contribute code, ideas and issues on https://github.com/XilinJia/Life-Dots
 
 # Used Libraries and their licenses
@@ -111,8 +112,7 @@ This App has been tested for over a year with actual usage and is fully function
 
 [MPAndroidChart](https://github.com/PhilJay/MPAndroidChart)
 
-appcompat, cardview, constraint-layout, recyclerview, design, preference,
-exifinterface, arch-lifecycle, are
+appcompat, cardview, constraint-layout, recyclerview, design, preference, exifinterface, arch-lifecycle, are
 > Licensed under the Apache License, Version 2.0 (the "License");
 > you may not use this file except in compliance with the License.
 > You may obtain a copy of the License at

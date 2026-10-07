@@ -36,7 +36,12 @@ import androidx.preference.PreferenceManager
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.charts.ScatterChart
 import com.github.mikephil.charting.components.XAxis
-import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.data.ScatterData
+import com.github.mikephil.charting.data.ScatterDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.interfaces.datasets.IScatterDataSet
@@ -51,15 +56,14 @@ import com.mdiqentw.lifedots.helpers.TimeSpanFormatter
 import com.mdiqentw.lifedots.ui.generic.BaseActivity
 import com.mdiqentw.lifedots.ui.history.EventDetailActivity.DatePickerFragment
 import org.osmdroid.config.Configuration
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-class AnalyticsActivity : BaseActivity(),
-    LoaderManager.LoaderCallbacks<Cursor?>,
-    AdapterView.OnItemSelectedListener,
-    OnChartValueSelectedListener {
+class AnalyticsActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor?>, AdapterView.OnItemSelectedListener, OnChartValueSelectedListener {
 
     private var pieChart: PieChart? = null
     private var timeFramePosition = 0
@@ -135,9 +139,8 @@ class AnalyticsActivity : BaseActivity(),
     @SuppressLint("Range")
     private fun getStartOfTime() {
         val db = mOpenHelper.readableDatabase
-        val cursor = db.query(Contract.Diary.TABLE_NAME, arrayOf("start"),
-                "rowid = 1", null, null, null, null, null)
-        if (cursor != null && cursor.moveToFirst()) {
+        val cursor = db.query(Contract.Diary.TABLE_NAME, arrayOf("start"), "rowid = 1", null, null, null, null, null)
+        if (cursor.moveToFirst()) {
             startOfTime = cursor.getLong(cursor.getColumnIndex("start"))
             cursor.close()
         }
@@ -387,11 +390,10 @@ class AnalyticsActivity : BaseActivity(),
                 useXYChart = true
                 binding.timeframeSpinner.visibility = View.GONE
                 val db = mOpenHelper.readableDatabase
-                var cursor = db.query(Contract.DiaryActivity.TABLE_NAME, arrayOf("*"),
-                        "name = ?", arrayOf(pe.label), null, null, null, null)
+                var cursor = db.query(Contract.DiaryActivity.TABLE_NAME, arrayOf("*"), "name = ?", arrayOf(pe.label), null, null, null, null)
                 var actID = ""
                 var actColor = 0
-                if (cursor != null && cursor.moveToFirst()) {
+                if (cursor.moveToFirst()) {
                     actID = cursor.getString(cursor.getColumnIndex("_id"))
                     actColor = cursor.getInt(cursor.getColumnIndex("color"))
                     cursor.close()
@@ -404,19 +406,15 @@ class AnalyticsActivity : BaseActivity(),
                     val start = bnbAct!!.getLong("start")
                     val end = bnbAct!!.getLong("end")
                     calStart = DateHelper.startOf(currentChartStep, start)
-                    sel += " AND " + Contract.Diary.START + " >= " + start +
-                            " AND " + Contract.Diary.END + " <= " + end
+                    sel += " AND " + Contract.Diary.START + " >= " + start + " AND " + Contract.Diary.END + " <= " + end
                 }
-                cursor = db.query(
-                    Contract.Diary.TABLE_NAME, arrayOf("start", "end"),
-                    sel, arrayOf(actID), null, null,
-                    Contract.Diary.START, null)
+                cursor = db.query(Contract.Diary.TABLE_NAME, arrayOf("start", "end"), sel, arrayOf(actID), null, null, Contract.Diary.START, null)
                 val calEnd = calStart.clone() as Calendar
                 calEnd.add(currentChartStep, 1)
                 val segEntries = ArrayList<Entry>(50)
-                startTimes = ArrayList<Long>(50)
+                startTimes = ArrayList(50)
                 val dates = ArrayList<String>(50)
-                if (cursor != null && cursor.moveToFirst()) {
+                if (cursor.moveToFirst()) {
                     var actStart = 0L
                     var actEnd = 0L
                     var startMS = calStart.timeInMillis
@@ -441,7 +439,7 @@ class AnalyticsActivity : BaseActivity(),
                             } while (cursor.moveToNext())
                         }
                         segEntries.add(Entry(offset.toFloat(), actSum.toFloat()))
-                        dates.add(String.format("%d-%d-%d", calStart[Calendar.MONTH] + 1, calStart[Calendar.DAY_OF_MONTH], calStart[Calendar.YEAR]))
+                        dates.add(String.format(Locale.getDefault(), "%d-%d-%d", calStart[Calendar.MONTH] + 1, calStart[Calendar.DAY_OF_MONTH], calStart[Calendar.YEAR]))
                         startTimes.add(actStart)
                         offset += 1
                         calStart.add(currentChartStep, 1)

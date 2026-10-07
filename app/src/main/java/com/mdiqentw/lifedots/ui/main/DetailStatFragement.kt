@@ -36,14 +36,13 @@ import com.mdiqentw.lifedots.helpers.ActivityHelper
 import com.mdiqentw.lifedots.helpers.TimeSpanFormatter
 import com.mdiqentw.lifedots.model.DetailViewModel
 import com.mdiqentw.lifedots.ui.history.EventDetailActivity
-import java.util.*
+import java.util.Date
 
 class DetailStatFragement : Fragment() {
     private val updateDurationHandler = Handler(Looper.myLooper()!!)
     private var viewModel: DetailViewModel? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
         val binding: FragmentDetailStatsBinding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_detail_stats, container, false)
@@ -73,7 +72,9 @@ class DetailStatFragement : Fragment() {
     }
 
     private fun updateDurationTextView() {
-        val duration = resources.getString(R.string.duration_description, TimeSpanFormatter.fuzzyFormat(ActivityHelper.helper.currentActivityStartTime, Date()))
+        val duration = resources.getString(R.string.duration_description, TimeSpanFormatter.fuzzyFormat(ActivityHelper.helper.currentActivityStartTime,
+            Date()
+        ))
         viewModel!!.mDuration.value = duration
         val a: Activity? = activity
         if (a is MainActivity) {

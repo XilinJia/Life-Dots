@@ -20,17 +20,14 @@
   ~ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
->
-
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <queries>
         <intent>
             <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
     </queries>
 
-    <uses-feature android:name="android.hardware.camera"
-        android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <!-- for photo storage -->
 <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"-->
@@ -38,20 +35,14 @@
 
     <!--    for map locations -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
-        android:required="false" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
-        android:required="false" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:required="false" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:required="false" />
 
-    <uses-feature android:name="android.hardware.location.gps"
-        android:required="false"/>
+    <uses-feature android:name="android.hardware.location.gps" android:required="false"/>
 
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"
-        android:required="false"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"
-        android:required="false"/>
-    <uses-permission android:name="android.permission.INTERNET"
-        android:required="false"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" android:required="false"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" android:required="false"/>
+    <uses-permission android:name="android.permission.INTERNET" android:required="false"/>
 
     <application
         android:allowBackup="true"
@@ -62,6 +53,7 @@
         android:theme="@style/AppTheme"
         android:name=".MVApplication"
         android:largeHeap="true"
+        android:enableOnBackInvokedCallback="true"
         android:installLocation="auto"
         android:networkSecurityConfig="@xml/network_security_config">
         <activity android:name="com.mdiqentw.lifedots.ui.main.MainActivity"
@@ -96,16 +88,11 @@
             <meta-data android:name="android.app.searchable"
                 android:resource="@xml/searchable"/>
         </activity>
-        <activity android:name="com.mdiqentw.lifedots.ui.generic.AboutActivity"
-            android:label="@string/activity_title_about" />
-        <activity android:name="com.mdiqentw.lifedots.ui.generic.PrivacyPolicyActivity"
-            android:label="@string/activity_title_privacy_policy" />
-        <activity android:name="com.mdiqentw.lifedots.ui.settings.SettingsActivity"
-            android:label="@string/activity_title_settings"/>
-        <activity android:name="com.mdiqentw.lifedots.ui.history.MapActivity"
-            android:label="@string/activity_title_map" />
-        <activity android:name="com.mdiqentw.lifedots.ui.history.AnalyticsActivity"
-            android:label="@string/activity_title_stats" />
+        <activity android:name="com.mdiqentw.lifedots.ui.generic.AboutActivity" android:label="@string/activity_title_about" />
+        <activity android:name="com.mdiqentw.lifedots.ui.generic.PrivacyPolicyActivity" android:label="@string/activity_title_privacy_policy" />
+        <activity android:name="com.mdiqentw.lifedots.ui.settings.SettingsActivity" android:label="@string/activity_title_settings"/>
+        <activity android:name="com.mdiqentw.lifedots.ui.history.MapActivity" android:label="@string/activity_title_map" />
+        <activity android:name="com.mdiqentw.lifedots.ui.history.AnalyticsActivity" android:label="@string/activity_title_stats" />
         <provider
             android:name="com.mdiqentw.lifedots.db.LDContentProvider"
             android:authorities="${applicationId}.provider"

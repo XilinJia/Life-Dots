@@ -47,12 +47,7 @@ import com.mdiqentw.lifedots.helpers.ActivityHelper.DataChangedListener
 import com.mdiqentw.lifedots.helpers.GraphicsHelper.prepareColorForNextActivity
 import com.mdiqentw.lifedots.model.DiaryActivity
 import java.lang.ref.WeakReference
-import java.util.*
 
-/*
- * EditActivity to add and modify activities
- *
- * */
 class EditActivity : BaseActivity(), DataChangedListener {
     private var currentActivity /* null is for creating a new object */: DiaryActivity? = null
     private var checkState = CHECK_STATE_CHECKING
@@ -116,12 +111,7 @@ class EditActivity : BaseActivity(), DataChangedListener {
 
     private class QHandler(act: EditActivity) :
         AsyncQueryHandler(MVApplication.appContext!!.contentResolver) {
-        val act: EditActivity?
-
-        /* Access only allowed via ActivityHelper.helper singleton */
-        init {
-            this.act = WeakReference(act).get()
-        }
+        val act: EditActivity? = WeakReference(act).get()
 
         override fun onQueryComplete(token: Int, cookie: Any?, cursor: Cursor) {
             when (token) {
@@ -253,7 +243,7 @@ class EditActivity : BaseActivity(), DataChangedListener {
     }
 
     public override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(NAME_KEY, Objects.requireNonNull(binding.editActivityName.text).toString())
+        outState.putString(NAME_KEY, binding.editActivityName.text?.toString().orEmpty())
         outState.putInt(COLOR_KEY, mActivityColor)
         // call superclass to save any view hierarchy
         super.onSaveInstanceState(outState)
@@ -281,16 +271,9 @@ class EditActivity : BaseActivity(), DataChangedListener {
                         Toast.LENGTH_LONG
                     ).show()
                 } else {
-                    if (currentActivity == null) {
-                        ActivityHelper.helper.insertActivity(
-                            DiaryActivity(
-                                -1, Objects.requireNonNull(
-                                    binding.editActivityName.text
-                                ).toString(), mActivityColor
-                            )
-                        )
+                    if (currentActivity == null) { ActivityHelper.helper.insertActivity(DiaryActivity(-1, binding.editActivityName.text?.toString().orEmpty(), mActivityColor))
                     } else {
-                        currentActivity!!.mName = Objects.requireNonNull(binding.editActivityName.text).toString()
+                        currentActivity!!.mName = binding.editActivityName.text?.toString().orEmpty()
                         currentActivity!!.mColor = mActivityColor
                         ActivityHelper.helper.updateActivity(currentActivity!!)
                     }
@@ -313,9 +296,7 @@ class EditActivity : BaseActivity(), DataChangedListener {
                 arrayOf(Contract.DiaryActivity.NAME, Contract.DiaryActivity._DELETED, Contract.DiaryActivity._ID),
                 Contract.DiaryActivity.NAME + "=?",
                 arrayOf(
-                    Objects.requireNonNull(
-                        binding.editActivityName.text
-                    ).toString()
+                    binding.editActivityName.text?.toString().orEmpty()
                 ),
                 null
             )
@@ -327,11 +308,7 @@ class EditActivity : BaseActivity(), DataChangedListener {
                 arrayOf(Contract.DiaryActivity.NAME, Contract.DiaryActivity._DELETED, Contract.DiaryActivity._ID),
                 Contract.DiaryActivity.NAME + "=? AND " +
                         Contract.DiaryActivity._ID + " != ?",
-                arrayOf(
-                    Objects.requireNonNull(
-                        binding.editActivityName.text
-                    ).toString(), currentActivity!!.mId.toLong().toString()
-                ),
+                arrayOf(binding.editActivityName.text?.toString().orEmpty(), currentActivity!!.mId.toLong().toString()),
                 null
             )
         }

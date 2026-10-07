@@ -23,7 +23,7 @@ package com.mdiqentw.lifedots.db
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import android.graphics.Color
+import androidx.core.graphics.toColorInt
 
 class LocalDBHelper(context: Context?) : SQLiteOpenHelper(context, Contract.AUTHORITY, null, CURRENT_VERSION) {
     override fun onCreate(db: SQLiteDatabase) {
@@ -34,35 +34,35 @@ class LocalDBHelper(context: Context?) : SQLiteOpenHelper(context, Contract.AUTH
                     Contract.DiaryActivity.TABLE_NAME +
                     "(" + Contract.DiaryActivityJoinableColumns.NAME + "," + Contract.DiaryActivityJoinableColumns.COLOR + ")" +
                     " VALUES " +
-                    " ('休闲', '" + Color.parseColor("#fbc02d") + "');"
+                    " ('休闲', '" + "#fbc02d".toColorInt() + "');"
         )
         db.execSQL(
             "INSERT INTO " +
                     Contract.DiaryActivity.TABLE_NAME +
                     "(" + Contract.DiaryActivityJoinableColumns.NAME + "," + Contract.DiaryActivityJoinableColumns.COLOR + ")" +
                     " VALUES " +
-                    " (' فريسة ', '" + Color.parseColor("#0bc02d") + "');"
+                    " (' فريسة ', '" + "#0bc02d".toColorInt() + "');"
         )
         db.execSQL(
             "INSERT INTO " +
                     Contract.DiaryActivity.TABLE_NAME +
                     "(" + Contract.DiaryActivityJoinableColumns.NAME + "," + Contract.DiaryActivityJoinableColumns.COLOR + ")" +
                     " VALUES " +
-                    " ('Eat', '" + Color.parseColor("#e64a19") + "');"
+                    " ('Eat', '" + "#e64a19".toColorInt() + "');"
         )
         db.execSQL(
             "INSERT INTO " +
                     Contract.DiaryActivity.TABLE_NAME +
                     "(" + Contract.DiaryActivityJoinableColumns.NAME + "," + Contract.DiaryActivityJoinableColumns.COLOR + ")" +
                     " VALUES " +
-                    " ('чистый', '" + Color.parseColor("#CFD8DC") + "');"
+                    " ('чистый', '" + "#CFD8DC".toColorInt() + "');"
         )
         db.execSQL(
             "INSERT INTO " +
                     Contract.DiaryActivity.TABLE_NAME +
                     "(" + Contract.DiaryActivityJoinableColumns.NAME + "," + Contract.DiaryActivityJoinableColumns.COLOR + ")" +
                     " VALUES " +
-                    " ('नींद', '" + Color.parseColor("#303f9f") + "');"
+                    " ('नींद', '" + "#303f9f".toColorInt() + "');"
         )
     }
 

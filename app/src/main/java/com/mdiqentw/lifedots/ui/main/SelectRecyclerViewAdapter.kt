@@ -30,11 +30,7 @@ import com.mdiqentw.lifedots.model.DiaryActivity
 
 class SelectRecyclerViewAdapter(private val mSelectListener: SelectListener, private var mActivityList: List<DiaryActivity>) : RecyclerView.Adapter<SelectViewHolders>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectViewHolders {
-        val binding: SelectRecyclerItemBinding = DataBindingUtil.inflate(
-                LayoutInflater.from(parent.context),
-                R.layout.select_recycler_item,
-                parent,
-                false)
+        val binding: SelectRecyclerItemBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.context), R.layout.select_recycler_item, parent, false)
         return SelectViewHolders(mSelectListener, binding)
     }
 

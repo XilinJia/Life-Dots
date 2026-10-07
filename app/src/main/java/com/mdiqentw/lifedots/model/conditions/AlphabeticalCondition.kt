@@ -23,7 +23,7 @@ import com.mdiqentw.lifedots.helpers.ActivityHelper
 import com.mdiqentw.lifedots.helpers.ActivityHelper.DataChangedListener
 import com.mdiqentw.lifedots.model.DiaryActivity
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
-import java.util.*
+import java.util.Comparator
 
 /**
  * Model the likelihood of the activities based on the alphabetical sorting of their names
@@ -38,21 +38,16 @@ class AlphabeticalCondition(helper: ActivityHelper) : Condition(), DataChangedLi
         val result = ArrayList<Likelihood>(ActivityHelper.helper.getUnsortedActivities().size)
         if (weight > 0.001) {
             val sort = ArrayList(ActivityHelper.helper.getUnsortedActivities())
-            Collections.sort(sort) { o1: DiaryActivity?, o2: DiaryActivity? ->
-                if (o1 === o2) {
-                    return@sort 0
-                } else if (o1 == null) {
-                    return@sort -1
-                } else if (o2 == null) {
-                    return@sort 1
-                } else {
-                    return@sort o2.mName.compareTo(o1.mName)
+            sort.sortWith(Comparator { o1: DiaryActivity?, o2: DiaryActivity? ->
+                when {
+                    o1 === o2 -> return@Comparator 0
+                    o1 == null -> return@Comparator -1
+                    o2 == null -> return@Comparator 1
+                    else -> return@Comparator o2.mName.compareTo(o1.mName)
                 }
-            }
+            })
             val step = weight / sort.size
-            for ((no, a) in sort.withIndex()) {
-                result.add(Likelihood(a!!, step * no))
-            }
+            for ((no, a) in sort.withIndex()) result.add(Likelihood(a!!, step * no))
         }
         setResult(result)
     }

@@ -24,7 +24,7 @@ import com.mdiqentw.lifedots.MVApplication
 import com.mdiqentw.lifedots.R
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
 import java.text.DecimalFormat
-import java.util.*
+import java.util.Date
 
 /*
  * LifeDots
@@ -113,8 +113,7 @@ object TimeSpanFormatter {
                     result = days.toString() + "d "
                 }
                 if (hours > 0 || days > 0) {
-                    result += (hours.toString() + "h "
-                            + df.format(min.toLong()) + "' ")
+                    result += (hours.toString() + "h " + df.format(min.toLong()) + "' ")
                 }
                 if (min > 0 && hours == 0 && days == 0) {
                     result += "$min' "

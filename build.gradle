@@ -21,7 +21,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.9.20'
+    ext.kotlin_version = '2.4.20'
     repositories {
         google()
         mavenCentral()
@@ -29,9 +29,9 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.1.4'
+        classpath 'com.android.tools.build:gradle:9.4.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
+//        classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
 
 //        implementation 'com.google.android:flexbox:2.0.1'
 

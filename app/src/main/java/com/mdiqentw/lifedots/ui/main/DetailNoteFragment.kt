@@ -24,7 +24,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.mdiqentw.lifedots.R
@@ -34,8 +33,7 @@ import com.mdiqentw.lifedots.model.DetailViewModel
 class DetailNoteFragment : Fragment() {
     private var viewModel: DetailViewModel? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
         val binding: FragmentDetailNoteBinding = DataBindingUtil.inflate(
                 inflater, R.layout.fragment_detail_note, container, false)
@@ -46,8 +44,7 @@ class DetailNoteFragment : Fragment() {
                 val dialog = NoteEditDialog()
 //                dialog.setStyle(DialogFragment.STYLE_NO_FRAME, 0)
                 val noteText = viewModel!!.mNote.value
-                if (noteText != null && noteText.isNotBlank())
-                    dialog.inputText = noteText.toString()
+                if (!noteText.isNullOrBlank()) dialog.inputText = noteText
                 dialog.show(parentFragmentManager, "NoteEditDialogFragment")
             }
         }

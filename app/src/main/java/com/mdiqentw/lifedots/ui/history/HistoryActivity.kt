@@ -56,11 +56,9 @@ import com.mdiqentw.lifedots.ui.main.NoteEditDialog
 import com.mdiqentw.lifedots.ui.main.NoteEditDialog.NoteEditDialogListener
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 
-/*
- * Show the history of the Diary.
- * */
 class HistoryActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor>, NoteEditDialogListener,
     HistoryRecyclerViewAdapter.SelectListener, MenuItem.OnMenuItemClickListener, SearchView.OnCloseListener,
     SearchView.OnQueryTextListener {
@@ -106,14 +104,9 @@ class HistoryActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor>, N
         // handled via Intent
         return false
     }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (!searchView!!.isIconified) {
-            searchView!!.isIconified = true
-        } else {
-            super.onBackPressed()
-        }
+    override fun onBaseBackPressed() {
+        if (!searchView!!.isIconified) searchView!!.isIconified = true
+        else super.onBaseBackPressed()
     }
 
     /**
@@ -140,7 +133,7 @@ class HistoryActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor>, N
                 startTime = selection.first
                 endTime = selection.second
                 duration = endTime - startTime
-                binding.hisRangeTextView.text = String.format("%d Days", duration / MS_Per_Day)
+                binding.hisRangeTextView.text = String.format(Locale.getDefault(), "%d Days", duration / MS_Per_Day)
                 obtainHistoryInPeriod()
             }
             //        } else if (item.getItemId() == R.id.menu_images) {
@@ -181,7 +174,7 @@ class HistoryActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor>, N
         binding.historyList.layoutManager = detailLayoutManager
         historyAdapter = HistoryRecyclerViewAdapter(this@HistoryActivity, this, null)
         binding.historyList.adapter = historyAdapter
-        binding.hisRangeTextView.text = String.format("%d Days", duration / MS_Per_Day)
+        binding.hisRangeTextView.text = String.format(Locale.getDefault(), "%d Days", duration / MS_Per_Day)
         binding.hisImgEarlier.setOnClickListener { _: View? ->
             endTime = startTime
             startTime -= duration
@@ -554,8 +547,7 @@ class HistoryActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor>, N
         for (format in formats) {
             simpleDateFormat = SimpleDateFormat(format)
             simpleDateFormat.isLenient = false
-            try {
-                return Objects.requireNonNull(simpleDateFormat.parse(date)).time
+            try { return simpleDateFormat.parse(date)?.time ?:0
             } catch (e: ParseException) {
                 /* intentionally no further handling. We try the next date format and onyl if we cannot parse the date with any
                  * supported format we return null afterwards. */

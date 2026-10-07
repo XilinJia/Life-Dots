@@ -20,15 +20,23 @@
 package com.mdiqentw.lifedots.ui.generic
 
 import android.annotation.SuppressLint
-import android.content.*
+import android.content.AsyncQueryHandler
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.database.Cursor
 import android.graphics.Paint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
+import android.widget.RelativeLayout
+import android.widget.ResourceCursorAdapter
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.loader.app.LoaderManager
@@ -40,10 +48,6 @@ import com.mdiqentw.lifedots.databinding.ActivityManageContentBinding
 import com.mdiqentw.lifedots.db.Contract
 import com.mdiqentw.lifedots.helpers.GraphicsHelper.textColorOnBackground
 
-/*
- * MainActivity to show most of the UI, based on switching the fragements
- *
- * */
 class ManageActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor> {
     /* are deleted items currently visible? */
     private var showDeleted = false
@@ -167,17 +171,9 @@ class ManageActivity : BaseActivity(), LoaderManager.LoaderCallbacks<Cursor> {
                 .setPositiveButton(android.R.string.yes) { _: DialogInterface?, _: Int ->
                     val values = ContentValues()
                     values.put(Contract.DiaryActivity._DELETED, 0)
-                    mQHandler.startUpdate(
-                        0,
-                        null,
-                        ContentUris.withAppendedId(
-                            Contract.DiaryActivity.CONTENT_URI,
-                            c.getLong(c.getColumnIndex(Contract.DiaryActivity._ID))
-                        ),
-                        values,
-                        Contract.DiaryActivity._ID + "=?",
-                        arrayOf(c.getString(c.getColumnIndex(Contract.DiaryActivity._ID)))
-                    )
+                    mQHandler.startUpdate(0, null,
+                        ContentUris.withAppendedId(Contract.DiaryActivity.CONTENT_URI, c.getLong(c.getColumnIndex(Contract.DiaryActivity._ID))),
+                        values, Contract.DiaryActivity._ID + "=?", arrayOf(c.getString(c.getColumnIndex(Contract.DiaryActivity._ID))))
                 }
                 .setNegativeButton(android.R.string.no, null)
             builder.create().show()

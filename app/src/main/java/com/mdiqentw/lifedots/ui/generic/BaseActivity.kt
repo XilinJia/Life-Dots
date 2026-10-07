@@ -24,11 +24,15 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
@@ -39,12 +43,7 @@ import com.mdiqentw.lifedots.ui.history.HistoryActivity
 import com.mdiqentw.lifedots.ui.history.MapActivity
 import com.mdiqentw.lifedots.ui.main.MainActivity
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
-import java.util.*
 
-/*
- * MainActivity to show most of the UI, based on switching the fragements
- *
- * */
 open class BaseActivity : AppCompatActivity() {
     lateinit var baseBinding: ActivityBaseBinding
 
@@ -54,17 +53,14 @@ open class BaseActivity : AppCompatActivity() {
 //    @JvmField
     protected lateinit var mNavigationView: NavigationView
     protected lateinit var toolbar: Toolbar
+    private lateinit var backPressedCallback: OnBackPressedCallback
+    protected open val shouldApplyDefaultInsets: Boolean = true
 
     protected fun setupDrawer() {
         mDrawerLayout = baseBinding.drawerLayout
-        mDrawerToggle = ActionBarDrawerToggle(
-            this,
-            mDrawerLayout,
-            R.string.drawer_open,
-            R.string.drawer_close
-        )
+        mDrawerToggle = ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close)
         mDrawerLayout.addDrawerListener(mDrawerToggle)
-        Objects.requireNonNull(supportActionBar!!).setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setHomeButtonEnabled(true)
     }
 
@@ -72,39 +68,23 @@ open class BaseActivity : AppCompatActivity() {
         mNavigationView = baseBinding.navigationView
         mNavigationView.setNavigationItemSelectedListener { menuItem: MenuItem ->
             val mid = menuItem.itemId
-            if (mid == R.id.nav_main) {
-                if (!menuItem.isChecked) {
-                    // start activity only if it is not currently checked
-                    val intentmain = Intent(this@BaseActivity, MainActivity::class.java)
-                    intentmain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    startActivity(intentmain)
+            when (mid) {
+                R.id.nav_main -> {
+                    if (!menuItem.isChecked) {
+                        val intentmain = Intent(this@BaseActivity, MainActivity::class.java)
+                        intentmain.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        startActivity(intentmain)
+                    }
                 }
-            } else if (mid == R.id.nav_activity_manager) {
-                val intentmanage = Intent(this@BaseActivity, ManageActivity::class.java)
-                startActivity(intentmanage)
-            } else if (mid == R.id.nav_diary) {
-                val intentdiary = Intent(this@BaseActivity, HistoryActivity::class.java)
-                startActivity(intentdiary)
-            } else if (mid == R.id.nav_map) {
-                val intentmap = Intent(this@BaseActivity, MapActivity::class.java)
-                startActivity(intentmap)
-            } else if (mid == R.id.nav_statistics) {
-                val intentstats = Intent(this@BaseActivity, AnalyticsActivity::class.java)
-                startActivity(intentstats)
-            } else if (mid == R.id.nav_about) {
-                val intentabout = Intent(this@BaseActivity, AboutActivity::class.java)
-                startActivity(intentabout)
-            } else if (mid == R.id.nav_privacy) {
-                val intentpriv = Intent(this@BaseActivity, PrivacyPolicyActivity::class.java)
-                startActivity(intentpriv)
-            } else if (mid == R.id.nav_settings) {
-                val intentsettings = Intent(this@BaseActivity, SettingsActivity::class.java)
-                startActivity(intentsettings)
-            } else Toast.makeText(
-                this@BaseActivity,
-                menuItem.title.toString() + " is not yet implemented :-(",
-                Toast.LENGTH_LONG
-            ).show()
+                R.id.nav_activity_manager -> startActivity(Intent(this@BaseActivity, ManageActivity::class.java))
+                R.id.nav_diary -> startActivity(Intent(this@BaseActivity, HistoryActivity::class.java))
+                R.id.nav_map -> startActivity(Intent(this@BaseActivity, MapActivity::class.java))
+                R.id.nav_statistics -> startActivity(Intent(this@BaseActivity, AnalyticsActivity::class.java))
+                R.id.nav_about -> startActivity(Intent(this@BaseActivity, AboutActivity::class.java))
+                R.id.nav_privacy -> startActivity(Intent(this@BaseActivity, PrivacyPolicyActivity::class.java))
+                R.id.nav_settings -> startActivity(Intent(this@BaseActivity, SettingsActivity::class.java))
+                else -> Toast.makeText(this@BaseActivity, menuItem.title.toString() + " is not yet implemented :-(", Toast.LENGTH_LONG).show()
+            }
             mDrawerLayout.closeDrawers()
             true
         }
@@ -115,6 +95,50 @@ open class BaseActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         setupDrawer()
         setupNavs()
+    }
+
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        setupSystemBarInsets()
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+        setupSystemBarInsets()
+    }
+
+    override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
+        super.setContentView(view, params)
+        setupSystemBarInsets()
+    }
+
+    protected open fun setupSystemBarInsets() {
+        if (!shouldApplyDefaultInsets) return
+        val contentView = findViewById<View>(android.R.id.content) ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(contentView) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            insets
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onBaseBackPressed()
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, backPressedCallback)
+    }
+
+    open fun onBaseBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+            mDrawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            backPressedCallback.isEnabled = false
+            onBackPressedDispatcher.onBackPressed()
+        }
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -137,15 +161,6 @@ open class BaseActivity : AppCompatActivity() {
             finish()
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
-            mDrawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
     }
 
     protected fun setContent(contentView: View?) {

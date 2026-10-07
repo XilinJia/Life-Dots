@@ -1,0 +1,4 @@
+* updates on platform, build tools, and dependencies
+* target android 17, minimum android 7 (upped from 4)
+* ensure location permissions are properly requested and notified on newer devices
+* some code cleaning

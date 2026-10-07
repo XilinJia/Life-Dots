@@ -37,18 +37,13 @@ import com.mdiqentw.lifedots.model.DetailViewModel
 import com.mdiqentw.lifedots.ui.generic.BaseActivity
 import com.mdiqentw.lifedots.ui.generic.DetailRecyclerViewAdapter
 
-//import androidx.gridlayout.widget.GridLayoutManager;
-//import androidx.recyclerview.widget.LinearLayoutManager;
-
 class DetailPictureFragement : Fragment(), LoaderManager.LoaderCallbacks<Cursor> {
 
     private lateinit var detailRecyclerView: RecyclerView
     private lateinit var detailAdapter: DetailRecyclerViewAdapter
     private var viewModel: DetailViewModel? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_detail_pictures, container, false)
         viewModel = ViewModelProvider(requireActivity()).get(DetailViewModel::class.java)
         detailRecyclerView = view.findViewById(R.id.picture_recycler)
@@ -94,9 +89,6 @@ class DetailPictureFragement : Fragment(), LoaderManager.LoaderCallbacks<Cursor>
     }
 
     companion object {
-        private val PROJECTION_IMG = arrayOf(
-                Contract.DiaryImage.URI,
-                Contract.DiaryImage._ID
-        )
+        private val PROJECTION_IMG = arrayOf(Contract.DiaryImage.URI, Contract.DiaryImage._ID)
     }
 }

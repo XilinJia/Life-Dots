@@ -22,7 +22,6 @@ import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.database.Cursor
-import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
 import android.view.Menu
@@ -30,6 +29,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.graphics.toColorInt
 import androidx.core.util.Pair
 import androidx.databinding.DataBindingUtil
 import androidx.loader.app.LoaderManager
@@ -56,7 +56,7 @@ import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlay.PointAd
 import org.osmdroid.views.overlay.simplefastpoint.SimpleFastPointOverlayOptions
 import org.osmdroid.views.overlay.simplefastpoint.SimplePointTheme
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 import kotlin.math.abs
 
 class MapActivity : BaseActivity(),
@@ -189,7 +189,7 @@ class MapActivity : BaseActivity(),
             // create label style
             val textStyle = Paint()
             textStyle.style = Paint.Style.FILL
-            textStyle.color = Color.parseColor("#0000ff")
+            textStyle.color = "#0000ff".toColorInt()
             textStyle.textAlign = Paint.Align.CENTER
             textStyle.textSize = 24f
 
@@ -242,7 +242,7 @@ class MapActivity : BaseActivity(),
     }
 
     override fun onCreateOptionsMenu(menu: Menu) : Boolean {
-        val inflater = getMenuInflater ()
+        val inflater = menuInflater
         inflater.inflate(R.menu.map_menu, menu)
 
         val datesMenuItem = menu.findItem (R.id.menu_dates)
@@ -258,7 +258,7 @@ class MapActivity : BaseActivity(),
             val picker = MaterialDatePicker.Builder.dateRangePicker().build()
             picker.show(supportFragmentManager, picker.toString())
             picker.addOnPositiveButtonClickListener { selection: Pair<Long, Long> ->
-                binding.map.getOverlays().clear()
+                binding.map.overlays.clear()
                 binding.map.invalidate()
                 startTime = selection.first
                 endTime = selection.second

@@ -20,8 +20,6 @@
 package com.mdiqentw.lifedots.ui.history
 
 import java.text.SimpleDateFormat
-import java.util.*
-
 import android.database.Cursor
 import android.database.DataSetObserver
 import android.text.format.DateFormat
@@ -32,7 +30,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-
 import com.mdiqentw.lifedots.MVApplication
 import com.mdiqentw.lifedots.R
 import com.mdiqentw.lifedots.databinding.ActivityHistoryEntryBinding
@@ -41,20 +38,30 @@ import com.mdiqentw.lifedots.helpers.GraphicsHelper
 import com.mdiqentw.lifedots.helpers.TimeSpanFormatter
 import com.mdiqentw.lifedots.ui.generic.DetailRecyclerViewAdapter
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
+import java.util.Calendar
+import java.util.Date
 
 class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity,
                                  private val mListener: SelectListener,
                                  private var mCursor: Cursor?) :
     RecyclerView.Adapter<HistoryViewHolders>() {
 
-    private val mDataObserver: DataSetObserver?
+    private val mDataObserver = object : DataSetObserver() {
+        override fun onChanged() {
+            notifyDataSetChanged()
+        }
+        override fun onInvalidated() {
+            notifyDataSetChanged()
+        }
+    }
+
     private var idRowIdx = -1
     private var startRowIdx = -1
     private var nameRowIdx = -1
     private var endRowIdx = -1
     private var colorRowIdx = -1
     private var noteRowIdx = -1
-    private val mViewHolders: MutableList<HistoryViewHolders>
+    private val mViewHolders: MutableList<HistoryViewHolders> = ArrayList(17)
 
     interface SelectListener {
         fun onItemClick(viewHolder: HistoryViewHolders?, adapterPosition: Int, diaryID: Int)
@@ -87,10 +94,7 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity,
         holder.mBackground.setBackgroundColor(color)
         holder.mName.setTextColor(GraphicsHelper.textColorOnBackground(color))
         holder.diaryEntryID = mCursor!!.getInt(idRowIdx)
-        val end: Date? =
-            if (mCursor!!.isNull(endRowIdx)) null
-            else Date(mCursor!!.getLong(endRowIdx))
-
+        val end: Date? = if (mCursor!!.isNull(endRowIdx)) null else Date(mCursor!!.getLong(endRowIdx))
         val startCal = Calendar.getInstance()
         startCal.timeInMillis = mCursor!!.getLong(startRowIdx)
         if (mCursor!!.isFirst) showHeader = true
@@ -179,13 +183,11 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity,
             return
         }
         val oldCursor = mCursor
-        if (oldCursor != null && mDataObserver != null) {
-            oldCursor.unregisterDataSetObserver(mDataObserver)
-        }
+        oldCursor?.unregisterDataSetObserver(mDataObserver)
         oldCursor?.close()
         mCursor = newCursor
         if (mCursor != null) {
-            if (mDataObserver != null) mCursor!!.registerDataSetObserver(mDataObserver)
+            mCursor!!.registerDataSetObserver(mDataObserver)
             setRowIndex()
         } else {
             idRowIdx = -1
@@ -203,18 +205,6 @@ class HistoryRecyclerViewAdapter(private val mContext: HistoryActivity,
     }
 
     init {
-        mViewHolders = ArrayList(17)
-        mDataObserver = object : DataSetObserver() {
-            override fun onChanged() {
-                /* notify about the data change */
-                notifyDataSetChanged()
-            }
-
-            override fun onInvalidated() {
-                /* notify about the data change */
-                notifyDataSetChanged()
-            }
-        }
         if (mCursor != null) {
             mCursor!!.registerDataSetObserver(mDataObserver)
             setRowIndex()

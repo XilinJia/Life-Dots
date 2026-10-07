@@ -32,7 +32,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
 import kotlin.math.ln
 import kotlin.math.sqrt
 
@@ -57,9 +57,8 @@ object GraphicsHelper {
 
     @JvmStatic
     fun createImageFile(): File {
-        // Create an image file name
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        val imageFileName = "IMG_" + timeStamp
+        val imageFileName = "IMG_$timeStamp"
         val storageDir = imageStorageDirectory()
         return File(storageDir, "$imageFileName.jpg")
     }

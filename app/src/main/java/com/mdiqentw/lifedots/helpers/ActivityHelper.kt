@@ -41,7 +41,9 @@ import com.mdiqentw.lifedots.model.conditions.Condition
 import com.mdiqentw.lifedots.model.conditions.GlobalOccurrenceCondition
 import com.mdiqentw.lifedots.model.conditions.RecentOccurrenceCondition
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
-import java.util.*
+import java.util.Collections
+import java.util.Date
+import java.util.Locale
 import kotlin.math.min
 
 /**
@@ -58,7 +60,7 @@ class ActivityHelper private constructor() : AsyncQueryHandler(MVApplication.app
     var currentDiaryUri: Uri? = null
         private set
     /* @NonNull */  var currentNote: String? = null
-    private lateinit var conditions: Array<Condition>
+    private var conditions: Array<Condition>
 
     //    private DetailViewModel viewModel;
     private val mHandler: Handler = object : Handler(Looper.getMainLooper()) {
@@ -138,7 +140,7 @@ class ActivityHelper private constructor() : AsyncQueryHandler(MVApplication.app
         fun onActivityOrderChanged()
     }
 
-    private val mDataChangeListeners: MutableList<DataChangedListener>
+    private val mDataChangeListeners: MutableList<DataChangedListener> = ArrayList(3)
     fun registerDataChangeListener(listener: DataChangedListener) {
         mDataChangeListeners.add(listener)
     }
@@ -458,7 +460,6 @@ class ActivityHelper private constructor() : AsyncQueryHandler(MVApplication.app
 
     /* Access only allowed via ActivityHelper.helper singleton */
     init {
-        mDataChangeListeners = ArrayList(3)
         activities = ArrayList(50)
         unsortedActivities = ArrayList(50)
         conditions = arrayOf(
@@ -490,25 +491,11 @@ class ActivityHelper private constructor() : AsyncQueryHandler(MVApplication.app
                 val s = c.likelihoods()
                 for (l in s) {
                     if (!likeliActivites.containsKey(l.activity)) {
-                        Log.e(
-                            TAG,
-                            String.format(
-                                "Activity %s not in likeliActivites %s",
-                                l.activity,
-                                `as`.contains(l.activity)
-                            )
-                        )
+                        Log.e(TAG, String.format(Locale.getDefault(), "Activity %s not in likeliActivites %s", l.activity, `as`.contains(l.activity)))
                     } else {
                         val lv = likeliActivites[l.activity]
                         if (lv == null) {
-                            Log.e(
-                                TAG,
-                                String.format(
-                                    "Activity %s has no likelyhood in Condition %s",
-                                    l.activity,
-                                    c.javaClass.simpleName
-                                )
-                            )
+                            Log.e(TAG, String.format(Locale.getDefault(), "Activity %s has no likelyhood in Condition %s", l.activity, c.javaClass.simpleName))
                         } else {
                             likeliActivites[l.activity] = lv + l.likelihood
                         }
@@ -516,11 +503,7 @@ class ActivityHelper private constructor() : AsyncQueryHandler(MVApplication.app
                 }
             }
             val list: MutableList<DiaryActivity> = ArrayList(likeliActivites.keys)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Collections.sort(list, Collections.reverseOrder(Comparator.comparing { o: DiaryActivity ->
-                        likeliActivites[o]!!
-                }))
-            }
+            Collections.sort(list, Collections.reverseOrder(Comparator.comparing { o: DiaryActivity -> likeliActivites[o]!! }))
             activities = list
         }
         for (listener in mDataChangeListeners) {

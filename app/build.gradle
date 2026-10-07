@@ -20,8 +20,8 @@
 
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+//    id 'kotlin-android'
+//    id 'kotlin-kapt'
 }
 
 // Load keystore
@@ -44,27 +44,27 @@ android {
     }
 
     kotlin {
-        jvmToolchain 17
+        jvmToolchain 21
     }
 
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+//    kotlinOptions {
+//        jvmTarget = "21"
+//    }
 
-    buildToolsVersion = "34.0.0"
+    compileSdk 37
+    buildToolsVersion = "37.0.0"
 
     defaultConfig {
         applicationId "com.mdiqentw.lifedots"
 
-        compileSdk 34
-        targetSdkVersion 34
-        minSdkVersion 21
+        targetSdkVersion 37
+        minSdkVersion 24
 
-        versionCode 156
-        versionName "2.2.3"
+        versionCode 157
+        versionName "2.2.4"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        setProperty("archivesBaseName", "LifeDots-" + defaultConfig.versionName)
+//        setProperty("archivesBaseName", "LifeDots-" + defaultConfig.versionName)
     }
 
     bundle {
@@ -127,6 +127,7 @@ android {
 
     buildFeatures {
         dataBinding true
+        buildConfig true
     }
     lint {
         checkDependencies true
@@ -138,20 +139,21 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation 'androidx.core:core-ktx:1.12.0'
+    implementation 'androidx.core:core-ktx:1.19.1'
 
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.11.0'
 
     implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.appcompat:appcompat:1.8.0'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
+    implementation "androidx.exifinterface:exifinterface:1.4.2"
 
-    implementation('com.google.android.material:material:1.11.0')
+    implementation('com.google.android.material:material:1.14.0')
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
     
     implementation 'com.github.QuadFlask:colorpicker:0.0.15'
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'org.osmdroid:osmdroid-android:6.1.16'
+    implementation 'org.osmdroid:osmdroid-android:6.1.20'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }
 

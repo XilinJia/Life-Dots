@@ -19,9 +19,12 @@
  */
 package com.mdiqentw.lifedots.ui.main
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.SearchManager
+import android.content.ActivityNotFoundException
 import android.content.AsyncQueryHandler
+import android.content.ClipData
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Intent
@@ -32,8 +35,11 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.util.TypedValue
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.View.OnLongClickListener
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
@@ -68,17 +74,11 @@ import com.mdiqentw.lifedots.ui.generic.EditActivity
 import com.mdiqentw.lifedots.ui.history.EventDetailActivity
 import com.mdiqentw.lifedots.ui.main.NoteEditDialog.NoteEditDialogListener
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
+import com.mdiqentw.lifedots.ui.settings.SettingsActivity.Companion.KEY_PREF_USE_LOCATION
 import java.io.File
-import java.util.*
+import java.util.Calendar
 
-/*
- * MainActivity to show most of the UI, based on switching the fragements
- *
- * */
-class MainActivity : BaseActivity(),
-    SelectRecyclerViewAdapter.SelectListener, DataChangedListener,
-    NoteEditDialogListener, OnLongClickListener, SearchView.OnQueryTextListener,
-    SearchView.OnCloseListener {
+class MainActivity : BaseActivity(), SelectRecyclerViewAdapter.SelectListener, DataChangedListener, NoteEditDialogListener, OnLongClickListener, SearchView.OnQueryTextListener, SearchView.OnCloseListener {
 
     lateinit var binding: ActivityMainContentBinding
     private var viewModel: DetailViewModel? = null
@@ -117,23 +117,14 @@ class MainActivity : BaseActivity(),
         mQHandler = MainAsyncQueryHandler(applicationContext.contentResolver, viewModel)
 
         // recovering the instance state
-        if (savedInstanceState != null) {
-            mCurrentPhotoPath = savedInstanceState.getString("currentPhotoPath")
-        }
+        if (savedInstanceState != null) mCurrentPhotoPath = savedInstanceState.getString("currentPhotoPath")
         setupViewPager(binding.viewpager)
         binding.tablayout.setupWithViewPager(binding.viewpager)
         binding.row.background.setOnLongClickListener(this)
         binding.row.background.setOnClickListener { _: View? ->
-            if (PreferenceManager
-                    .getDefaultSharedPreferences(applicationContext)
-                    .getBoolean(SettingsActivity.KEY_PREF_DISABLE_CURRENT, true)
-            ) {
+            if (PreferenceManager.getDefaultSharedPreferences(applicationContext).getBoolean(SettingsActivity.KEY_PREF_DISABLE_CURRENT, true))
                 ActivityHelper.helper.currentActivity = null
-            } else {
-                val i = Intent(this@MainActivity, EventDetailActivity::class.java)
-                // no diaryEntryID will edit the last one
-                startActivity(i)
-            }
+            else startActivity(Intent(this@MainActivity, EventDetailActivity::class.java))
         }
         val value = TypedValue()
         theme.resolveAttribute(android.R.attr.listPreferredItemHeightSmall, value, true)
@@ -144,44 +135,43 @@ class MainActivity : BaseActivity(),
         supportActionBar!!.subtitle = resources.getString(R.string.activity_subtitle_main)
         likelyhoodSort()
         binding.fabAttachPicture.setOnClickListener { _: View? ->
-            // Handle the click on the FAB
-            if (viewModel!!.currentActivity() != null && viewModel!!.currentActivity().value != null) {
+            if (viewModel?.currentActivity()?.value != null) {
                 val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                if (takePictureIntent.resolveActivity(packageManager) != null) {
+                try {
                     val photoFile = createImageFile()
                     Log.i(TAG, "create file for image capture " + photoFile.absolutePath)
-
-                    // Continue only if the File was successfully created
-                    // Save a file: path for use with ACTION_VIEW intents
                     mCurrentPhotoPath = photoFile.absolutePath
-                    val photoURI = FileProvider.getUriForFile(
-                        this@MainActivity,
-                        BuildConfig.APPLICATION_ID + ".fileprovider",
-                        photoFile
-                    )
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                    takePictureIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    val photoURI = FileProvider.getUriForFile(this@MainActivity, "${BuildConfig.APPLICATION_ID}.fileprovider", photoFile)
+                    takePictureIntent.apply {
+                        putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                        clipData = ClipData.newRawUri("photo_uri", photoURI)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    }
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-                }
-            } else Toast.makeText(
-                this@MainActivity,
-                resources.getString(R.string.no_active_activity_error),
-                Toast.LENGTH_LONG
-            ).show()
+                } catch (e: ActivityNotFoundException) { Log.e(TAG, "No camera app found to handle capture intent", e)
+                } catch (e: Exception) { Log.e(TAG, "Error creating photo file", e) }
+            } else Toast.makeText(this@MainActivity, resources.getString(R.string.no_active_activity_error), Toast.LENGTH_LONG).show()
         }
         val pm = packageManager
         if (pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) binding.fabAttachPicture.show() else binding.fabAttachPicture.hide()
 
         // Get the intent, verify the action and get the search query
         val intent = intent
-        if (Intent.ACTION_SEARCH == intent.action) {
-            val query = intent.getStringExtra(SearchManager.QUERY)
-            filterActivityView(query)
-        }
+        if (Intent.ACTION_SEARCH == intent.action) filterActivityView(intent.getStringExtra(SearchManager.QUERY))
         // TODO: this is crazy to call onActivityChagned here,
         //  as it reloads the statistics and refills the viewModel...
         //  Completely against the idea of the viewmodel :-(
         onActivityChanged() /* do this at the very end to ensure that no Loader finishes its data loading before */
+    }
+
+    fun checkLocationPermission() {
+        val value = PreferenceManager.getDefaultSharedPreferences(applicationContext).getString(KEY_PREF_USE_LOCATION, "off")
+        val needPermission = when (value) {
+            "gps" -> ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_FINE_LOCATION)
+            "network" -> ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.ACCESS_COARSE_LOCATION)
+            else -> PackageManager.PERMISSION_GRANTED
+        }
+        if (needPermission != PackageManager.PERMISSION_GRANTED) Toast.makeText(this, R.string.location_perm_no_sum, Toast.LENGTH_LONG).show()
     }
 
     public override fun onResume() {
@@ -191,6 +181,7 @@ class MainActivity : BaseActivity(),
         super.onResume()
         selectAdapter!!.notifyDataSetChanged() // redraw the complete recyclerview
         ActivityHelper.helper.evaluateAllConditions() // this is quite heavy and I am not so sure whether it is a good idea to do it unconditionally here...
+        checkLocationPermission()
     }
 
     public override fun onPause() {
@@ -236,16 +227,15 @@ class MainActivity : BaseActivity(),
         if (viewModel!!.currentActivity().value != null) {
             binding.row.name.text = viewModel!!.currentActivity().value!!.mName
             binding.row.background.setBackgroundColor(viewModel!!.currentActivity().value!!.mColor)
-            binding.row.name.setTextColor(
-                textColorOnBackground(viewModel!!.currentActivity().value!!.mColor))
-            viewModel!!.mNote.setValue(ActivityHelper.helper.currentNote)
+            binding.row.name.setTextColor(textColorOnBackground(viewModel!!.currentActivity().value!!.mColor))
+            viewModel!!.mNote.value = ActivityHelper.helper.currentNote
         } else {
             val col = ContextCompat.getColor(applicationContext, R.color.colorPrimary)
             binding.row.name.text = resources.getString(R.string.activity_title_no_selected_act)
             binding.row.background.setBackgroundColor(col)
             binding.row.name.setTextColor(textColorOnBackground(col))
             viewModel!!.mDuration.value = "-"
-            viewModel!!.mNote.setValue("")
+            viewModel!!.mNote.value = ""
         }
         layoutManager!!.scrollToPosition(0)
     }
@@ -255,7 +245,6 @@ class MainActivity : BaseActivity(),
         val a = viewModel!!.mCurrentActivity.value
         if (a != null) {
             val id = a.mId
-
 //            TODO: need better display format
             val end = System.currentTimeMillis()
             val oneDayAgo = end - DateHelper.DAY_IN_MS
@@ -337,31 +326,22 @@ class MainActivity : BaseActivity(),
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_add_activity) {
-            startActivity(Intent(this, EditActivity::class.java))
-        }
+        if (item.itemId == R.id.action_add_activity) startActivity(Intent(this, EditActivity::class.java))
         return super.onOptionsItemSelected(item)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        if (Intent.ACTION_SEARCH == intent.action) {
-            val query = intent.getStringExtra(SearchManager.QUERY)
-            filterActivityView(query)
-        }
-        if (intent.hasExtra("SELECT_ACTIVITY_WITH_ID")) {
-            val id = intent.getIntExtra("SELECT_ACTIVITY_WITH_ID", -1)
-            ActivityHelper.helper.currentActivity = ActivityHelper.helper.activityWithId(id)
-        }
+        if (Intent.ACTION_SEARCH == intent.action) filterActivityView(intent.getStringExtra(SearchManager.QUERY))
+        if (intent.hasExtra("SELECT_ACTIVITY_WITH_ID"))
+            ActivityHelper.helper.currentActivity = ActivityHelper.helper.activityWithId(intent.getIntExtra("SELECT_ACTIVITY_WITH_ID", -1))
     }
 
     private fun filterActivityView(query: String?) {
         filter = query
-        if (filter == null || filter!!.isEmpty()) {
-            likelyhoodSort()
-        } else {
+        if (filter == null || filter!!.isEmpty()) likelyhoodSort()
+        else {
             val filtered = ActivityHelper.sortedActivities(query!!)
-            //
             selectAdapter = SelectRecyclerViewAdapter(this@MainActivity, filtered)
             binding.selectRecycler.swapAdapter(selectAdapter, false)
             binding.selectRecycler.scrollToPosition(0)
@@ -372,9 +352,7 @@ class MainActivity : BaseActivity(),
         if (selectAdapter == null || selectAdapter != binding.selectRecycler.adapter) {
             selectAdapter = SelectRecyclerViewAdapter(this@MainActivity, ActivityHelper.helper.activities)
             binding.selectRecycler.swapAdapter(selectAdapter, false)
-        } else {
-            selectAdapter!!.setActivities(ActivityHelper.helper.activities)
-        }
+        } else selectAdapter!!.setActivities(ActivityHelper.helper.activities)
     }
 
     override fun onClose(): Boolean {
@@ -396,13 +374,7 @@ class MainActivity : BaseActivity(),
     override fun onNoteEditPositiveClick(str: String?, dialog: DialogFragment?) {
         val values = ContentValues()
         values.put(Contract.Diary.NOTE, str)
-        mQHandler!!.startUpdate(
-            0,
-            null,
-            viewModel!!.currentDiaryUri,
-            values,
-            null, null
-        )
+        mQHandler!!.startUpdate(0, null, viewModel!!.currentDiaryUri, values, null, null)
         viewModel!!.mNote.postValue(str)
         ActivityHelper.helper.currentNote = str
     }
@@ -413,20 +385,11 @@ class MainActivity : BaseActivity(),
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             if (mCurrentPhotoPath != null && viewModel!!.currentDiaryUri != null) {
                 compressAndSaveImage(mCurrentPhotoPath!!)
-                val photoURI = FileProvider.getUriForFile(
-                    this@MainActivity,
-                    BuildConfig.APPLICATION_ID + ".fileprovider",
-                    File(mCurrentPhotoPath!!)
-                )
+                val photoURI = FileProvider.getUriForFile(this@MainActivity, BuildConfig.APPLICATION_ID + ".fileprovider", File(mCurrentPhotoPath!!))
                 val values = ContentValues()
                 values.put(Contract.DiaryImage.URI, photoURI.toString())
                 values.put(Contract.DiaryImage.DIARY_ID, viewModel!!.currentDiaryUri!!.lastPathSegment)
-                mQHandler!!.startInsert(
-                    0,
-                    null,
-                    Contract.DiaryImage.CONTENT_URI,
-                    values
-                )
+                mQHandler!!.startInsert(0, null, Contract.DiaryImage.CONTENT_URI, values)
             }
         }
     }
@@ -445,33 +408,30 @@ class MainActivity : BaseActivity(),
         override fun getItem(position: Int): Fragment {
             return mFragmentList[position]
         }
-
         override fun getCount(): Int {
             return mFragmentList.size
         }
-
         fun addFragment(fragment: Fragment, title: String) {
             mFragmentList.add(fragment)
             mFragmentTitleList.add(title)
         }
-
         override fun getPageTitle(position: Int): CharSequence {
             return mFragmentTitleList[position]
         }
     }
 
     private class MainAsyncQueryHandler(cr: ContentResolver?, val viewModel: DetailViewModel?) : AsyncQueryHandler(cr) {
-        override fun startQuery(
-            token: Int,
-            cookie: Any,
-            uri: Uri,
-            projection: Array<String>,
-            selection: String,
-            selectionArgs: Array<String>,
-            orderBy: String?
-        ) {
-            super.startQuery(token, cookie, uri, projection, selection, selectionArgs, orderBy)
-        }
+//        override fun startQuery(
+//            token: Int,
+//            cookie: Any,
+//            uri: Uri,
+//            projection: Array<String>,
+//            selection: String,
+//            selectionArgs: Array<String>,
+//            orderBy: String?
+//        ) {
+//            super.startQuery(token, cookie, uri, projection, selection, selectionArgs, orderBy)
+//        }
 
         override fun onQueryComplete(token: Int, cookie: Any?, cursor: Cursor) {
             super.onQueryComplete(token, cookie, cursor)
@@ -492,14 +452,14 @@ class MainActivity : BaseActivity(),
                 } else if (token == QUERY_CURRENT_ACTIVITY_TOTAL) {
                     if (cookie != null) {
                         val p = cookie as StatParam
-                        @SuppressLint("Range") val total =
-                            cursor.getLong(cursor.getColumnIndex(Contract.DiaryStats.DURATION))
+                        @SuppressLint("Range")
+                        val total = cursor.getLong(cursor.getColumnIndex(Contract.DiaryStats.DURATION))
                         var x = dateFormat(p.field).format(p.end)
                         x = x + ": " + format(total)
                         when (p.field) {
-                            Calendar.DAY_OF_YEAR -> viewModel!!.mTotalToday.setValue(x)
-                            Calendar.WEEK_OF_YEAR -> viewModel!!.mTotalWeek.setValue(x)
-                            Calendar.MONTH -> viewModel!!.mTotalMonth.setValue(x)
+                            Calendar.DAY_OF_YEAR -> viewModel!!.mTotalToday.value = x
+                            Calendar.WEEK_OF_YEAR -> viewModel!!.mTotalWeek.value = x
+                            Calendar.MONTH -> viewModel!!.mTotalMonth.value = x
                             else -> {}
                         }
                     }

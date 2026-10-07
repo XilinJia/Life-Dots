@@ -22,14 +22,21 @@ package com.mdiqentw.lifedots.helpers
 import android.Manifest
 import android.app.job.JobInfo
 import android.app.job.JobScheduler
-import android.content.*
+import android.content.AsyncQueryHandler
+import android.content.ComponentName
+import android.content.ContentValues
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.os.*
-import android.os.Handler.Callback
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
@@ -37,11 +44,16 @@ import com.mdiqentw.lifedots.MVApplication
 import com.mdiqentw.lifedots.db.Contract
 import com.mdiqentw.lifedots.helpers.DateHelper.DAY_IN_MS
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
-import java.util.*
-import kotlin.math.*
+import java.util.Calendar
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.roundToInt
+import kotlin.math.sin
+import kotlin.math.sqrt
 
-class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResolver),
-    LocationListener, OnSharedPreferenceChangeListener {
+class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResolver), LocationListener, OnSharedPreferenceChangeListener {
 
     private var startTime: Long = 0
     private var stopTime: Long = 24
@@ -49,10 +61,8 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
     private var minDist = 0f
     private var setting: String? = null
     var currentLocation: Location private set
-    private val locationManager: LocationManager =
-        MVApplication.appContext!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    private val sharedPreferences: SharedPreferences =
-        PreferenceManager.getDefaultSharedPreferences(MVApplication.appContext!!)
+    private val locationManager: LocationManager = MVApplication.appContext!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(MVApplication.appContext!!)
     private val mHandler: Handler
 
     private lateinit var refreshJobInfo: JobInfo
@@ -60,20 +70,11 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
     fun isOutOfHours() : Boolean {
         val cal: Calendar = Calendar.getInstance()
         val hourofday = cal[Calendar.HOUR_OF_DAY]
-
         if (startTime < stopTime) {
-            if (hourofday < startTime || hourofday > stopTime) {
-//                println("no location tracking out of hour $startTime $stopTime")
-                return true
-            }
+            if (hourofday !in startTime..stopTime) return true
         } else if (startTime > stopTime)  {
-            if (hourofday > startTime || hourofday < stopTime) {
-//                println("no location tracking out of hour $startTime $stopTime")
-                return true
-            }
+            if (hourofday !in stopTime..startTime) return true
         }
-
-//        println("location tracking in hour $startTime $stopTime")
         return false
     }
 
@@ -83,27 +84,20 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
 
     fun updateLocation(scheduled : Boolean) {
         if (setting == "off") return
-
         if (scheduled && isOutOfHours()) return
-
-        println("LocationHelper: getting location")
 
         var permissionCheckFine = PackageManager.PERMISSION_DENIED
         var permissionCheckCoarse = PackageManager.PERMISSION_DENIED
         if (setting == "gps" && locationManager.allProviders.contains(LocationManager.GPS_PROVIDER)) {
-            permissionCheckFine = ContextCompat.checkSelfPermission(MVApplication.appContext!!,
-                Manifest.permission.ACCESS_FINE_LOCATION)
+            permissionCheckFine = ContextCompat.checkSelfPermission(MVApplication.appContext!!, Manifest.permission.ACCESS_FINE_LOCATION)
             permissionCheckCoarse = permissionCheckFine
-        } else if (locationManager.allProviders.contains(LocationManager.NETWORK_PROVIDER)) {
-            permissionCheckCoarse = ContextCompat.checkSelfPermission(MVApplication.appContext!!,
-                Manifest.permission.ACCESS_COARSE_LOCATION)
-        }
+        } else if (locationManager.allProviders.contains(LocationManager.NETWORK_PROVIDER))
+            permissionCheckCoarse = ContextCompat.checkSelfPermission(MVApplication.appContext!!, Manifest.permission.ACCESS_COARSE_LOCATION)
+
 
         var locationProvider = ""
-        if (permissionCheckFine == PackageManager.PERMISSION_GRANTED)
-            locationProvider = LocationManager.GPS_PROVIDER
-        else if (permissionCheckCoarse == PackageManager.PERMISSION_GRANTED)
-            locationProvider = LocationManager.NETWORK_PROVIDER
+        if (permissionCheckFine == PackageManager.PERMISSION_GRANTED) locationProvider = LocationManager.GPS_PROVIDER
+        else if (permissionCheckCoarse == PackageManager.PERMISSION_GRANTED) locationProvider = LocationManager.NETWORK_PROVIDER
 
         if (locationProvider.isNotBlank()) {
             val location = locationManager.getLastKnownLocation(locationProvider)
@@ -111,8 +105,6 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
             var updated = false
             if (location != null) {
                 locAge = System.currentTimeMillis() - location.time
-//                println("LastLocation: " + location.longitude + ":" + location.latitude + " " + locAge)
-
                 if (locAge < minTime && location.time != currentLocation.time) {
                     onLocationChanged(location)
                     updated = true
@@ -124,20 +116,12 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
                 distance(location, currentLocation) > minDist) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 //                    println("calling getCurrentLocation")
-                    locationManager.getCurrentLocation(locationProvider,
-                        null,
-                        MVApplication.appContext!!.mainExecutor
-                    ) {
+                    locationManager.getCurrentLocation(locationProvider, null, MVApplication.appContext!!.mainExecutor) {
                         fun accept(location: Location) {
                             onLocationChanged(location)
                         }
                     }
-                } else {
-//                    println("calling requestSingleUpdate")
-                    @Suppress("DEPRECATION")
-                    locationManager.requestSingleUpdate(
-                        locationProvider, this, Looper.getMainLooper())
-                }
+                } else locationManager.requestSingleUpdate(locationProvider, this, Looper.getMainLooper())
             }
         }
     }
@@ -167,14 +151,10 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
 
         val latDistance = Math.toRadians(lat2 - lat1)
         val lonDistance = Math.toRadians(lon2 - lon1)
-        val a = (sin(latDistance / 2) * sin(latDistance / 2)
-                + (cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2))
-                * sin(lonDistance / 2) * sin(lonDistance / 2)))
+        val a = (sin(latDistance / 2) * sin(latDistance / 2) + (cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2)) * sin(lonDistance / 2) * sin(lonDistance / 2)))
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         var distance: Double = ra * c * 1000 // convert to meters
-
         val height: Double = el1 - el2
-
         distance = distance.pow(2.0) + height.pow(2.0)
 
         return sqrt(distance)
@@ -203,8 +183,7 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
 //                location.longitude + " " + location.latitude + " " +
 //                distFromCur + " " + minDist)
 
-        if (System.currentTimeMillis() - currentLocation.time < DAY_IN_MS &&
-            distFromCur < minDist) return
+        if (System.currentTimeMillis() - currentLocation.time < DAY_IN_MS && distFromCur < minDist) return
 
 //        println("Adding location point: " + location.time + " " + location.longitude + " " + location.latitude)
         val values = ContentValues()
@@ -213,27 +192,17 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
         values.put(Contract.DiaryLocation.LATITUDE, location.latitude)
         values.put(Contract.DiaryLocation.LONGITUDE, location.longitude)
 
-        if (location.hasAccuracy()) {
-            values.put(Contract.DiaryLocation.HACC, (location.accuracy * 10).roundToInt())
-        }
+        if (location.hasAccuracy()) values.put(Contract.DiaryLocation.HACC, (location.accuracy * 10).roundToInt())
         if (location.hasSpeed()) {
             values.put(Contract.DiaryLocation.SPEED, location.speed)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (location.hasSpeedAccuracy()) {
-                    values.put(Contract.DiaryLocation.SACC,
-                        (location.speedAccuracyMetersPerSecond * 10).roundToInt()
-                    )
-                }
+                if (location.hasSpeedAccuracy()) values.put(Contract.DiaryLocation.SACC, (location.speedAccuracyMetersPerSecond * 10).roundToInt())
             }
         }
         if (location.hasAltitude()) {
             values.put(Contract.DiaryLocation.ALTITUDE, location.altitude)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (location.hasVerticalAccuracy()) {
-                    values.put(Contract.DiaryLocation.VACC,
-                        (location.verticalAccuracyMeters * 10).roundToInt()
-                    )
-                }
+                if (location.hasVerticalAccuracy()) values.put(Contract.DiaryLocation.VACC, (location.verticalAccuracyMeters * 10).roundToInt())
             }
         }
 
@@ -299,12 +268,9 @@ class LocationHelper : AsyncQueryHandler(MVApplication.appContext!!.contentResol
         builder.setMinimumLatency(minTime)
         refreshJobInfo = builder.build()
 //        println("Job scheduled: $minTime")
-        val jobScheduler = MVApplication.appContext!!
-            .getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        val jobScheduler = MVApplication.appContext!!.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         val resultCode = jobScheduler.schedule(refreshJobInfo)
-        if (resultCode != JobScheduler.RESULT_SUCCESS) {
-            Log.w(TAG, "RefreshJob not scheduled")
-        }
+        if (resultCode != JobScheduler.RESULT_SUCCESS) Log.w(TAG, "RefreshJob not scheduled")
     }
 
     companion object {

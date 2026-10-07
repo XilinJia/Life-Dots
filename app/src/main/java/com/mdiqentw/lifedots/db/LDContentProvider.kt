@@ -22,7 +22,11 @@ package com.mdiqentw.lifedots.db
 
 import android.annotation.SuppressLint
 import android.app.SearchManager
-import android.content.*
+import android.content.ContentProvider
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Intent
+import android.content.UriMatcher
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.database.SQLException
@@ -34,8 +38,9 @@ import android.util.Log
 import com.mdiqentw.lifedots.R
 import com.mdiqentw.lifedots.helpers.ActivityHelper
 import com.mdiqentw.lifedots.helpers.ActivityHelper.Companion.sortedActivities
-import java.util.*
 import java.util.regex.Pattern
+import androidx.core.net.toUri
+import java.util.Arrays
 
 /*
  * Why a new Content Provider for Diary Activites?
@@ -44,43 +49,25 @@ import java.util.regex.Pattern
  * we need it to do searching, synching or widget use of the data -> which in the long we all want to do.
  *
  * Additionally it is used as SearchProvider these days.
- * */
-class LDContentProvider : ContentProvider() {
+ */
+class LDContentProvider: ContentProvider() {
     private var mOpenHelper: LocalDBHelper? = null
     override fun onCreate(): Boolean {
         mOpenHelper = LocalDBHelper(context)
-        return true /* successfully loaded */
+        return true
     }
 
-    override fun query(
-        uri: Uri,
-        projection: Array<String>?,
-        selection: String?,
-        selectionArgs: Array<String>?,
-        sortOrder: String?
-    ): Cursor? {
-        var selection = selection
-        var selectionArgs = selectionArgs
-        var sortOrder = sortOrder
+    override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
+        var selection_ = selection ?: ""
+        var selectionArgs_ = selectionArgs
+        var sortOrder_ = sortOrder
         val qBuilder = SQLiteQueryBuilder()
         var useRawQuery = false
         var grouping: String? = null
         var sql = ""
         val c: Cursor?
         var id = 0
-        if (selection == null) {
-            selection = ""
-        }
-        val result = MatrixCursor(
-            arrayOf(
-                BaseColumns._ID,
-                SearchManager.SUGGEST_COLUMN_TEXT_1,
-                SearchManager.SUGGEST_COLUMN_ICON_1,
-                SearchManager.SUGGEST_COLUMN_INTENT_ACTION,
-                SearchManager.SUGGEST_COLUMN_INTENT_DATA,
-                SearchManager.SUGGEST_COLUMN_QUERY
-            )
-        )
+        val result = MatrixCursor(arrayOf(BaseColumns._ID, SearchManager.SUGGEST_COLUMN_TEXT_1, SearchManager.SUGGEST_COLUMN_ICON_1, SearchManager.SUGGEST_COLUMN_INTENT_ACTION, SearchManager.SUGGEST_COLUMN_INTENT_DATA, SearchManager.SUGGEST_COLUMN_QUERY))
         if (sUriMatcher.match(uri) < 1) {
             /* URI is not recognized, return an empty Cursor */
             result.close()
@@ -88,8 +75,8 @@ class LDContentProvider : ContentProvider() {
         }
         when (sUriMatcher.match(uri)) {
             ACTIVITIES_ID, CONDITIONS_ID, DIARY_ID, DIARY_IMAGE_ID, DIARY_LOCATION_ID -> {
-                selection = "$selection AND "
-                selection = selection + "_id=" + uri.lastPathSegment
+                selection_ = "$selection_ AND "
+                selection_ = selection_ + "_id=" + uri.lastPathSegment
             }
 
             else -> {}
@@ -99,8 +86,8 @@ class LDContentProvider : ContentProvider() {
                 var n: Int
                 var hasDiaryJoin = false
                 var tables = Contract.DiaryActivity.TABLE_NAME
-                if (TextUtils.isEmpty(sortOrder)) {
-                    sortOrder = Contract.DiaryActivity.SORT_ORDER_DEFAULT
+                if (TextUtils.isEmpty(sortOrder_)) {
+                    sortOrder_ = Contract.DiaryActivity.SORT_ORDER_DEFAULT
                 }
                 n = 0
                 while (n < projection!!.size) {
@@ -126,11 +113,11 @@ class LDContentProvider : ContentProvider() {
                         }
                         n++
                     }
-                    selection = selection.replace(
+                    selection_ = selection_.replace(
                         (" " + Contract.DiaryActivityColumns._ID).toRegex(),
                         " " + Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivityColumns._ID
                     )
-                    selection = selection.replace(
+                    selection_ = selection_.replace(
                         Contract.DiaryActivityColumns._DELETED.toRegex(),
                         Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivityColumns._DELETED
                     )
@@ -146,8 +133,8 @@ class LDContentProvider : ContentProvider() {
                                 + ")"
                                 + " WHERE " + Contract.Diary.TABLE_NAME + "." + Contract.DiaryColumns.END + " = xx_ref_end"
                                 + ")")
-                    selection =
-                        (selection + " AND " + Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivityColumns._ID + " = " + Contract.Diary.TABLE_NAME + "." + Contract.DiaryColumns.ACT_ID
+                    selection_ =
+                        (selection_ + " AND " + Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivityColumns._ID + " = " + Contract.Diary.TABLE_NAME + "." + Contract.DiaryColumns.ACT_ID
                                 + " AND " + Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivityColumns._ID + " = xx_ref")
                     grouping = Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivityColumns._ID
                 }
@@ -156,12 +143,12 @@ class LDContentProvider : ContentProvider() {
 
             DIARY_IMAGE_ID, DIARY_IMAGE -> {
                 qBuilder.tables = Contract.DiaryImage.TABLE_NAME
-                if (TextUtils.isEmpty(sortOrder)) sortOrder = Contract.DiaryImage.SORT_ORDER_DEFAULT
+                if (TextUtils.isEmpty(sortOrder_)) sortOrder_ = Contract.DiaryImage.SORT_ORDER_DEFAULT
             }
 
             DIARY_LOCATION_ID, DIARY_LOCATION -> {
                 qBuilder.tables = Contract.DiaryLocation.TABLE_NAME
-                if (TextUtils.isEmpty(sortOrder)) sortOrder = Contract.DiaryLocation.SORT_ORDER_DEFAULT
+                if (TextUtils.isEmpty(sortOrder_)) sortOrder_ = Contract.DiaryLocation.SORT_ORDER_DEFAULT
             }
 
             DIARY_ID, DIARY -> {
@@ -170,7 +157,7 @@ class LDContentProvider : ContentProvider() {
                             Contract.DiaryActivity.TABLE_NAME + " ON " +
                             Contract.Diary.TABLE_NAME + "." + Contract.DiaryColumns.ACT_ID + " = " +
                             Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivityColumns._ID
-                if (TextUtils.isEmpty(sortOrder)) sortOrder = Contract.Diary.SORT_ORDER_DEFAULT
+                if (TextUtils.isEmpty(sortOrder_)) sortOrder_ = Contract.Diary.SORT_ORDER_DEFAULT
             }
 
             DIARY_STATS -> {
@@ -193,8 +180,8 @@ class LDContentProvider : ContentProvider() {
                     ("SELECT SUM(MIN(IFNULL(" + Contract.DiaryColumns.END + ",strftime('%s','now') * 1000), " + end + ") - "
                             + "MAX(" + Contract.DiaryColumns.START + ", " + start + ")) from " + Contract.Diary.TABLE_NAME
                             + " WHERE ((start >= " + start + " AND start < " + end + ") OR (end > " + start + " AND end <= " + end + ") OR (start < " + start + " AND end > " + end + "))")
-                if (selection.isNotEmpty()) {
-                    subselect += " AND ($selection)"
+                if (selection_.isNotEmpty()) {
+                    subselect += " AND ($selection_)"
                 }
                 sql =
                     ("SELECT " + Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivityJoinableColumns.NAME + " as " + Contract.DiaryStats.NAME
@@ -205,15 +192,15 @@ class LDContentProvider : ContentProvider() {
                             + " FROM " + Contract.Diary.TABLE_NAME + ", " + Contract.DiaryActivity.TABLE_NAME
                             + " WHERE " + Contract.Diary.TABLE_NAME + "." + Contract.DiaryColumns.ACT_ID + " = " + Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivityColumns._ID + " AND"
                             + " ((start >= " + start + " AND start < " + end + ") OR (end > " + start + " AND end <= " + end + ") OR (start < " + start + " AND end > " + end + "))")
-                if (selection.isNotEmpty()) {
-                    sql += " AND ($selection)"
-                    val newArgs = Arrays.copyOf(selectionArgs!!, selectionArgs.size * 2)
-                    System.arraycopy(selectionArgs, 0, newArgs, selectionArgs.size, selectionArgs.size)
-                    selectionArgs = newArgs
+                if (selection_.isNotEmpty()) {
+                    sql += " AND ($selection_)"
+                    val newArgs = Arrays.copyOf(selectionArgs_!!, selectionArgs_.size * 2)
+                    System.arraycopy(selectionArgs_, 0, newArgs, selectionArgs_.size, selectionArgs_.size)
+                    selectionArgs_ = newArgs
                 }
                 sql += " GROUP BY " + Contract.DiaryActivity.TABLE_NAME + "." + Contract.DiaryActivityColumns._ID
-                if (!sortOrder.isNullOrEmpty()) {
-                    sql += " ORDER by $sortOrder"
+                if (!sortOrder_.isNullOrEmpty()) {
+                    sql += " ORDER by $sortOrder_"
                 }
             }
 
@@ -222,8 +209,8 @@ class LDContentProvider : ContentProvider() {
                         Contract.DiarySearchSuggestion.ACTION + " FROM " +
                         Contract.DiarySearchSuggestion.TABLE_NAME +
                         " ORDER BY " + Contract.DiarySearchSuggestion._ID + " DESC"
-                c = mOpenHelper!!.readableDatabase.rawQuery(sql, selectionArgs)
-                if (c != null && c.moveToFirst()) {
+                c = mOpenHelper!!.readableDatabase.rawQuery(sql, selectionArgs_)
+                if (c.moveToFirst()) {
                     do {
                         var icon: Any? = null
                         val action = c.getString(1)
@@ -234,17 +221,14 @@ class LDContentProvider : ContentProvider() {
                                 val i = q.toInt()
                                 q = ActivityHelper.helper.activityWithId(i)!!.mName
                             }
-
                             SEARCH_NOTE -> {
                                 q = context!!.resources.getString(R.string.search_notes, q)
                                 icon = R.drawable.ic_search
                             }
-
                             SEARCH_GLOBAL, Intent.ACTION_SEARCH -> {
                                 q = context!!.resources.getString(R.string.search_diary, q)
                                 icon = R.drawable.ic_search
                             }
-
                             SEARCH_DATE -> {
                                 q = context!!.resources.getString(R.string.search_date, q)
                                 icon = R.drawable.ic_calendar
@@ -340,16 +324,16 @@ class LDContentProvider : ContentProvider() {
             else -> {}
         }
         c = if (useRawQuery) {
-            mOpenHelper!!.readableDatabase.rawQuery(sql, selectionArgs)
+            mOpenHelper!!.readableDatabase.rawQuery(sql, selectionArgs_)
         } else {
             qBuilder.query(
                 mOpenHelper!!.readableDatabase,
                 projection,
-                selection,
-                selectionArgs,
+                selection_,
+                selectionArgs_,
                 grouping,
                 null,
-                sortOrder
+                sortOrder_
             )
         }
         c.setNotificationUri(context!!.contentResolver, uri)
@@ -424,7 +408,7 @@ class LDContentProvider : ContentProvider() {
             resultUri
         } else {
             throw SQLException(
-                "Problem while inserting into uri: " + uri + " values " + values.toString()
+                "Problem while inserting into uri: $uri values $values"
             )
         }
     }
@@ -659,7 +643,7 @@ class LDContentProvider : ContentProvider() {
         const val SEARCH_DATE = "com.mdiqentw.lifedots.action.SEARCH_DATE"
 
         // TODO: isn't this already somewhere else?
-        val SEARCH_URI = Uri.parse("content://" + Contract.AUTHORITY)
+        val SEARCH_URI = ("content://" + Contract.AUTHORITY).toUri()
         private val sUriMatcher = UriMatcher(UriMatcher.NO_MATCH)
         private val plusPattern = Pattern.compile("^/+")
 

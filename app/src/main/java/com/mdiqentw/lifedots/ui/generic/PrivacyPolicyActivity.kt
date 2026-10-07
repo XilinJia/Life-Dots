@@ -19,7 +19,6 @@
  */
 package com.mdiqentw.lifedots.ui.generic
 
-import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
@@ -74,11 +73,7 @@ class PrivacyPolicyActivity : BaseActivity() {
         mergedPolicyText += "<h2>" + resources.getString(R.string.privacy_contact_title) + "</h2>"
         mergedPolicyText += "<p>" + resources.getString(R.string.privacy_contact_address) + "</p>"
         mergedPolicyText += "<p>" + resources.getString(R.string.privacy_contact_email) + "</p>"
-        if (Build.VERSION.SDK_INT >= 24) {
-            policyText.text = Html.fromHtml(mergedPolicyText, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            policyText.text = Html.fromHtml(mergedPolicyText)
-        }
+        policyText.text = Html.fromHtml(mergedPolicyText, Html.FROM_HTML_MODE_LEGACY)
         policyText.movementMethod = LinkMovementMethod.getInstance()
         mDrawerToggle.isDrawerIndicatorEnabled = false
     }

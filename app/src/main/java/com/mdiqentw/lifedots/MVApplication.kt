@@ -25,9 +25,6 @@ import android.content.Context
 import android.graphics.Color
 import com.mdiqentw.lifedots.helpers.GraphicsHelper
 
-//import org.acra.*;
-//import org.acra.annotation.*;
-//import org.acra.data.StringFormat;
 class MVApplication : Application() {
     override fun onCreate() {
         super.onCreate()

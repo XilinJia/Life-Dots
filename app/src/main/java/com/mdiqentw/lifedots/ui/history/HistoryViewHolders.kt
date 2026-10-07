@@ -59,9 +59,7 @@ class HistoryViewHolders(val detailLoaderID: Int, listener: HistoryRecyclerViewA
 
     override fun onLongClick(view: View): Boolean {
         val position = bindingAdapterPosition
-        return if (position != RecyclerView.NO_POSITION) {
-            mListener.onItemLongClick(this, position, diaryEntryID)
-        } else false
+        return position != RecyclerView.NO_POSITION && mListener.onItemLongClick(this, position, diaryEntryID)
     }
 
     init {

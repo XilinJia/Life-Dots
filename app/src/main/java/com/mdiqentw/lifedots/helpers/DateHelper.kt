@@ -23,7 +23,7 @@ import com.mdiqentw.lifedots.MVApplication
 import com.mdiqentw.lifedots.R
 import java.lang.RuntimeException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
 
 object DateHelper {
     const val FULLDAY = 3324

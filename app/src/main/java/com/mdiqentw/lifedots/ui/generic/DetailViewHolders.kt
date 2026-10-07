@@ -46,9 +46,7 @@ class DetailViewHolders(listener: SelectListener, bind: DetailRecyclerItemBindin
 
     override fun onLongClick(v: View): Boolean {
         val position = bindingAdapterPosition
-        return if (position != RecyclerView.NO_POSITION) {
-            mListener.onDetailItemLongClick(position)
-        } else false
+        return position != RecyclerView.NO_POSITION && mListener.onDetailItemLongClick(position)
     }
 
     init {

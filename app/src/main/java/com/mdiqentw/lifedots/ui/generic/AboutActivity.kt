@@ -19,7 +19,6 @@
  */
 package com.mdiqentw.lifedots.ui.generic
 
-import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.text.method.LinkMovementMethod
@@ -58,11 +57,7 @@ class AboutActivity : BaseActivity() {
         mergedAboutText += "<h1>" + resources.getString(R.string.about_text_lib_h) + "</h1>"
         mergedAboutText += "<p>" + resources.getString(R.string.about_text_lib) + "</p>"
         mergedAboutText += "<p>$libraries</p>"
-        if (Build.VERSION.SDK_INT >= 24) {
-            aboutText.text = Html.fromHtml(mergedAboutText, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            aboutText.text = Html.fromHtml(mergedAboutText)
-        }
+        aboutText.text = Html.fromHtml(mergedAboutText, Html.FROM_HTML_MODE_LEGACY)
         aboutText.movementMethod = LinkMovementMethod.getInstance()
         mDrawerToggle.isDrawerIndicatorEnabled = false
     }

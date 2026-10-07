@@ -39,7 +39,7 @@ import com.mdiqentw.lifedots.db.Contract
 import com.mdiqentw.lifedots.helpers.GraphicsHelper
 import com.squareup.picasso.Picasso
 import java.io.File
-
+import androidx.core.net.toUri
 
 class DetailRecyclerViewAdapter(act: BaseActivity, details: Cursor?) :
     RecyclerView.Adapter<DetailViewHolders>(), DetailViewHolders.SelectListener {
@@ -67,7 +67,7 @@ class DetailRecyclerViewAdapter(act: BaseActivity, details: Cursor?) :
         val s: String
         if (uriRowIdx >= 0) {
             s = mCursor!!.getString(uriRowIdx)
-            val i = Uri.parse(s)
+            val i = s.toUri()
             Picasso.get().load(i)
                     .rotate(GraphicsHelper.getFileExifRotation(i).toFloat())
                     .resize(500, 500)

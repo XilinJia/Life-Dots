@@ -26,6 +26,7 @@ import com.mdiqentw.lifedots.helpers.ActivityHelper
 import com.mdiqentw.lifedots.helpers.ActivityHelper.DataChangedListener
 import com.mdiqentw.lifedots.model.DiaryActivity
 import com.mdiqentw.lifedots.ui.settings.SettingsActivity
+import java.util.Locale
 import kotlin.math.max
 
 /**
@@ -68,7 +69,7 @@ open class GlobalOccurrenceCondition(helper: ActivityHelper) : Condition(), Data
             while (!c.isAfterLast) {
                 val a = ActivityHelper.helper.activityWithId(c.getInt(0))
                 if (a == null) {
-                    Log.i("doEvaluation", String.format("ID: %d links to no activity %d", c.getInt(0), c.getInt(1)))
+                    Log.i("doEvaluation", String.format(Locale.getDefault(), "ID: %d links to no activity %d", c.getInt(0), c.getInt(1)))
                 } else {
                     total += c.getInt(1)
                     max = max(max, c.getInt(1).toLong())
